@@ -14,11 +14,14 @@ get_clean_variant_data(
 }
 \arguments{
 \item{raw_variant_data}{Data.frame of latest data extracted directly from
-next straing}
+next strain}
 
 \item{clade_list}{Vector of character strings of the clade names}
 
 \item{location_data}{Data.frame of location information}
+
+\item{nowcast_dates}{Vector of character strings indicate the date range of
+the data.}
 
 \item{nowcast_days}{Number of days we nowcast, default is \code{31}.}
 }

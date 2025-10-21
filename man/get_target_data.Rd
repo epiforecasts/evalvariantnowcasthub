@@ -12,11 +12,11 @@ get_target_data(hub_path, nowcast_dates, states = NULL)
 
 \item{nowcast_dates}{Vector of character strings of dates to extract}
 
-\item{states}{Vector of charatcer strings of locations to extract}
+\item{states}{Vector of character strings of locations to extract}
 }
 \value{
 Data.frame of sequence counts by location, date, and clade
-as of 90 days after each nowcast date, for evalauting that nowcast date.
+as of the nowcast date.
 }
 \description{
 Extract target data output so we have what would have been available

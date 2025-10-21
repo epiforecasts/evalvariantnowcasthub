@@ -5,9 +5,10 @@
 #'   of the clades
 #'
 #' @returns Character string of all clades used during the nowcast dates
+#' @autoglobal
 get_clade_list <- function(nowcast_dates,
                            clades_by_nowcast_date_dir) {
-  clades <- c()
+  clades <- c() # nolint
   for (i in seq_along(nowcast_dates)) {
     json_url <- glue::glue("{clades_by_nowcast_date_dir}{nowcast_dates[i]}.json") # nolint
     clade_list <- suppressWarnings(rjson::fromJSON(
@@ -27,6 +28,7 @@ get_clade_list <- function(nowcast_dates,
 #'
 #' @returns Raw nowcast outputs as a table for the selected locations and
 #'   nowcast dates
+#' @autoglobal
 extract_nowcasts <- function(nowcast_dates,
                              states,
                              bucket_name) {
@@ -36,7 +38,7 @@ extract_nowcasts <- function(nowcast_dates,
     skip_checks = TRUE
   )
   nowcast_data <- hub_con |>
-    filter(
+    dplyr::filter(
       location %in% states,
       nowcast_date %in% nowcast_dates
     ) |>
@@ -48,20 +50,23 @@ extract_nowcasts <- function(nowcast_dates,
 #' Get clean variant data from raw data
 #'
 #' @param raw_variant_data Data.frame of latest data extracted directly from
-#'    next straing
+#'    next strain
 #' @param clade_list Vector of character strings of the clade names
 #' @param location_data Data.frame of location information
+#' @param nowcast_dates Vector of character strings indicate the date range of
+#'    the data.
 #' @param nowcast_days Number of days we nowcast, default is `31`.
 #'
 #' @returns Data.frame of counts of sequences of each clade we nowcasted during
 #'   the season
+#' @autoglobal
 get_clean_variant_data <- function(raw_variant_data,
                                    clade_list,
                                    location_data,
                                    nowcast_dates,
                                    nowcast_days = 31) {
   clean_latest_data <- raw_variant_data |>
-    mutate(
+    dplyr::mutate(
       location =
         case_when(
           location == "Washington DC" ~ "District of Columbia",
@@ -71,7 +76,7 @@ get_clean_variant_data <- function(raw_variant_data,
         ),
       clades_modeled = ifelse(clade %in% clade_list, clade, "other")
     ) |>
-    filter(
+    dplyr::filter(
       location %in% location_data$location_name,
       date <= ymd(max(nowcast_dates)),
       date >= ymd(min(nowcast_dates)) - days(nowcast_days)
@@ -84,10 +89,11 @@ get_clean_variant_data <- function(raw_variant_data,
 #'
 #' @param hub_path Character string of hub path url
 #' @param nowcast_dates Vector of character strings of dates to extract
-#' @param states Vector of charatcer strings of locations to extract
+#' @param states Vector of character strings of locations to extract
 #'
 #' @returns Data.frame of sequence counts by location, date, and clade
-#'   as of 90 days after each nowcast date, for evalauting that nowcast date.
+#'   as of 90 days after each nowcast date, for evaluating that nowcast date.
+#' @autoglobal
 get_oracle_output <- function(hub_path,
                               nowcast_dates,
                               states = NULL) {
@@ -106,7 +112,7 @@ get_oracle_output <- function(hub_path,
     return(all_oracle_data)
   } else {
     subset_oracle_data <- all_oracle_data |>
-      filter(location %in% states)
+      dplyr::filter(location %in% states)
     return(subset_oracle_data)
   }
 }
@@ -116,10 +122,11 @@ get_oracle_output <- function(hub_path,
 #'
 #' @param hub_path Character string of hub path url
 #' @param nowcast_dates Vector of character strings of dates to extract
-#' @param states Vector of charatcer strings of locations to extract
+#' @param states Vector of character strings of locations to extract
 #'
 #' @returns Data.frame of sequence counts by location, date, and clade
-#'   as of 90 days after each nowcast date, for evalauting that nowcast date.
+#'   as of the nowcast date.
+#' @autoglobal
 get_target_data <- function(hub_path,
                             nowcast_dates,
                             states = NULL) {
@@ -141,8 +148,7 @@ get_target_data <- function(hub_path,
   if (is.null(states)) {
     return(all_target_data)
   } else {
-    subset_target_data <- all_target_data |>
-      filter(location %in% states)
+    subset_target_data <- dplyr::filter(all_target_data, location %in% states)
     return(subset_target_data)
   }
 }

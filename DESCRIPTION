@@ -24,7 +24,9 @@ Imports:
   glue,
   rjson,
   arrow,
-  hubData
+  hubData,
+  readr,
+  roxyglobals
 Suggests:
     bookdown,
     targets,
