@@ -5,7 +5,7 @@ config_targets <- list(
     command = as.character(
       seq(
         from = ymd("2024-10-09"),
-        to = ymd("2025-05-28"),
+        to = ymd("2025-06-04"),
         by = "week"
       )
     ),

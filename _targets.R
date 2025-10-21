@@ -66,27 +66,26 @@ config_targets <- list(
 data_targets <- list(
   load_data_targets,
   clean_data_targets
-  # pred_interval_targets
 )
 
-# Summarise and analyse the scores
-# score_targets <- list(
-#   score_table_targets
+# Summarise and analyse the scores and predictions
+#  analysis_targets <- list(
+#   pred_int_targets
 # )
 
 # Make plots
-# plot_targets <- list(
-#   EDA_plots,
-#   fig_data_targets,
-#   fig_nowcast_targets,
-#   fig_pred_plus_data_targets,
-#   fig_overall_targets
-# )
+plot_targets <- list(
+  eda_plot_targets
+  #   fig_data_targets,
+  #   fig_nowcast_targets,
+  #   fig_pred_plus_data_targets,
+  #   fig_overall_targets
+)
 
 
 list(
   config_targets,
-  data_targets
-  # score_targets,
-  # plot_targets
+  data_targets,
+  # analysis_targets,
+  plot_targets
 )
