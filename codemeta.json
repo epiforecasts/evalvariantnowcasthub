@@ -1,11 +1,11 @@
 {
   "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
   "@type": "SoftwareSourceCode",
-  "identifier": "baselinenowcastuspaper",
-  "description": "Functionality to produce and evaluate performance of different baseline nowcasting approaches applied to flu, COVID, RSV, and ARI on U.S. data.",
-  "name": "baselinenowcastuspaper: Evaluating baseline methods for nowcasting applied to U.S. data",
-  "codeRepository": "https://github.com/epinowcast/baselinenowcast-us-paper/",
-  "issueTracker": "https://github.com/epinowcast/baselinenowcast-us-paper/issues",
+  "identifier": "evalvariantnowcasthub",
+  "description": "Code to analyse and visualise data and model-based nowcasts of variant dynamics in the U.S. submitted as part of the U.S. SARS-CoV-2 Variant Nowcast Hub.",
+  "name": "evalvariantnowcasthub: Evaluation and characterisation of SARS-CoV-2 variant nowcasts",
+  "codeRepository": "https://github.com/epiforecasts/evalvariantnowcasthub/",
+  "issueTracker": "https://github.com/epinowcast/evalvariantnowcasthub/issues",
   "license": "https://spdx.org/licenses/MIT",
   "version": "0.0.0.1000",
   "programmingLanguage": {
@@ -21,30 +21,6 @@
       "familyName": "Johnson",
       "email": "kaitlyn.johnson@lshtm.ac.uk",
       "@id": "https://orcid.org/0000-0001-8011-0012"
-    },
-    {
-      "@type": "Person",
-      "givenName": "Laura",
-      "familyName": "Jones"
-    },
-    {
-      "@type": "Person",
-      "givenName": "Rosa",
-      "familyName": "Ergas"
-    },
-    {
-      "@type": "Person",
-      "givenName": "Sam",
-      "familyName": "Abbott",
-      "email": "contact@samabbott.co.uk",
-      "@id": "https://orcid.org/0000-0001-8057-8037"
-    },
-    {
-      "@type": "Person",
-      "givenName": "Sebastian",
-      "familyName": "Funk",
-      "email": "sebastian.funk@lshtm.ac.uk",
-      "@id": "https://orcid.org/0000-0002-2842-3406"
     }
   ],
   "copyrightHolder": [
@@ -209,18 +185,19 @@
     },
     "5": {
       "@type": "SoftwareApplication",
-      "identifier": "epinowcast",
-      "name": "epinowcast"
-    },
-    "6": {
-      "@type": "SoftwareApplication",
-      "identifier": "baselinenowcast",
-      "name": "baselinenowcast",
-      "sameAs": "https://github.com/baselinenowcast=epinowcast/baselinenowcast"
+      "identifier": "scoringutils",
+      "name": "scoringutils",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=scoringutils"
     },
     "SystemRequirements": null
   },
-  "fileSize": "3.94KB",
-  "releaseNotes": "https://github.com/epinowcast/baselinenowcast-us-paper/blob/main/NEWS.md",
-  "readme": "https://github.com/epinowcast/baselinenowcast-us-paper/blob/main/README.md"
+  "fileSize": "4.84KB",
+  "releaseNotes": "https://github.com/epiforecasts/evalvariantnowcasthub/blob/main/NEWS.md",
+  "readme": "https://github.com/epiforecasts/evalvariantnowcasthub/blob/main/README.md"
 }
