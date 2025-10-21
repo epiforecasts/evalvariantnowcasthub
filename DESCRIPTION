@@ -1,5 +1,5 @@
 Package: evalvariantnowcasthub
-Title: Evaluation and characterisation of SARS-CoV-2 variant nowcasts 
+Title: Evaluation and characterisation of SARS-CoV-2 variant nowcasts
 Version: 0.0.0.1000
 Authors@R:
   c(person(given = "Kaitlyn",
@@ -8,9 +8,9 @@ Authors@R:
            email = "kaitlyn.johnson@lshtm.ac.uk",
            comment = c(ORCID = "0000-0001-8011-0012"))
            )
-Description: Code to analyse and visualise data and model-based nowcasts of 
+Description: Code to analyse and visualise data and model-based nowcasts of
   variant dynamics in the U.S. submitted as part of the U.S. SARS-CoV-2 Variant
-  Nowcast Hub. 
+  Nowcast Hub.
 License: MIT + file LICENSE
 URL: https://github.com/epiforecasts/evalvariantnowcasthub/
 BugReports: https://github.com/epinowcast/evalvariantnowcasthub/issues
