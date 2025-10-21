@@ -34,7 +34,7 @@ get_clean_variant_data <- function(raw_variant_data,
       date <= ymd(max(nowcast_dates)),
       date >= ymd(min(nowcast_dates)) - days(nowcast_days)
     ) |>
-    left_join(location_data, by = c("location" = "location_name")) |>
+    left_join(location_data, by = c("location" = "location_name")) |> # nolint
     rename(
       location = abbreviation,
       location_code = location

@@ -6,7 +6,7 @@
 #' @param output_fp Character string indicating directory to save file.
 #' @param save Boolean indicating whether or not to save the plot.
 #' @importFrom ggplot2 ggplot geom_line aes facet_grid theme_bw vars xlab
-#'   ylab theme_bw ggsave ggtitle linetype
+#'   ylab theme_bw ggsave ggtitle geom_vline
 #' @importFrom dplyr filter
 #' @returns ggplot object
 #' @autoglobal
