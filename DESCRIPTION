@@ -13,7 +13,7 @@ Description: Code to analyse and visualise data and model-based nowcasts of
   Nowcast Hub.
 License: MIT + file LICENSE
 URL: https://github.com/epiforecasts/evalvariantnowcasthub/
-BugReports: https://github.com/epinowcast/evalvariantnowcasthub/issues
+BugReports: https://github.com/epiforecasts/evalvariantnowcasthub/issues
 Depends:
     R (>= 4.0.0)
 Imports:
