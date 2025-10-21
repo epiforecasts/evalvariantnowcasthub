@@ -11,7 +11,7 @@
 #' @returns Data.frame of counts of sequences of each clade we nowcasted during
 #'   the season
 #' @importFrom lubridate ymd days
-#' @importFrom dplyr case_when
+#' @importFrom dplyr case_when rename left_join
 #' @autoglobal
 get_clean_variant_data <- function(raw_variant_data,
                                    clade_list,

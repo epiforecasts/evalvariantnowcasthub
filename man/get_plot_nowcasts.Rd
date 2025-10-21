@@ -14,6 +14,12 @@ get_plot_nowcasts(
 \arguments{
 \item{data}{Data.frame with nowcasts for a single nowcast date for
 multiple teams and (a few) locations}
+
+\item{plot_name}{Character string indicating name of plot}
+
+\item{output_fp}{Character string indicating directory to save file.}
+
+\item{save}{Boolean indicating whether or not to save the plot.}
 }
 \value{
 ggplot object

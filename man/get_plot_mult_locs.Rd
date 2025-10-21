@@ -13,6 +13,12 @@ get_plot_mult_locs(
 }
 \arguments{
 \item{data}{Data.frame with all sequence data for multiple locations}
+
+\item{plot_name}{Character string indicating name of plot}
+
+\item{output_fp}{Character string indicating directory to save file.}
+
+\item{save}{Boolean indicating whether or not to save the plot.}
 }
 \value{
 ggplot object
