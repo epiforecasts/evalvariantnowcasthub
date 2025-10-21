@@ -1,0 +1,37 @@
+Package: evalvariantnowcasthub
+Title: Evaluation and characterisation of SARS-CoV-2 variant nowcasts
+Version: 0.0.0.1000
+Authors@R:
+  c(person(given = "Kaitlyn",
+           family = "Johnson",
+           role = c("aut", "cre", "cph"),
+           email = "kaitlyn.johnson@lshtm.ac.uk",
+           comment = c(ORCID = "0000-0001-8011-0012"))
+           )
+Description: Code to analyse and visualise data and model-based nowcasts of
+  variant dynamics in the U.S. submitted as part of the U.S. SARS-CoV-2 Variant
+  Nowcast Hub.
+License: MIT + file LICENSE
+URL: https://github.com/epiforecasts/evalvariantnowcasthub/
+BugReports: https://github.com/epinowcast/evalvariantnowcasthub/issues
+Depends:
+    R (>= 4.0.0)
+Imports:
+  cli,
+  dplyr,
+  ggplot2,
+  scoringutils
+Suggests:
+    bookdown,
+    targets,
+    spelling,
+    rmarkdown,
+    testthat (>= 3.1.9),
+    usethis,
+    withr,
+    knitr
+Encoding: UTF-8
+Language: en-GB
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+VignetteBuilder: knitr
