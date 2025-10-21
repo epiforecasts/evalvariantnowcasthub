@@ -59,6 +59,8 @@ extract_nowcasts <- function(nowcast_dates,
 #'
 #' @returns Data.frame of counts of sequences of each clade we nowcasted during
 #'   the season
+#' @importFrom lubridate ymd days
+#' @importFrom dplyr case_when
 #' @autoglobal
 get_clean_variant_data <- function(raw_variant_data,
                                    clade_list,
@@ -111,8 +113,7 @@ get_oracle_output <- function(hub_path,
   if (is.null(states)) {
     return(all_oracle_data)
   } else {
-    subset_oracle_data <- all_oracle_data |>
-      dplyr::filter(location %in% states)
+    subset_oracle_data <- dplyr::filter(all_oracle_data, location %in% states)
     return(subset_oracle_data)
   }
 }
