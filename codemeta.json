@@ -5,7 +5,7 @@
   "description": "Code to analyse and visualise data and model-based nowcasts of variant dynamics in the U.S. submitted as part of the U.S. SARS-CoV-2 Variant Nowcast Hub.",
   "name": "evalvariantnowcasthub: Evaluation and characterisation of SARS-CoV-2 variant nowcasts",
   "codeRepository": "https://github.com/epiforecasts/evalvariantnowcasthub/",
-  "issueTracker": "https://github.com/epinowcast/evalvariantnowcasthub/issues",
+  "issueTracker": "https://github.com/epiforecasts/evalvariantnowcasthub/issues",
   "license": "https://spdx.org/licenses/MIT",
   "version": "0.0.0.1000",
   "programmingLanguage": {
