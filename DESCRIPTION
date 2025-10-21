@@ -26,7 +26,8 @@ Imports:
   arrow,
   hubData,
   readr,
-  roxyglobals
+  roxyglobals,
+  lubridate
 Suggests:
     bookdown,
     targets,
@@ -42,7 +43,6 @@ Language: en-GB
 Roxygen: list(markdown = TRUE, roclets = c("collate", "namespace", "rd",
     "roxyglobals::global_roclet"))
 RoxygenNote: 7.3.3
-VignetteBuilder: knitr
 Remotes:
   hubData=hubverse-org/hubData
 Config/roxyglobals/filename: globals.R
