@@ -10,3 +10,14 @@ quiet <- function(code) {
   on.exit(sink())
   return(suppressMessages(code))
 }
+
+#' Extract contexts from a zip file
+#' @param url Link to zip file.
+#' @return data in file
+open_zip <- function(url) {
+  tmp_file <- tempfile()
+  download.file(url, tmp_file)
+  latest_data <- read_tsv(gzfile(tmp_file))
+  rm(tmp_file)
+  return(latest_data)
+}

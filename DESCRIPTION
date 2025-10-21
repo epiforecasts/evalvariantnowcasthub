@@ -20,7 +20,11 @@ Imports:
   cli,
   dplyr,
   ggplot2,
-  scoringutils
+  scoringutils,
+  glue,
+  rjson,
+  arrow,
+  hubData
 Suggests:
     bookdown,
     targets,
