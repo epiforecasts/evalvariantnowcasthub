@@ -1,0 +1,12 @@
+---
+title: "Supplement: Collaborative estimation and evaluation of SARS-CoV-2 variant nowcasting in the U.S."
+authors: "To be updated"
+format: docx
+editor: visual
+date: 2025-10-22
+bibliography: ref.bib
+csl: vancouver.csl
+output:
+  bookdown::docx:
+    fig_caption: yes
+---
