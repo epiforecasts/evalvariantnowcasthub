@@ -13,5 +13,12 @@ clean_data_targets <- list(
     command = clean_variant_data |>
       group_by(date, location) |>
       summarise(n_final_seq = sum(sequences))
+  ),
+  tar_target(
+    name = su_scores,
+    command = convert_to_su_object(
+      scores_data = scores,
+      brier_to_use = "brier_point"
+    )
   )
 )

@@ -14,6 +14,11 @@ utils::globalVariables(c(
   "seq_clade", # <get_plot_mult_locs>
   "n_seq", # <get_plot_mult_locs>
   "obs_freq", # <get_plot_mult_locs>
+  "nowcast_date", # <get_plot_scores_t>
+  "location", # <get_plot_scores_t>
+  "target_date", # <get_plot_scores_t>
+  "team", # <get_plot_scores_t>
+  "scored", # <get_plot_scores_t>
   "clade", # <get_clean_variant_data>
   "location", # <get_clean_variant_data>
   "abbreviation", # <get_clean_variant_data>

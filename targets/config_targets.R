@@ -38,7 +38,7 @@ config_targets <- list(
   # To be updated
   tar_target(
     name = scores_fp,
-    command = "https://raw.githubusercontent.com/reichlab/variant-nowcast-hub/refs/heads/adding-scores/auxiliary-data/scores/scores_2025-09-02.tsv" # nolint
+    command = "https://raw.githubusercontent.com/reichlab/variant-nowcast-hub/refs/heads/adding-scores/auxiliary-data/scores/scores.tsv" # nolint
   ),
 
   # Specify which states and nowcast dates we want to focus on in the example
