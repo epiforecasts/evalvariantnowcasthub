@@ -88,3 +88,25 @@ get_plot_mult_locs <- function(data,
   }
   return(p)
 }
+
+get_plot_scores <- function(scores_data_hub) {
+  ggplot(scores_data_hub |>
+    filter(
+      nowcast_date == max(nowcast_date),
+      location %in% c("NY", "CA", "CT")
+    )) +
+    geom_point(aes(
+      x = target_date, y = energy, color = team,
+      shape = scored
+    )) +
+    geom_line(aes(
+      x = target_date, y = energy, color = team,
+      shape = scored
+    )) +
+    facet_wrap(~location,
+      scales = "free_y",
+      nrow = 3
+    ) +
+    geom_vline(aes(xintercept = max(nowcast_date)), linetype = "dashed") +
+    theme_bw()
+}

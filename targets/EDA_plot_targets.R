@@ -30,5 +30,11 @@ eda_plot_targets <- list(
         mutate(location = "US"),
       plot_name = "plot_US"
     )
+  ),
+  tar_target(
+    name = plot_scores,
+    command = get_plot_scores(
+      scores_data_hub = scores
+    )
   )
 )
