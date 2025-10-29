@@ -42,3 +42,34 @@ get_clean_variant_data <- function(raw_variant_data,
 
   return(clean_latest_data)
 }
+
+#' Convert the scores to a scoringutils object
+#'
+#' @param scores_data Data.frame from Variant Nowcast Hub GitHub
+#' @param brier_to_use Character string indicating
+#' @importFrom data.table setattr as.data.table
+#' @importFrom rlang arg_match
+#' @importFrom dplyr rename select
+#' @returns scoringutils object
+convert_to_su_object <- function(scores_data,
+                                 brier_to_use = c("brier_point", "brier_dist")) {
+  brier_to_use <- rlang::arg_match(brier_to_use)
+  scores2 <- scores_data |>
+    rename(
+      energy_score = energy,
+      brier_score = {{ brier_to_use }},
+      model = team
+    ) |>
+    select(
+      location, target_date, nowcast_date, model, energy_score,
+      brier_score, scored, status
+    ) |>
+    data.table::as.data.table()
+  class(scores2) <- c("scores", class(scores2))
+  scores_su <- data.table::setattr(
+    scores2,
+    "metrics",
+    c("brier_score", "energy_score")
+  )
+  return(scores_su)
+}

@@ -33,8 +33,25 @@ eda_plot_targets <- list(
   ),
   tar_target(
     name = plot_scores,
-    command = get_plot_scores(
-      scores_data_hub = scores
+    command = get_plot_scores_t(
+      scores_data_hub = scores,
+      locations = c("NY", "CA", "CT"),
+      this_nowcast_date = max(scores$nowcast_date),
+      score_type = "energy"
+    )
+  ),
+  tar_target(
+    name = plot_rel_skill_bs,
+    command = get_plot_rel_skill_overall(
+      scores_obj = su_scores,
+      score_type = "brier_score"
+    )
+  ),
+  tar_target(
+    name = plot_rel_skill_es,
+    command = get_plot_rel_skill_overall(
+      scores_obj = su_scores,
+      score_type = "energy_score"
     )
   )
 )
