@@ -26,13 +26,17 @@ get_clean_variant_data <- function(raw_variant_data,
                                    type,
                                    nowcast_days = 31,
                                    forecast_days = 10) {
+  loc_data_renamed <- rename(location_data,
+    location_code = location,
+    location = abbreviation
+  )
   clean_latest_data <- raw_variant_data |>
     mutate(
       clades_modeled = ifelse(clade %in% clade_list, clade, "other"),
       date = ymd(target_date)
     ) |>
     rename(
-      sequences = {{ seq_col_name }},
+      sequences = {{ seq_col_name }}
     ) |>
     dplyr::filter(
       location %in% location_data$abbreviation,
@@ -40,11 +44,7 @@ get_clean_variant_data <- function(raw_variant_data,
       date >= ymd(min(nowcast_dates)) - days(nowcast_days)
     ) |>
     left_join(
-      location_data |>
-        rename(
-          location_code = location,
-          location = abbreviation
-        ),
+      loc_data_renamed,
       by = "location"
     ) |>
     mutate(type = !!type)
