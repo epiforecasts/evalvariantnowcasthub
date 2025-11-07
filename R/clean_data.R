@@ -32,11 +32,11 @@ get_clean_variant_data <- function(raw_variant_data,
   )
   clean_latest_data <- raw_variant_data |>
     mutate(
-      clades_modeled = ifelse(clade %in% clade_list, clade, "other"),
-      date = ymd(target_date)
+      clades_modeled = ifelse(clade %in% clade_list, clade, "other")
     ) |>
     rename(
-      sequences = {{ seq_col_name }}
+      sequences = {{ seq_col_name }},
+      date = target_date
     ) |>
     dplyr::filter(
       location %in% location_data$abbreviation,
@@ -48,9 +48,59 @@ get_clean_variant_data <- function(raw_variant_data,
       by = "location"
     ) |>
     mutate(type = !!type)
-
-
-
+  return(clean_latest_data)
+}
+#' Get clean variant data from raw data
+#'
+#' @param raw_variant_data Data.frame of latest data extracted directly from
+#'    next strain
+#' @param clade_list Vector of character strings of the clade names
+#' @param location_data Data.frame of location information
+#' @param nowcast_dates Vector of character strings indicate the date range of
+#'    the data.
+#' @param type Character string indicating data is as of the nowcast date or
+#'   evaluation data
+#' @param nowcast_days Number of days we nowcast, default is `31`.
+#' @param forecast_days Number of days we forecast, default is `10`.
+#'
+#' @returns Data.frame of counts of sequences of each clade we nowcasted during
+#'   the season
+#' @importFrom lubridate ymd days
+#' @importFrom dplyr case_when rename left_join
+#' @autoglobal
+get_clean_variant_data_ns <- function(raw_variant_data,
+                                      clade_list,
+                                      location_data,
+                                      nowcast_dates,
+                                      type,
+                                      nowcast_days = 31,
+                                      forecast_days = 10) {
+  loc_data_renamed <- rename(location_data,
+    location_code = location,
+    location = abbreviation
+  )
+  clean_latest_data <- raw_variant_data |>
+    dplyr::mutate(
+      location_name =
+        case_when(
+          location == "Washington DC" ~ "District of Columbia",
+          location == "Deleware" ~ "Delaware",
+          location == "Louisana" ~ "Louisiana",
+          TRUE ~ location
+        ),
+      clades_modeled = ifelse(clade %in% clade_list, clade, "other")
+    ) |>
+    dplyr::select(-location) |>
+    dplyr::filter(
+      location_name %in% location_data$location_name,
+      date <= ymd(max(nowcast_dates)) + days(forecast_days),
+      date >= ymd(min(nowcast_dates)) - days(nowcast_days)
+    ) |>
+    left_join(
+      loc_data_renamed,
+      by = c("location_name")
+    ) |>
+    mutate(type = !!type)
   return(clean_latest_data)
 }
 

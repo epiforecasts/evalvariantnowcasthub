@@ -20,10 +20,14 @@ utils::globalVariables(c(
   "model_id", # <get_plot_scores_t>
   "scored", # <get_plot_scores_t>
   "model", # <get_plot_rel_skill_overall>
-  "clade", # <get_clean_variant_data>
-  "target_date", # <get_clean_variant_data>
   "location", # <get_clean_variant_data>
   "abbreviation", # <get_clean_variant_data>
+  "clade", # <get_clean_variant_data>
+  "target_date", # <get_clean_variant_data>
+  "location", # <get_clean_variant_data_ns>
+  "abbreviation", # <get_clean_variant_data_ns>
+  "clade", # <get_clean_variant_data_ns>
+  "location_name", # <get_clean_variant_data_ns>
   "location", # <extract_nowcasts>
   "nowcast_date", # <extract_nowcasts>
   "location", # <get_oracle_output>

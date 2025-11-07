@@ -1,12 +1,11 @@
 clean_data_targets <- list(
   tar_target(
     name = clean_variant_data_final_all_states,
-    command = get_clean_variant_data(
-      final_variant_data_all_states,
+    command = get_clean_variant_data_ns(
+      raw_variant_data,
       clade_list,
       location_data,
       nowcast_dates,
-      seq_col_name = "oracle_value",
       type = "final"
     )
   ),
