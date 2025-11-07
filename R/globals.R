@@ -17,8 +17,9 @@ utils::globalVariables(c(
   "nowcast_date", # <get_plot_scores_t>
   "location", # <get_plot_scores_t>
   "target_date", # <get_plot_scores_t>
-  "team", # <get_plot_scores_t>
+  "model_id", # <get_plot_scores_t>
   "scored", # <get_plot_scores_t>
+  "model", # <get_plot_rel_skill_overall>
   "clade", # <get_clean_variant_data>
   "location", # <get_clean_variant_data>
   "abbreviation", # <get_clean_variant_data>

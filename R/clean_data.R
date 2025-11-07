@@ -58,7 +58,7 @@ convert_to_su_object <- function(scores_data,
     rename(
       energy_score = energy,
       brier_score = {{ brier_to_use }},
-      model = team
+      model = model_id
     ) |>
     select(
       location, target_date, nowcast_date, model, energy_score,

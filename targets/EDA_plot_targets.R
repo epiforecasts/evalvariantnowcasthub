@@ -43,14 +43,14 @@ eda_plot_targets <- list(
   tar_target(
     name = plot_rel_skill_bs,
     command = get_plot_rel_skill_overall(
-      scores_obj = su_scores,
+      scores_obj = su_scores_excl_partial,
       score_type = "brier_score"
     )
   ),
   tar_target(
     name = plot_rel_skill_es,
     command = get_plot_rel_skill_overall(
-      scores_obj = su_scores,
+      scores_obj = su_scores_excl_partial,
       score_type = "energy_score"
     )
   )

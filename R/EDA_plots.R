@@ -116,17 +116,18 @@ get_plot_scores_t <- function(scores_data_hub,
                               save = TRUE) {
   score_type <- rlang::arg_match(score_type)
   score_sym <- rlang::sym(score_type)
-  p <- ggplot(scores_data_hub |>
-    filter(
-      nowcast_date == this_nowcast_date,
-      location %in% locations
-    )) +
+  scores_single_date <- filter(
+    scores_data_hub,
+    nowcast_date == this_nowcast_date,
+    location %in% locations
+  )
+  p <- ggplot(scores_single_date) +
     geom_point(aes(
-      x = target_date, y = !!score_sym, color = team,
+      x = target_date, y = !!score_sym, color = model_id,
       shape = scored
     )) +
     geom_line(aes(
-      x = target_date, y = !!score_sym, color = team
+      x = target_date, y = !!score_sym, color = model_id
     )) +
     facet_wrap(~location,
       scales = "free_y",
@@ -153,6 +154,7 @@ get_plot_scores_t <- function(scores_data_hub,
 #' @importFrom ggplot2 geom_hline
 #' @importFrom rlang sym arg_match
 #' @returns ggplot object bar chart of scores
+#' @autoglobal
 get_plot_rel_skill_overall <- function(scores_obj,
                                        score_type = c(
                                          "brier_score",
@@ -166,12 +168,12 @@ get_plot_rel_skill_overall <- function(scores_obj,
                                        ),
                                        save = TRUE) {
   score_type <- rlang::arg_match(score_type)
-  rel_skill <- scores_obj |>
-    scoringutils::add_relative_skill(
-      metric = score_type,
-      baseline = "Hub-baseline",
-      by = "target_date"
-    )
+  rel_skill <- scoringutils::add_relative_skill(
+    scores_obj,
+    metric = score_type,
+    baseline = "Hub-baseline",
+    by = "target_date"
+  )
 
   rel_skill_summarised <- rel_skill |>
     filter(!is.na(!!sym(score_type))) |>

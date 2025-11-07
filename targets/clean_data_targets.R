@@ -20,5 +20,10 @@ clean_data_targets <- list(
       scores_data = scores,
       brier_to_use = "brier_point"
     )
+  ),
+  tar_target(
+    name = su_scores_excl_partial,
+    command = su_scores |>
+      dplyr::filter(scored == TRUE)
   )
 )
