@@ -1,16 +1,40 @@
 clean_data_targets <- list(
   tar_target(
-    name = clean_variant_data,
+    name = clean_variant_data_final_all_states,
     command = get_clean_variant_data(
-      raw_variant_data,
+      final_variant_data_all_states,
       clade_list,
       location_data,
-      nowcast_dates
+      nowcast_dates,
+      seq_col_name = "oracle_value",
+      type = "final"
+    )
+  ),
+  tar_target(
+    name = clean_variant_data_as_of_nowcast_date,
+    command = get_clean_variant_data(
+      variant_data_as_of_nowcast_date,
+      clade_list,
+      location_data,
+      nowcast_date_for_vis,
+      seq_col_name = "observation",
+      type = "as of nowcast date"
+    )
+  ),
+  tar_target(
+    name = clean_variant_data_for_eval,
+    command = get_clean_variant_data(
+      variant_data_for_evaluation,
+      clade_list,
+      location_data,
+      nowcast_date_for_vis,
+      seq_col_name = "oracle_value",
+      type = "evaluation"
     )
   ),
   tar_target(
     name = final_seq_counts,
-    command = clean_variant_data |>
+    command = clean_variant_data_final_all_states |>
       group_by(date, location) |>
       summarise(n_final_seq = sum(sequences))
   ),

@@ -10,11 +10,6 @@ config_targets <- list(
       )
     ),
   ),
-  # Url to load in the raw data on number of sequences by clade for all clades
-  tar_target(
-    name = raw_variant_data_ns_url,
-    command = "https://data.nextstrain.org/files/workflows/forecasts-ncov/open/nextstrain_clades/usa.tsv.gz" # nolint
-  ),
   # Url to load in the oracle output, which contains the data available as of the nowcast date
   tar_target(
     name = hub_path,
@@ -68,8 +63,7 @@ config_targets <- list(
       hub_path = hub_path,
       clades_by_nowcast_date_dir = clades_by_nowcast_date_dir,
       location_fp = location_fp,
-      scores_fp = scores_fp,
-      raw_variant_data_ns_url = raw_variant_data_ns_url
+      scores_fp = scores_fp
     )
   ),
   tar_target(

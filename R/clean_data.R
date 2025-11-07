@@ -6,7 +6,12 @@
 #' @param location_data Data.frame of location information
 #' @param nowcast_dates Vector of character strings indicate the date range of
 #'    the data.
+#' @param seq_col_name Character string indicating the name of the column for
+#'   number of sequences of that clade
+#' @param type Character string indicating data is as of the nowcast date or
+#'   evaluation data
 #' @param nowcast_days Number of days we nowcast, default is `31`.
+#' @param forecast_days Number of days we forecast, default is `10`.
 #'
 #' @returns Data.frame of counts of sequences of each clade we nowcasted during
 #'   the season
@@ -17,28 +22,34 @@ get_clean_variant_data <- function(raw_variant_data,
                                    clade_list,
                                    location_data,
                                    nowcast_dates,
-                                   nowcast_days = 31) {
+                                   seq_col_name,
+                                   type,
+                                   nowcast_days = 31,
+                                   forecast_days = 10) {
   clean_latest_data <- raw_variant_data |>
-    dplyr::mutate(
-      location =
-        case_when(
-          location == "Washington DC" ~ "District of Columbia",
-          location == "Deleware" ~ "Delaware",
-          location == "Louisana" ~ "Louisiana",
-          TRUE ~ location
-        ),
-      clades_modeled = ifelse(clade %in% clade_list, clade, "other")
+    mutate(
+      clades_modeled = ifelse(clade %in% clade_list, clade, "other"),
+      date = ymd(target_date)
+    ) |>
+    rename(
+      sequences = {{ seq_col_name }},
     ) |>
     dplyr::filter(
-      location %in% location_data$location_name,
-      date <= ymd(max(nowcast_dates)),
+      location %in% location_data$abbreviation,
+      date <= ymd(max(nowcast_dates)) + days(forecast_days),
       date >= ymd(min(nowcast_dates)) - days(nowcast_days)
     ) |>
-    left_join(location_data, by = c("location" = "location_name")) |> # nolint
-    rename(
-      location = abbreviation,
-      location_code = location
-    )
+    left_join(
+      location_data |>
+        rename(
+          location_code = location,
+          location = abbreviation
+        ),
+      by = "location"
+    ) |>
+    mutate(type = !!type)
+
+
 
   return(clean_latest_data)
 }
@@ -52,7 +63,10 @@ get_clean_variant_data <- function(raw_variant_data,
 #' @importFrom dplyr rename select
 #' @returns scoringutils object
 convert_to_su_object <- function(scores_data,
-                                 brier_to_use = c("brier_point", "brier_dist")) {
+                                 brier_to_use = c(
+                                   "brier_point",
+                                   "brier_dist"
+                                 )) {
   brier_to_use <- rlang::arg_match(brier_to_use)
   scores2 <- scores_data |>
     rename(

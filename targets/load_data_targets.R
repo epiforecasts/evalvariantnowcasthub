@@ -1,8 +1,12 @@
 load_data_targets <- list(
-  # Final variant data
+  # "Final" variant data
   tar_target(
-    name = raw_variant_data,
-    command = open_zip(raw_variant_data_ns_url)
+    name = final_variant_data_all_states,
+    command = get_oracle_output(
+      hub_path = hub_path,
+      nowcast_dates = max(nowcast_dates),
+      states = NULL
+    )
   ),
   # Variant data available as of the nowcast date
   tar_target(
