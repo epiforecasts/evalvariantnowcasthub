@@ -48,9 +48,13 @@ load_data_targets <- list(
       bucket_name = nowcast_bucket_name
     )
   ),
-  # Scores
+  # Scores corresponding to the nowcast dates we will evaluate
   tar_target(
     name = scores,
-    command = read_tsv(scores_fp)
+    command = read_tsv(scores_fp) |>
+      filter(
+        nowcast_date >= min(nowcast_dates),
+        nowcast_date <= max(nowcast_dates)
+      )
   )
 )
