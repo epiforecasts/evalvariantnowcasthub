@@ -27,6 +27,8 @@ Imports:
   hubData,
   readr,
   roxyglobals,
+  data.table,
+  rlang,
   lubridate
 Suggests:
     bookdown,

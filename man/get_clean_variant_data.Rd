@@ -9,7 +9,10 @@ get_clean_variant_data(
   clade_list,
   location_data,
   nowcast_dates,
-  nowcast_days = 31
+  seq_col_name,
+  type,
+  nowcast_days = 31,
+  forecast_days = 10
 )
 }
 \arguments{
@@ -23,7 +26,15 @@ next strain}
 \item{nowcast_dates}{Vector of character strings indicate the date range of
 the data.}
 
+\item{seq_col_name}{Character string indicating the name of the column for
+number of sequences of that clade}
+
+\item{type}{Character string indicating data is as of the nowcast date or
+evaluation data}
+
 \item{nowcast_days}{Number of days we nowcast, default is \code{31}.}
+
+\item{forecast_days}{Number of days we forecast, default is \code{10}.}
 }
 \value{
 Data.frame of counts of sequences of each clade we nowcasted during

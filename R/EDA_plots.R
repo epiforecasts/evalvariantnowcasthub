@@ -88,3 +88,113 @@ get_plot_mult_locs <- function(data,
   }
   return(p)
 }
+
+#' Plot scores over time for a few locations and a specific nowcast date
+#'
+#' @param scores_data_hub Data.frame of scores from the Hub
+#' @param locations Vector of character strings indicating the set of locations
+#'    to plot as facets
+#' @param this_nowcast_date Character string indicating nowcast date to plot
+#' @param score_type Character string indicating which score to plot.
+#' @inheritParams get_plot_nowcasts
+#' @importFrom ggplot2 ggplot geom_line aes facet_grid theme_bw vars
+#'   element_blank theme xlab ylab facet_wrap ggtitle
+#' @importFrom dplyr filter group_by summarise mutate left_join
+#' @importFrom rlang sym arg_match
+#' @returns ggplot object
+#' @autoglobal
+get_plot_scores_t <- function(scores_data_hub,
+                              locations,
+                              this_nowcast_date,
+                              score_type = c(
+                                "energy",
+                                "brier_point",
+                                "brier_dist"
+                              ),
+                              plot_name = "scores_over_time",
+                              output_fp = file.path("output", "figs", "eda"),
+                              save = TRUE) {
+  score_type <- rlang::arg_match(score_type)
+  score_sym <- rlang::sym(score_type)
+  scores_single_date <- filter(
+    scores_data_hub,
+    nowcast_date == this_nowcast_date,
+    location %in% locations
+  )
+  p <- ggplot(scores_single_date) +
+    geom_point(aes(
+      x = target_date, y = !!score_sym, color = model_id,
+      shape = scored
+    )) +
+    geom_line(aes(
+      x = target_date, y = !!score_sym, color = model_id
+    )) +
+    facet_wrap(~location,
+      scales = "free_y",
+      nrow = 3
+    ) +
+    geom_vline(aes(xintercept = max(nowcast_date)), linetype = "dashed") +
+    theme_bw() +
+    ggtitle(glue("scores over time for a few states on {this_nowcast_date}"))
+
+  if (isTRUE(save)) {
+    ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
+      plot = p
+    )
+  }
+  return(p)
+}
+
+#' Get a plot of relative scaled skill overall
+#'
+#' @param scores_obj Scoringutils scores objected
+#' @param score_type Character string indicating which score to plot.
+#' @inheritParams get_plot_nowcasts
+#' @importFrom scoringutils add_relative_skill summarise_scores
+#' @importFrom ggplot2 geom_hline
+#' @importFrom rlang sym arg_match
+#' @returns ggplot object bar chart of scores
+#' @autoglobal
+get_plot_rel_skill_overall <- function(scores_obj,
+                                       score_type = c(
+                                         "brier_score",
+                                         "energy_score"
+                                       ),
+                                       plot_name = "overall_rel_scaled_skill",
+                                       output_fp = file.path(
+                                         "output",
+                                         "figs",
+                                         "eda"
+                                       ),
+                                       save = TRUE) {
+  score_type <- rlang::arg_match(score_type)
+  rel_skill <- scoringutils::add_relative_skill(
+    scores_obj,
+    metric = score_type,
+    baseline = "Hub-baseline",
+    by = "target_date"
+  )
+
+  rel_skill_summarised <- rel_skill |>
+    filter(!is.na(!!sym(score_type))) |>
+    scoringutils::summarise_scores(by = "model")
+
+  p <- ggplot(rel_skill_summarised) +
+    geom_bar(
+      aes(
+        x = model,
+        y = !!sym(glue::glue("{score_type}_scaled_relative_skill")),
+        fill = model
+      ),
+      stat = "identity", position = "dodge"
+    ) +
+    geom_hline(aes(yintercept = 1), linetype = "dashed") +
+    theme_bw()
+
+  if (isTRUE(save)) {
+    ggsave(file.path(output_fp, glue::glue("{plot_name}_{score_type}.png")),
+      plot = p
+    )
+  }
+  return(p)
+}

@@ -49,5 +49,4 @@ nowcast_bucket_name: covid-variant-nowcast-hub
 hub_path: https://raw.githubusercontent.com/reichlab/variant-nowcast-hub/refs/heads/main/
 clades_by_nowcast_date_dir: https://raw.githubusercontent.com/reichlab/variant-nowcast-hub/refs/heads/main/auxiliary-data/modeled-clades/
 location_fp: https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/refs/heads/main/auxiliary-data/locations.csv
-scores_fp: https://raw.githubusercontent.com/reichlab/variant-nowcast-hub/refs/heads/adding-scores/auxiliary-data/scores/scores_2025-09-02.tsv
-raw_variant_data_ns_url: https://data.nextstrain.org/files/workflows/forecasts-ncov/open/nextstrain_clades/usa.tsv.gz
+scores_fp: https://raw.githubusercontent.com/reichlab/variant-nowcast-hub/refs/heads/main/auxiliary-data/scores/scores.tsv

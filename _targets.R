@@ -19,6 +19,7 @@ library(fs)
 library(arrow)
 library(hubData)
 library(rjson)
+library(rlang)
 
 # load functions
 functions <- list.files(here("R"), full.names = TRUE)
@@ -44,7 +45,8 @@ tar_option_set(
     "fs",
     "arrow",
     "hubData",
-    "rjson"
+    "rjson",
+    "rlang"
   ),
   workspace_on_error = TRUE,
   storage = "worker",

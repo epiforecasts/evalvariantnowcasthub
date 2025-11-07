@@ -1,8 +1,12 @@
 load_data_targets <- list(
-  # Final variant data
+  # "Final" variant data
   tar_target(
-    name = raw_variant_data,
-    command = open_zip(raw_variant_data_ns_url)
+    name = final_variant_data_all_states,
+    command = get_oracle_output(
+      hub_path = hub_path,
+      nowcast_dates = max(nowcast_dates),
+      states = NULL
+    )
   ),
   # Variant data available as of the nowcast date
   tar_target(
@@ -44,9 +48,13 @@ load_data_targets <- list(
       bucket_name = nowcast_bucket_name
     )
   ),
-  # Scores
+  # Scores corresponding to the nowcast dates we will evaluate
   tar_target(
     name = scores,
-    command = read_tsv(scores_fp)
+    command = read_tsv(scores_fp) |>
+      filter(
+        nowcast_date >= min(nowcast_dates),
+        nowcast_date <= max(nowcast_dates)
+      )
   )
 )
