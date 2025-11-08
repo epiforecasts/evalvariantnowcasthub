@@ -9,12 +9,12 @@ get_plot_theme <- function() {
     cowplot::background_grid() +
     theme(
       plot.background = element_rect(fill = "white"),
-      legend.text = element_text(size = 20),
-      legend.title = element_text(size = 20),
-      axis.text.x = element_text(size = 20),
-      axis.text.y = element_text(size = 20),
-      axis.title = element_text(size = 20),
-      strip.text = element_text(size = 20)
+      legend.text = element_text(size = 10),
+      legend.title = element_text(size = 10),
+      axis.text.x = element_text(size = 10),
+      axis.text.y = element_text(size = 10),
+      axis.title = element_text(size = 10),
+      strip.text = element_text(size = 10)
     )
 
   return(plot_theme)

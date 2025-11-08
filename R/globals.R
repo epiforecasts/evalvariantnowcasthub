@@ -32,5 +32,14 @@ utils::globalVariables(c(
   "nowcast_date", # <extract_nowcasts>
   "location", # <get_oracle_output>
   "location", # <get_target_data>
+  "clades_modeled", # <get_plot_obs_clade_freq>
+  "sequences", # <get_plot_obs_clade_freq>
+  "seq_clade", # <get_plot_obs_clade_freq>
+  "n_seq", # <get_plot_obs_clade_freq>
+  "obs_freq", # <get_plot_obs_clade_freq>
+  "clades_modeled", # <get_bar_chart_seq_count>
+  "sequences", # <get_bar_chart_seq_count>
+  "abbreviation", # <get_plot_hosp_admissions>
+  "value", # <get_plot_hosp_admissions>
   NULL
 ))
