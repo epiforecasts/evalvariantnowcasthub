@@ -11,7 +11,8 @@ get_bar_chart_seq_count(
   plot_name,
   output_fp = file.path("output", "figs", "data_figs"),
   log_scale = TRUE,
-  nowcast_date_line = FALSE
+  nowcast_date_line = FALSE,
+  title = FALSE
 )
 }
 \arguments{
@@ -30,6 +31,8 @@ scale, default is TRUE}
 
 \item{nowcast_date_line}{Boolean indicating whether or not to include a
 dashed line for the nowcast date}
+
+\item{title}{Boolean indicating whether to include the title}
 }
 \value{
 ggplot object

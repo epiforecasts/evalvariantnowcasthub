@@ -16,9 +16,7 @@ get_plot_obs_clade_freq <- function(obs_data,
                                       "output", "figs",
                                       "data_figs"
                                     )) {
-  if (temporal_granularity == "days") {
-    obs_data <- obs_data
-  } else {
+  if (temporal_granularity == "weeks") {
     obs_data <- daily_to_weekly(obs_data)
   }
 
@@ -93,6 +91,7 @@ get_plot_obs_clade_freq <- function(obs_data,
 #'   scale, default is TRUE
 #' @param nowcast_date_line Boolean indicating whether or not to include a
 #'   dashed line for the nowcast date
+#' @param title Boolean indicating whether to include the title
 #'
 #' @returns ggplot object
 #' @autoglobal
@@ -105,7 +104,8 @@ get_bar_chart_seq_count <- function(obs_data,
                                       "data_figs"
                                     ),
                                     log_scale = TRUE,
-                                    nowcast_date_line = FALSE) {
+                                    nowcast_date_line = FALSE,
+                                    title = FALSE) {
   if (isTRUE(nowcast_date_line)) {
     nowcast_date <- obs_data |>
       select(nowcast_date) |>
@@ -175,6 +175,9 @@ get_bar_chart_seq_count <- function(obs_data,
         date_breaks = "2 weeks",
         date_labels = "%d %b %Y"
       )
+  }
+  if (isTRUE(title)) {
+    p <- p + ggtitle(glue::glue("{location}"))
   }
 
   dir_create(output_fp, recurse = TRUE)

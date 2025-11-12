@@ -52,7 +52,35 @@ plot_components <- function() {
     "24D" = pal_clades[10],
     "23A" = pal_clades[11],
     "25B" = pal_clades[12],
-    "other" = "darkgray"
+    "other" = "darkgray",
+    "24A.as of nowcast date" = pal_clades[1],
+    "24B.as of nowcast date" = pal_clades[2],
+    "24C.as of nowcast date" = pal_clades[3],
+    "24E.as of nowcast date" = pal_clades[4],
+    "recombinant.as of nowcast date" = "brown4",
+    "24F.as of nowcast date" = pal_clades[5],
+    "24G.as of nowcast date" = pal_clades[6],
+    "24H.as of nowcast date" = pal_clades[7],
+    "24I.as of nowcast date" = pal_clades[8],
+    "25A.as of nowcast date" = pal_clades[9],
+    "24D.as of nowcast date" = pal_clades[10],
+    "23A.as of nowcast date" = pal_clades[11],
+    "25B.as of nowcast date" = pal_clades[12],
+    "other.as of nowcast date" = "darkgray",
+    "24A.evaluation" = pal_clades[1],
+    "24B.evaluation" = pal_clades[2],
+    "24C.evaluation" = pal_clades[3],
+    "24E.evaluation" = pal_clades[4],
+    "recombinant.evaluation" = "brown4",
+    "24F.evaluation" = pal_clades[5],
+    "24G.evaluation" = pal_clades[6],
+    "24H.evaluation" = pal_clades[7],
+    "24I.evaluation" = pal_clades[8],
+    "25A.evaluation" = pal_clades[9],
+    "24D.evaluation" = pal_clades[10],
+    "23A.evaluation" = pal_clades[11],
+    "25B.evaluation" = pal_clades[12],
+    "other.evaluation" = "darkgray"
   )
   percentile_colors <- c(
     "top 90%" = "darkblue",
@@ -62,6 +90,10 @@ plot_components <- function() {
     "as of nowcast date" = 1,
     "evaluation" = 0.3
   )
+  data_availability_linetype <- c(
+    "as of nowcast date" = "solid",
+    "evaluation" = "dashed"
+  )
   # nolint end
 
   plot_comp_list <-
@@ -69,7 +101,8 @@ plot_components <- function() {
       model_colors = model_colors,
       clade_colors = clade_colors,
       percentile_colors = percentile_colors,
-      data_availability_alpha = data_availability_alpha
+      data_availability_alpha = data_availability_alpha,
+      data_availability_linetype = data_availability_linetype
     )
   return(plot_comp_list)
 }

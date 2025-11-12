@@ -9,8 +9,6 @@ get_bar_chart_comparison(
   final_data,
   location,
   temporal_granularity,
-  plot_name,
-  output_fp = file.path("output", "figs", "data_figs"),
   log_scale = TRUE
 )
 }
@@ -23,12 +21,10 @@ get_bar_chart_comparison(
 
 \item{temporal_granularity}{Temporal granularity to plot}
 
-\item{plot_name}{Name of plot}
-
-\item{output_fp}{File.path to save plot}
-
 \item{log_scale}{Boolean indicating whether or not y axis should be on log
 scale, default is TRUE}
+
+\item{plot_name}{Name of plot}
 
 \item{nowcast_date_line}{Boolean indicating whether or not to include a
 dashed line for the nowcast date}
