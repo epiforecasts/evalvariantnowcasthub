@@ -7,7 +7,7 @@
 get_plot_hosp_admissions(
   location_to_plot,
   date_range,
-  temporal_granularity,
+  temporal_granularity = "weeks",
   location_data,
   plot_name,
   output_fp = file.path("output", "figs", "data_figs"),

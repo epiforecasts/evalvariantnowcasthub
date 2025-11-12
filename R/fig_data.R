@@ -16,6 +16,12 @@ get_plot_obs_clade_freq <- function(obs_data,
                                       "output", "figs",
                                       "data_figs"
                                     )) {
+  if (temporal_granularity == "days") {
+    obs_data <- obs_data
+  } else {
+    obs_data <- daily_to_weekly(obs_data)
+  }
+
   if (location == "US") {
     obs_data <- obs_data |>
       group_by(date, clades_modeled) |>
@@ -28,9 +34,8 @@ get_plot_obs_clade_freq <- function(obs_data,
     )
   }
 
-  if (temporal_granularity == "days") {
-    obs_data <- obs_data
-  } # add something to aggregate by week
+
+
 
   seq_data <- obs_data |>
     group_by(date, location) |>
@@ -95,6 +100,12 @@ get_bar_chart_seq_count <- function(obs_data,
                                       "output", "figs",
                                       "data_figs"
                                     )) {
+  if (temporal_granularity == "days") {
+    obs_data <- obs_data
+  } else {
+    obs_data <- daily_to_weekly(obs_data)
+  }
+
   if (location == "US") {
     obs_data <- obs_data |>
       group_by(date, clades_modeled) |>
@@ -106,10 +117,6 @@ get_bar_chart_seq_count <- function(obs_data,
       location %in% !!location
     )
   }
-
-  if (temporal_granularity == "days") {
-    obs_data <- obs_data
-  } # add something to aggregate by week
 
   plot_comps <- plot_components()
 
@@ -168,7 +175,7 @@ get_bar_chart_seq_count <- function(obs_data,
 #' @autoglobal
 get_plot_hosp_admissions <- function(location_to_plot,
                                      date_range,
-                                     temporal_granularity,
+                                     temporal_granularity = "weeks",
                                      location_data,
                                      plot_name,
                                      output_fp = file.path(
@@ -184,9 +191,6 @@ get_plot_hosp_admissions <- function(location_to_plot,
       date >= min(date_range),
       date <= max(date_range)
     )
-  if (temporal_granularity == "days") {
-    raw_data <- raw_data
-  } # add something to aggregate by week
 
 
   p <- ggplot(raw_data) +
@@ -199,6 +203,7 @@ get_plot_hosp_admissions <- function(location_to_plot,
     ylab("Hospital admissions") +
     # scale_y_continuous(transform = "log10")+
     scale_x_date(
+      limits = c(min(date_range), max(date_range)),
       date_breaks = "2 weeks",
       date_labels = "%d %b %Y"
     ) +
@@ -233,8 +238,8 @@ get_first_data_fig <- function(plot_freq,
   CCCC"
 
   fig_data <- plot_freq +
-    plot_seq +
-    plot_hosp +
+    (plot_seq + theme(plot.tag.position = c(0, 1.2))) +
+    (plot_hosp + theme(plot.tag.position = c(0, 1.2))) +
     plot_layout(
       design = fig_layout,
       axes = "collect",

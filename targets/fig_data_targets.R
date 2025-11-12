@@ -4,7 +4,7 @@ fig_data_targets <- list(
     command = get_plot_obs_clade_freq(
       obs_data = clean_variant_data_final_all_states,
       location = "US",
-      temporal_granularity = "days",
+      temporal_granularity = "weeks",
       plot_name = "final_obs_freq_US"
     )
   ),
@@ -13,7 +13,7 @@ fig_data_targets <- list(
     command = get_bar_chart_seq_count(
       obs_data = clean_variant_data_final_all_states,
       location = "US",
-      temporal_granularity = "days",
+      temporal_granularity = "weeks",
       plot_name = "bar_chart_seq_counts_US"
     )
   ),
@@ -21,7 +21,7 @@ fig_data_targets <- list(
     name = plot_hosp_admissions,
     command = get_plot_hosp_admissions(
       location_to_plot = "US",
-      temporal_granularity = "days",
+      temporal_granularity = "weeks",
       date_range = c(
         min(clean_variant_data_final_all_states$date),
         max(clean_variant_data_final_all_states$date)
