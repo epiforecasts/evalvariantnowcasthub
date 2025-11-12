@@ -299,6 +299,18 @@
     },
     "14": {
       "@type": "SoftwareApplication",
+      "identifier": "cowplot",
+      "name": "cowplot",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=cowplot"
+    },
+    "15": {
+      "@type": "SoftwareApplication",
       "identifier": "lubridate",
       "name": "lubridate",
       "provider": {
@@ -311,7 +323,7 @@
     },
     "SystemRequirements": null
   },
-  "fileSize": "38.442KB",
+  "fileSize": "66.121KB",
   "releaseNotes": "https://github.com/epiforecasts/evalvariantnowcasthub/blob/main/NEWS.md",
   "readme": "https://github.com/epiforecasts/evalvariantnowcasthub/blob/main/README.md"
 }
