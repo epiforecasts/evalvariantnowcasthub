@@ -290,24 +290,77 @@ get_plot_sequence_counts_by_loc <- function(obs_data,
                                             )) {
   seq_counts_by_loc <- obs_data |>
     group_by(location) |>
-    summarise(total_seq = sum(sequences)) |>
+    summarise(
+      total_seq = sum(sequences),
+      total_pop = max(population)
+    ) |>
     arrange(desc(total_seq)) |>
-    mutate(location = factor(location, levels = location))
+    mutate(
+      location = factor(location, levels = location),
+      cdf_seq = cumsum(total_seq) / sum(total_seq),
+      top_90_seq = ifelse(cdf_seq <= 0.9, "top 90%", "bottom 10%"),
+      cdf_pop = cumsum(total_pop) / sum(total_pop),
+      top_90_pop = ifelse(cdf_pop <= 0.9, "top 90%", "bottom 10%")
+    )
 
-  p <- ggplot(seq_counts_by_loc) +
-    geom_bar(aes(x = location, y = total_seq),
+  plot_comps <- plot_components()
+
+  p1 <- ggplot(seq_counts_by_loc) +
+    geom_bar(aes(x = location, y = total_seq, fill = top_90_seq),
       stat = "identity",
       position = "dodge"
     ) +
     get_plot_theme() +
+    scale_fill_manual(
+      name = "",
+      values = plot_comps$percentile_colors
+    ) +
     scale_y_continuous(trans = "log10") +
     xlab("") +
-    ylab("Total sequences collected from September 2024 to June 2025")
+    ylab("Total sequences collected")
+
+
+  p2 <- ggplot(seq_counts_by_loc) +
+    geom_bar(aes(x = location, y = total_pop, fill = top_90_pop),
+      stat = "identity",
+      position = "dodge"
+    ) +
+    get_plot_theme() +
+    scale_fill_manual(
+      name = "",
+      values = plot_comps$percentile_colors
+    ) +
+    scale_y_continuous(trans = "log10") +
+    xlab("") +
+    ylab("Population size")
+
+  fig_layout <- "
+  A
+  B"
+
+  fig_distrib <- p1 + p2 +
+    plot_layout(
+      design = fig_layout,
+      axes = "collect",
+      guides = "collect"
+    ) +
+    plot_annotation(
+      tag_levels = "A",
+      tag_suffix = "", # adds a period after each letter
+      tag_sep = "", # no separator between tag levels
+      theme = theme(
+        legend.position = "bottom",
+        legend.title = element_text(hjust = 0.5),
+        legend.justification = "left",
+        plot.tag = element_text(size = 20)
+      )
+    )
+
   dir_create(output_fp, recurse = TRUE)
   ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
-    plot = p,
-    width = 10,
-    height = 6
+    plot = fig_distrib,
+    width = 12,
+    height = 8
   )
-  return(p)
+  return(fig_distrib)
 }

@@ -54,12 +54,17 @@ plot_components <- function() {
     "25B" = pal_clades[12],
     "other" = "darkgray"
   )
+  percentile_colors <- c(
+    "top 90%" = "darkblue",
+    "bottom 10%" = "brown"
+  )
   # nolint end
 
   plot_comp_list <-
     list(
       model_colors = model_colors,
-      clade_colors = clade_colors
+      clade_colors = clade_colors,
+      percentile_colors = percentile_colors
     )
   return(plot_comp_list)
 }
