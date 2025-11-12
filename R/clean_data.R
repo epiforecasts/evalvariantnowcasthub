@@ -4,14 +4,12 @@
 #'    next strain
 #' @param clade_list Vector of character strings of the clade names
 #' @param location_data Data.frame of location information
-#' @param nowcast_dates Vector of character strings indicate the date range of
+#' @param nowcast_date Character string indicate the date range of
 #'    the data.
 #' @param seq_col_name Character string indicating the name of the column for
 #'   number of sequences of that clade
 #' @param type Character string indicating data is as of the nowcast date or
 #'   evaluation data
-#' @param nowcast_days Number of days we nowcast, default is `31`.
-#' @param forecast_days Number of days we forecast, default is `10`.
 #'
 #' @returns Data.frame of counts of sequences of each clade we nowcasted during
 #'   the season
@@ -21,11 +19,9 @@
 get_clean_variant_data <- function(raw_variant_data,
                                    clade_list,
                                    location_data,
-                                   nowcast_dates,
+                                   nowcast_date,
                                    seq_col_name,
-                                   type,
-                                   nowcast_days = 31,
-                                   forecast_days = 10) {
+                                   type) {
   loc_data_renamed <- rename(location_data,
     location_code = location,
     location = abbreviation
@@ -39,15 +35,20 @@ get_clean_variant_data <- function(raw_variant_data,
       date = target_date
     ) |>
     dplyr::filter(
-      location %in% location_data$abbreviation,
-      date <= ymd(max(nowcast_dates)) + days(forecast_days),
-      date >= ymd(min(nowcast_dates)) - days(nowcast_days)
+      location %in% location_data$abbreviation
     ) |>
     left_join(
       loc_data_renamed,
       by = "location"
     ) |>
-    mutate(type = !!type)
+    mutate(type = !!type) |>
+    group_by(
+      clades_modeled, location_name, location, location_code, population,
+      type, date
+    ) |>
+    summarise(sequences = sum(sequences)) |>
+    ungroup() |>
+    mutate(nowcast_date = nowcast_date)
   return(clean_latest_data)
 }
 #' Get clean variant data from raw data
@@ -100,7 +101,13 @@ get_clean_variant_data_ns <- function(raw_variant_data,
       loc_data_renamed,
       by = c("location_name")
     ) |>
-    mutate(type = !!type)
+    mutate(type = !!type) |>
+    group_by(
+      clades_modeled, location_name, location, location_code, population,
+      type, date
+    ) |>
+    summarise(sequences = sum(sequences)) |>
+    ungroup()
   return(clean_latest_data)
 }
 

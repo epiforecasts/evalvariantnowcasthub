@@ -58,13 +58,18 @@ plot_components <- function() {
     "top 90%" = "darkblue",
     "bottom 10%" = "brown"
   )
+  data_availability_alpha <- c(
+    "as of nowcast date" = 1,
+    "evaluation" = 0.3
+  )
   # nolint end
 
   plot_comp_list <-
     list(
       model_colors = model_colors,
       clade_colors = clade_colors,
-      percentile_colors = percentile_colors
+      percentile_colors = percentile_colors,
+      data_availability_alpha = data_availability_alpha
     )
   return(plot_comp_list)
 }

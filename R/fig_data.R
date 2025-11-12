@@ -89,6 +89,10 @@ get_plot_obs_clade_freq <- function(obs_data,
 #' @param temporal_granularity Temporal granularity to plot
 #' @param plot_name Name of plot
 #' @param output_fp File.path to save plot
+#' @param log_scale Boolean indicating whether or not y axis should be on log
+#'   scale, default is TRUE
+#' @param nowcast_date_line Boolean indicating whether or not to include a
+#'   dashed line for the nowcast date
 #'
 #' @returns ggplot object
 #' @autoglobal
@@ -99,7 +103,16 @@ get_bar_chart_seq_count <- function(obs_data,
                                     output_fp = file.path(
                                       "output", "figs",
                                       "data_figs"
-                                    )) {
+                                    ),
+                                    log_scale = TRUE,
+                                    nowcast_date_line = FALSE) {
+  if (isTRUE(nowcast_date_line)) {
+    nowcast_date <- obs_data |>
+      select(nowcast_date) |>
+      distinct() |>
+      pull()
+  }
+
   if (temporal_granularity == "days") {
     obs_data <- obs_data
   } else {
@@ -120,6 +133,7 @@ get_bar_chart_seq_count <- function(obs_data,
 
   plot_comps <- plot_components()
 
+
   p <- ggplot(obs_data) +
     geom_bar(aes(x = date, y = sequences, fill = clades_modeled),
       stat = "identity", position = "stack"
@@ -131,7 +145,6 @@ get_bar_chart_seq_count <- function(obs_data,
     ) +
     xlab("") +
     ylab("Sequence counts") +
-    scale_y_continuous(transform = "log10") +
     guides(
       color = guide_legend(
         title.position = "top",
@@ -150,6 +163,19 @@ get_bar_chart_seq_count <- function(obs_data,
       ),
       legend.position = "bottom"
     )
+  if (isTRUE(log_scale)) {
+    p <- p + scale_y_continuous(transform = "log10")
+  }
+  if (isTRUE(nowcast_date_line)) {
+    p <- p + geom_vline(aes(xintercept = ymd(nowcast_date)),
+      linetype = "dashed"
+    ) +
+      scale_x_date(
+        limits = c(min(obs_data$date), ymd(nowcast_date) + days(10)),
+        date_breaks = "2 weeks",
+        date_labels = "%d %b %Y"
+      )
+  }
 
   dir_create(output_fp, recurse = TRUE)
   ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
@@ -282,6 +308,7 @@ get_first_data_fig <- function(plot_freq,
 #' @inheritParams get_plot_obs_clade_freq
 #'
 #' @returns Bar chart of sequence counts by location
+#' @autoglobal
 get_plot_seq_counts_by_loc <- function(obs_data,
                                        plot_name,
                                        output_fp = file.path(
