@@ -1,0 +1,24 @@
+---
+title: "Supplement: Collaborative estimation and evaluationof SARS-CoV-2 variant nowcasting in the U.S."
+authors: "To be updated"
+format: docx
+editor: visual
+date: 2025-11-11
+bibliography: ref.bib
+csl: vancouver.csl
+output:
+  bookdown::docx:
+    fig_caption: yes
+---
+
+# Additional figures
+
+## Data landscape
+
+![Fig. S1 Distribution of sequence counts compared to population size in the U.S. A. Total number of sequences collected and submitted by the final evaluation date for each state during the period from September 2024 to June 2025. Color indicates whether the location's sequences are among the top 90th percentile of all sequences submitted nationally B. Population size for each jurisdiction, ordered by total number of sequences submitted. Color indicates whether the population size is amone the top 90th percentile of the total population.](../output/figs/data_figs/supp/bar_chart_all_seq_counts_final.png){figs1}
+
+![Fig. S2 Example final sequence data from CA](../output/figs/data_figs/supp/final_seq_data_ex1.png){figs2}
+
+![Fig. S3 Example final sequence data from OH](../output/figs/data_figs/supp/final_seq_data_ex2.png){figs3}
+
+![Fig. S4 Example final sequence data from MN](../output/figs/data_figs/supp/final_seq_data_ex3.png){figs4}
