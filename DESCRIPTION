@@ -29,6 +29,7 @@ Imports:
   roxyglobals,
   data.table,
   rlang,
+  cowplot,
   lubridate
 Suggests:
     bookdown,

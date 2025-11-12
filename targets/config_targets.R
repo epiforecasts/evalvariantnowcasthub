@@ -45,7 +45,7 @@ config_targets <- list(
   # outputs figures
   tar_target(
     name = states_for_vis,
-    command = c("CA", "MA", "OH")
+    command = c("CA", "OH", "MN")
   ),
   tar_target(
     name = nowcast_date_for_vis,
