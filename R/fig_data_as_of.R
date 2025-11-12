@@ -70,11 +70,11 @@ get_bar_chart_comparison <- function(obs_data,
       values_to = "sequence_counts"
     ) |>
     filter(data_availability != "final") |>
-    mutate(data_availability = ifelse(data_availability == "init",
-      "as of nowcast date",
-      "evaluation"
-    )) |>
     mutate(
+      data_availability = ifelse(data_availability == "init",
+        "as of nowcast date",
+        "evaluation"
+      ),
       data_availability = factor(data_availability,
         levels = c(
           "as of nowcast date",
