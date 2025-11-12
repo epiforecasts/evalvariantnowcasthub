@@ -42,7 +42,7 @@ fig_data_targets <- list(
   # Supplement ----------------------------------------------------
   tar_target(
     name = seq_count_by_loc,
-    command = get_plot_sequence_counts_by_loc(
+    command = get_plot_seq_counts_by_loc(
       obs_data = clean_variant_data_final_all_states,
       plot_name = "bar_chart_all_seq_counts_final"
     )

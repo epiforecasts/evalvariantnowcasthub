@@ -282,12 +282,12 @@ get_first_data_fig <- function(plot_freq,
 #' @inheritParams get_plot_obs_clade_freq
 #'
 #' @returns Bar chart of sequence counts by location
-get_plot_sequence_counts_by_loc <- function(obs_data,
-                                            plot_name,
-                                            output_fp = file.path(
-                                              "output", "figs",
-                                              "data_figs", "supp"
-                                            )) {
+get_plot_seq_counts_by_loc <- function(obs_data,
+                                       plot_name,
+                                       output_fp = file.path(
+                                         "output", "figs",
+                                         "data_figs", "supp"
+                                       )) {
   seq_counts_by_loc <- obs_data |>
     group_by(location) |>
     summarise(
