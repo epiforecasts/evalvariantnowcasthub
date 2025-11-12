@@ -24,7 +24,7 @@ daily_to_weekly <- function(daily_data) {
   weekly_data <- daily_data |>
     mutate(
       epi_week = epiweek(date),
-      epi_year = epiyear(date),
+      epi_year = epiyear(date)
     ) |>
     group_by(
       epi_year, epi_week,

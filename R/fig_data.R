@@ -223,6 +223,15 @@ get_plot_hosp_admissions <- function(location_to_plot,
   return(p)
 }
 
+#' Patchwork first data figure
+#'
+#' @param plot_freq A
+#' @param plot_seq B
+#' @param plot_hosp C
+#' @param plot_name name of figure
+#' @param output_fp directory to save
+#'
+#' @returns combined figure
 get_first_data_fig <- function(plot_freq,
                                plot_seq,
                                plot_hosp,
@@ -265,4 +274,40 @@ get_first_data_fig <- function(plot_freq,
   )
 
   return(fig_data)
+}
+
+#' Get a plot of sequence counts by location for the duration of the nowcast
+#' period
+#'
+#' @inheritParams get_plot_obs_clade_freq
+#'
+#' @returns Bar chart of sequence counts by location
+get_plot_sequence_counts_by_loc <- function(obs_data,
+                                            plot_name,
+                                            output_fp = file.path(
+                                              "output", "figs",
+                                              "data_figs", "supp"
+                                            )) {
+  seq_counts_by_loc <- obs_data |>
+    group_by(location) |>
+    summarise(total_seq = sum(sequences)) |>
+    arrange(desc(total_seq)) |>
+    mutate(location = factor(location, levels = location))
+
+  p <- ggplot(seq_counts_by_loc) +
+    geom_bar(aes(x = location, y = total_seq),
+      stat = "identity",
+      position = "dodge"
+    ) +
+    get_plot_theme() +
+    scale_y_continuous(trans = "log10") +
+    xlab("") +
+    ylab("Total sequences collected from September 2024 to June 2025")
+  dir_create(output_fp, recurse = TRUE)
+  ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
+    plot = p,
+    width = 10,
+    height = 6
+  )
+  return(p)
 }
