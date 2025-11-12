@@ -78,7 +78,8 @@ data_targets <- list(
 # Make plots
 plot_targets <- list(
   eda_plot_targets,
-  fig_data_targets
+  fig_data_targets,
+  fig_data_as_of_targets
   #   fig_nowcast_targets,
   #   fig_pred_plus_data_targets,
   #   fig_overall_targets
