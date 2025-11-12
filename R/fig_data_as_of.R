@@ -80,12 +80,10 @@ get_bar_chart_comparison <- function(obs_data,
           "as of nowcast date",
           "evaluation"
         )
-      )
-    ) |>
-    arrange(date, data_availability, clades_modeled) |>
-    mutate(
+      ),
       fill_group = interaction(clades_modeled, data_availability)
-    )
+    ) |>
+    arrange(date, data_availability, clades_modeled)
 
   plot_comps <- plot_components()
 
