@@ -23,11 +23,6 @@ get_bar_chart_comparison(
 
 \item{log_scale}{Boolean indicating whether or not y axis should be on log
 scale, default is TRUE}
-
-\item{plot_name}{Name of plot}
-
-\item{nowcast_date_line}{Boolean indicating whether or not to include a
-dashed line for the nowcast date}
 }
 \value{
 ggplot object

@@ -4,8 +4,7 @@
 #'    next strain
 #' @param clade_list Vector of character strings of the clade names
 #' @param location_data Data.frame of location information
-#' @param nowcast_date Character string indicate the date range of
-#'    the data.
+#' @param nowcast_date Character string indicate the date of the nowcast.
 #' @param seq_col_name Character string indicating the name of the column for
 #'   number of sequences of that clade
 #' @param type Character string indicating data is as of the nowcast date or

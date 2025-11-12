@@ -64,5 +64,6 @@ utils::globalVariables(c(
   "sequences_final", # <get_bar_chart_comparison>
   "data_availability", # <get_bar_chart_comparison>
   "sequence_counts", # <get_bar_chart_comparison>
+  "fill_group", # <get_bar_chart_comparison>
   NULL
 ))

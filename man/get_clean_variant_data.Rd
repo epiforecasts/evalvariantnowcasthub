@@ -21,8 +21,7 @@ next strain}
 
 \item{location_data}{Data.frame of location information}
 
-\item{nowcast_date}{Character string indicate the date range of
-the data.}
+\item{nowcast_date}{Character string indicate the date of the nowcast.}
 
 \item{seq_col_name}{Character string indicating the name of the column for
 number of sequences of that clade}

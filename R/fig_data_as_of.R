@@ -4,11 +4,8 @@
 #' @param final_data Data.frame of final sequences by clade and location
 #' @param location Location to plot (abbreviation)
 #' @param temporal_granularity Temporal granularity to plot
-#' @param plot_name Name of plot
 #' @param log_scale Boolean indicating whether or not y axis should be on log
 #'   scale, default is TRUE
-#' @param nowcast_date_line Boolean indicating whether or not to include a
-#'   dashed line for the nowcast date
 #'
 #' @returns ggplot object
 #' @autoglobal
@@ -82,8 +79,7 @@ get_bar_chart_comparison <- function(obs_data,
         )
       ),
       fill_group = interaction(clades_modeled, data_availability)
-    ) |>
-    arrange(date, data_availability, clades_modeled)
+    )
 
   plot_comps <- plot_components()
 
