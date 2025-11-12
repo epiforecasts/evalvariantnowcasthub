@@ -99,7 +99,7 @@ get_clean_variant_data_ns <- function(raw_variant_data,
     ) |>
     left_join(
       loc_data_renamed,
-      by = c("location_name")
+      by = "location_name"
     ) |>
     mutate(type = !!type) |>
     group_by(
