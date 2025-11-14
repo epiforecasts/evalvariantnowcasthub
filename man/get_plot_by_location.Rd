@@ -8,7 +8,8 @@ get_plot_by_location(
   scores_obj,
   seq_counts_by_loc,
   score_type = c("brier_score", "energy_score"),
-  rel_skill_plot = TRUE
+  rel_skill_plot = TRUE,
+  remove_legend = TRUE
 )
 }
 \arguments{
