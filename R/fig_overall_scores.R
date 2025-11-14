@@ -140,7 +140,10 @@ get_plot_by_location <- function(scores_obj,
 #' @returns ggplot object
 #' @autoglobal
 get_plot_by_nowcast_date <- function(scores_obj,
-                                     score_type = c("brier_score", "energy_score"),
+                                     score_type = c(
+                                       "brier_score",
+                                       "energy_score"
+                                     ),
                                      rel_skill_plot = TRUE,
                                      remove_legend = TRUE,
                                      title = NULL) {
