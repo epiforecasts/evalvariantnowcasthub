@@ -40,6 +40,7 @@ get_plot_nowcasts <- function(data,
   ggtitle(glue::glue("Nowcasts as of {nowcast_date}"))
 
   if (isTRUE(save)) {
+    dir_create(output_fp, recurse = TRUE)
     ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
       plot = p
     )
@@ -82,6 +83,7 @@ get_plot_mult_locs <- function(data,
   ggtitle("Observed variant proportions")
 
   if (isTRUE(save)) {
+    dir_create(output_fp, recurse = TRUE)
     ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
       plot = p
     )
@@ -138,6 +140,7 @@ get_plot_scores_t <- function(scores_data_hub,
     ggtitle(glue("scores over time for a few states on {this_nowcast_date}"))
 
   if (isTRUE(save)) {
+    dir_create(output_fp, recurse = TRUE)
     ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
       plot = p
     )
@@ -192,6 +195,7 @@ get_plot_rel_skill_overall <- function(scores_obj,
     theme_bw()
 
   if (isTRUE(save)) {
+    dir_create(output_fp, recurse = TRUE)
     ggsave(file.path(output_fp, glue::glue("{plot_name}_{score_type}.png")),
       plot = p
     )
