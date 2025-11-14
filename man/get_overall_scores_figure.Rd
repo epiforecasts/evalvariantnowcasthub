@@ -2,48 +2,57 @@
 % Please edit documentation in R/fig_overall_scores.R
 \name{get_overall_scores_figure}
 \alias{get_overall_scores_figure}
-\title{Combine all 9 charts into a comprehensive figure using patchwork}
+\title{Get a plot of the summary of the overall scores}
 \usage{
 get_overall_scores_figure(
-  chart_a,
-  chart_b,
-  chart_c,
-  chart_d,
-  chart_e,
-  chart_f,
-  chart_g,
-  chart_h,
-  chart_i,
-  plot_name = "overall_scores_summary",
-  output_fp = file.path("output", "figs", "overall_scores")
+  a,
+  b,
+  c,
+  d,
+  e,
+  f,
+  g,
+  h,
+  i,
+  j,
+  k,
+  l,
+  output_fp = file.path("output", "figs", "overall_scores"),
+  plot_name = "overall_scores"
 )
 }
 \arguments{
-\item{chart_a}{Chart A plot object}
+\item{a}{A}
 
-\item{chart_b}{Chart B plot object}
+\item{b}{B}
 
-\item{chart_c}{Chart C plot object}
+\item{c}{C}
 
-\item{chart_d}{Chart D plot object}
+\item{d}{D}
 
-\item{chart_e}{Chart E plot object}
+\item{e}{E}
 
-\item{chart_f}{Chart F plot object}
+\item{f}{F}
 
-\item{chart_g}{Chart G plot object}
+\item{g}{G}
 
-\item{chart_h}{Chart H plot object}
+\item{h}{H}
 
-\item{chart_i}{Chart I plot object}
+\item{i}{I}
 
-\item{plot_name}{Character string indicating name of output file}
+\item{j}{J}
 
-\item{output_fp}{Character string indicating directory to save file}
+\item{k}{K}
+
+\item{l}{L}
+
+\item{output_fp}{directory to save figures}
+
+\item{plot_name}{name of the plot}
 }
 \value{
-Combined patchwork plot object
+ggplot object
 }
 \description{
-Combine all 9 charts into a comprehensive figure using patchwork
+Get a plot of the summary of the overall scores
 }

@@ -65,7 +65,7 @@ clean_data_targets <- list(
   # Get an object with NAs removed for days
   # we can't score due to no sequences
   tar_target(
-    name = su_scores_ep,
+    name = su_scores_all,
     command = su_scores_excl_partial |>
       dplyr::filter(!is.na(brier_score))
   )

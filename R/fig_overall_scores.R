@@ -79,7 +79,7 @@ get_plot_by_location <- function(scores_obj,
       get_plot_theme() +
       labs(
         x = "Location",
-        y = glue::glue("Relative Skill ({label})"),
+        y = glue::glue("Relative scaled skill ({label})"),
         color = "Model"
       ) +
       scale_y_continuous(trans = "log10") +
@@ -173,7 +173,7 @@ get_plot_by_nowcast_date <- function(scores_obj,
       ) +
       labs(
         x = "",
-        y = glue::glue("Relative Skill ({label})"),
+        y = glue::glue("Relative scaled skill ({label})"),
         color = "Model"
       ) +
       scale_y_continuous(trans = "log10") +
@@ -182,17 +182,25 @@ get_plot_by_nowcast_date <- function(scores_obj,
     scores_sum <- scores_obj |>
       scoringutils::summarise_scores(by = c("model", "nowcast_date"))
     p <- ggplot(scores_sum) +
-      geom_bar(
+      geom_point(
         aes(
           x = nowcast_date,
           y = !!sym(glue::glue(
             "{score_type}"
           )),
-          fill = model
-        ),
-        stat = "identity", position = "dodge"
+          color = model
+        )
       ) +
-      scale_fill_manual(values = plot_components_list$model_colors) +
+      geom_line(
+        aes(
+          x = nowcast_date,
+          y = !!sym(glue::glue(
+            "{score_type}"
+          )),
+          color = model
+        )
+      ) +
+      scale_color_manual(values = plot_components_list$model_colors) +
       get_plot_theme(dates = TRUE) +
       scale_x_date(
         breaks = "2 weeks",
@@ -201,7 +209,7 @@ get_plot_by_nowcast_date <- function(scores_obj,
       labs(
         x = "",
         y = label,
-        fill = "Model"
+        color = "Model"
       )
   }
   return(p)
@@ -220,7 +228,9 @@ get_plot_by_nowcast_date <- function(scores_obj,
 #' @autoglobal
 get_plot_overall <- function(scores_obj,
                              score_type = c("brier_score", "energy_score"),
-                             rel_skill_plot = TRUE) {
+                             rel_skill_plot = TRUE,
+                             remove_legend = TRUE,
+                             title = NULL) {
   score_type <- rlang::arg_match(score_type)
   plot_components_list <- plot_components()
   if (score_type == "brier_score") {
@@ -248,18 +258,22 @@ get_plot_overall <- function(scores_obj,
             "{score_type}_scaled_relative_skill"
           )),
           color = model
-        )
+        ),
+        size = 6
       ) +
       geom_hline(yintercept = 1, linetype = "dashed", color = "gray50") +
       scale_color_manual(values = plot_components_list$model_colors) +
       get_plot_theme() +
       labs(
         x = "",
-        y = glue::glue("Relative Skill ({label})"),
+        y = glue::glue("Relative scaled skill\n({label})"),
         color = "Model"
       ) +
       scale_y_continuous(trans = "log10") +
-      coord_cartesian(ylim = c(1 / 1.1, 1.1))
+      theme(
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank()
+      )
   } else {
     scores_sum <- scores_obj |>
       scoringutils::summarise_scores(by = c("model")) |>
@@ -282,10 +296,246 @@ get_plot_overall <- function(scores_obj,
         x = "",
         y = label,
         fill = "Model"
+      ) +
+      theme(
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank()
+      ) +
+      guides(
+        fill = guide_legend(
+          title.position = "top",
+          nrow = 1
+        )
       )
+  }
+
+  if (isTRUE(remove_legend)) {
+    p <- p + guides(
+      fill = "none",
+      color = "none"
+    )
+  }
+
+  if (!is.null(title)) {
+    p <- p + ggtitle(glue::glue("{title}"))
   }
   return(p)
 }
+
+#' Brier/Energy Relative/Absolute by horizon
+#'
+#' @param scores_obj Scoringutils scores object
+#' @param rel_skill_plot Boolean indicating to return a relative skill plot
+#' @param score_type Character string indicating which score metric to use
+#' @importFrom scoringutils summarise_scores
+#' @importFrom ggplot2 ggplot geom_bar aes geom_hline coord_flip
+#' @importFrom rlang sym
+#' @returns ggplot object
+#' @autoglobal
+get_plot_horizon <- function(scores_obj,
+                             score_type = c("brier_score", "energy_score"),
+                             rel_skill_plot = TRUE) {
+  score_type <- rlang::arg_match(score_type)
+  plot_components_list <- plot_components()
+  if (score_type == "brier_score") {
+    label <- "Brier score"
+  } else {
+    label <- "Energy score"
+  }
+
+  if (isTRUE(rel_skill_plot)) {
+    rel_skill <- get_relative_skill(
+      scores_obj,
+      score_type = score_type,
+      by = c("target_date", "nowcast_date")
+    ) |>
+      mutate(horizon = as.integer(target_date - nowcast_date))
+
+    rel_skill_summarised <- rel_skill |>
+      scoringutils::summarise_scores(by = c("model", "horizon")) |>
+      filter(model != "Hub-baseline")
+
+    p <- ggplot(rel_skill_summarised) +
+      geom_line(
+        aes(
+          x = horizon,
+          y = !!sym(glue::glue(
+            "{score_type}_scaled_relative_skill"
+          )),
+          color = model
+        ),
+        linewidth = 1.5
+      ) +
+      geom_point(
+        aes(
+          x = horizon,
+          y = !!sym(glue::glue(
+            "{score_type}_scaled_relative_skill"
+          )),
+          color = model
+        )
+      ) +
+      geom_hline(yintercept = 1, linetype = "dashed", color = "gray50") +
+      geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
+      scale_color_manual(values = plot_components_list$model_colors) +
+      get_plot_theme() +
+      labs(
+        x = "Horizon (days)",
+        y = glue::glue("Relative scaled skill ({label})"),
+        color = "Model"
+      ) +
+      scale_y_continuous(trans = "log10") +
+      guides(color = "none")
+  } else {
+    scores_sum <- scores_obj |>
+      mutate(horizon = as.integer(target_date - nowcast_date)) |>
+      scoringutils::summarise_scores(by = c("model", "horizon")) |>
+      filter(!is.na(!!sym(glue::glue("{score_type}"))))
+
+    p <- ggplot(scores_sum) +
+      geom_line(
+        aes(
+          x = horizon,
+          y = !!sym(glue::glue(
+            "{score_type}"
+          )),
+          color = model
+        ),
+        linewidth = 1.5
+      ) +
+      geom_point(
+        aes(
+          x = horizon,
+          y = !!sym(glue::glue(
+            "{score_type}"
+          )),
+          color = model
+        )
+      ) +
+      scale_color_manual(values = plot_components_list$model_colors) +
+      geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
+      get_plot_theme() +
+      labs(
+        x = "Horizon (days)",
+        y = label,
+        color = "Model"
+      ) +
+      guides(color = "none")
+  }
+  return(p)
+}
+
+
+#' Sequence counts by location
+#'
+#' @param seq_counts_by_loc Total sequences for each location
+#' @importFrom ggplot2 ggplot geom_bar aes geom_hline coord_flip
+#' @importFrom rlang sym
+#' @returns ggplot object
+#' @autoglobal
+get_plot_seq_counts_loc <- function(seq_counts_by_loc) {
+  plot_comps <- plot_components()
+  seq_counts <- seq_counts_by_loc |>
+    arrange(desc(total_seq)) |>
+    mutate(location = factor(location, levels = unique(location)))
+  p <- ggplot(seq_counts) +
+    geom_bar(aes(x = location, y = total_seq),
+      stat = "identity",
+      position = "dodge"
+    ) +
+    get_plot_theme() +
+    scale_fill_manual(
+      name = "",
+      values = plot_comps$percentile_colors
+    ) +
+    scale_y_continuous(trans = "log10") +
+    xlab("") +
+    ylab("Number of sequences")
+  return(p)
+}
+
+#' Sequence counts by location
+#'
+#' @param seq_counts_by_loc Total sequences for each location
+#' @importFrom ggplot2 ggplot geom_bar aes geom_hline coord_flip
+#' @importFrom rlang sym
+#' @returns ggplot object
+#' @autoglobal
+get_plot_seq_counts_date <- function(seq_counts_by_date) {
+  plot_comps <- plot_components()
+  p <- ggplot(seq_counts_by_date) +
+    geom_line(aes(x = nowcast_date, y = total_sequences), ) +
+    get_plot_theme(dates = TRUE) +
+    xlab("") +
+    scale_x_date(
+      breaks = "2 weeks",
+      date_labels = "%d %b %Y"
+    ) +
+    ylab("Number of sequences\nwithin nowcast period")
+  return(p)
+}
+
+#' Get a plot of the summary of the overall scores
+#'
+#' @param a A
+#' @param b B
+#' @param c C
+#' @param d D
+#' @param e E
+#' @param f F
+#' @param g G
+#' @param h H
+#' @param i I
+#' @param j J
+#' @param k K
+#' @param l L
+#' @param output_fp directory to save figures
+#' @param plot_name name of the plot
+#'
+#' @returns ggplot object
+get_overall_scores_figure <- function(a, b, c, d, e, f, g, h, i, j, k, l,
+                                      output_fp = file.path("output", "figs", "overall_scores"),
+                                      plot_name = "overall_scores") {
+  fig_layout <- "
+  ABCD
+  EFGH
+  IIJJ
+  KKLL"
+
+  combined_fig <- a + b + c + d +
+    e + f + g + h +
+    i + j +
+    k + l +
+    plot_layout(
+      design = fig_layout,
+      guides = "collect"
+    ) +
+    plot_annotation(
+      tag_levels = "A",
+      tag_suffix = "",
+      theme = theme(
+        legend.position = "top",
+        legend.box = "horizontal",
+        legend.title = element_text(hjust = 0.5),
+        plot.tag = element_text(size = 14, face = "bold")
+      )
+    )
+
+  # Create output directory if it doesn't exist
+  dir_create(output_fp, recurse = TRUE)
+
+  # Save figure
+  ggsave(
+    file.path(output_fp, glue::glue("{plot_name}.png")),
+    plot = combined_fig,
+    width = 16,
+    height = 20,
+    dpi = 300
+  )
+
+  return(combined_fig)
+}
+
 
 
 #' Chart C: Brier score skill by nowcast date (half-width panel)
@@ -627,75 +877,4 @@ get_chart_i_avg_scores_over_time <- function(scores_obj) {
     )
 
   return(p)
-}
-
-#' Combine all 9 charts into a comprehensive figure using patchwork
-#'
-#' @param chart_a Chart A plot object
-#' @param chart_b Chart B plot object
-#' @param chart_c Chart C plot object
-#' @param chart_d Chart D plot object
-#' @param chart_e Chart E plot object
-#' @param chart_f Chart F plot object
-#' @param chart_g Chart G plot object
-#' @param chart_h Chart H plot object
-#' @param chart_i Chart I plot object
-#' @param plot_name Character string indicating name of output file
-#' @param output_fp Character string indicating directory to save file
-#' @importFrom patchwork plot_layout plot_annotation
-#' @importFrom ggplot2 ggsave theme element_text
-#' @importFrom fs dir_create
-#' @returns Combined patchwork plot object
-#' @autoglobal
-get_overall_scores_figure <- function(chart_a, chart_b, chart_c, chart_d,
-                                      chart_e, chart_f, chart_g, chart_h, chart_i,
-                                      plot_name = "overall_scores_summary",
-                                      output_fp = file.path("output", "figs", "overall_scores")) {
-  # Create layout design
-  # Charts A-D are half-width stacked panels
-  # Charts E-I are full-width panels
-  fig_layout <- "
-  AABBCCDD
-  AABBCCDD
-  EEEEEEEE
-  EEEEEEEE
-  FFFFFFFF
-  FFFFFFFF
-  GGGGGGGG
-  GGGGGGGG
-  GGGGGGGG
-  HHHHHHHH
-  IIIIIIII
-  IIIIIIII"
-
-  combined_fig <- chart_a + chart_b + chart_c + chart_d +
-    chart_e + chart_f + chart_g + chart_h + chart_i +
-    plot_layout(
-      design = fig_layout,
-      guides = "collect"
-    ) +
-    plot_annotation(
-      tag_levels = "A",
-      tag_suffix = "",
-      theme = theme(
-        legend.position = "bottom",
-        legend.box = "vertical",
-        legend.title = element_text(hjust = 0.5),
-        plot.tag = element_text(size = 14, face = "bold")
-      )
-    )
-
-  # Create output directory if it doesn't exist
-  dir_create(output_fp, recurse = TRUE)
-
-  # Save figure
-  ggsave(
-    file.path(output_fp, glue::glue("{plot_name}.png")),
-    plot = combined_fig,
-    width = 16,
-    height = 20,
-    dpi = 300
-  )
-
-  return(combined_fig)
 }
