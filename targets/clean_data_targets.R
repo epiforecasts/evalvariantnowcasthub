@@ -38,9 +38,22 @@ clean_data_targets <- list(
       summarise(n_final_seq = sum(sequences))
   ),
   tar_target(
+    name = seq_counts_by_loc,
+    command = clean_variant_data_final_all_states |>
+      group_by(location) |>
+      summarise(total_seq = sum(sequences)) |>
+      arrange(desc(total_seq))
+  ),
+  tar_target(
+    name = scores_w_seq_count,
+    command = scores |> as.data.frame() |>
+      left_join(seq_counts_by_loc) |>
+      arrange(desc(total_seq))
+  ),
+  tar_target(
     name = su_scores,
     command = convert_to_su_object(
-      scores_data = scores,
+      scores_data = scores_w_seq_count,
       brier_to_use = "brier_point"
     )
   ),
@@ -48,5 +61,12 @@ clean_data_targets <- list(
     name = su_scores_excl_partial,
     command = su_scores |>
       dplyr::filter(scored == TRUE)
+  ),
+  # Get an object with NAs removed for days
+  # we can't score due to no sequences
+  tar_target(
+    name = su_scores_ep,
+    command = su_scores_excl_partial |>
+      dplyr::filter(!is.na(brier_score))
   )
 )

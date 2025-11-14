@@ -65,5 +65,32 @@ utils::globalVariables(c(
   "data_availability", # <get_bar_chart_comparison>
   "sequence_counts", # <get_bar_chart_comparison>
   "fill_group", # <get_bar_chart_comparison>
+  "total_seq", # <get_plot_by_location>
+  "location", # <get_plot_by_location>
+  "model", # <get_plot_by_location>
+  "model", # <get_plot_by_nowcast_date>
+  "nowcast_date", # <get_plot_by_nowcast_date>
+  "model", # <get_plot_overall>
+  "nowcast_date", # <get_chart_c_brier_by_date>
+  "brier_score_scaled_relative_skill", # <get_chart_c_brier_by_date>
+  "model", # <get_chart_c_brier_by_date>
+  "nowcast_date", # <get_chart_d_energy_by_date>
+  "energy_score_scaled_relative_skill", # <get_chart_d_energy_by_date>
+  "model", # <get_chart_d_energy_by_date>
+  "location", # <get_chart_e_skill_by_location>
+  "model", # <get_chart_e_skill_by_location>
+  "week", # <get_chart_f_weekly_seq_by_location>
+  "location", # <get_chart_f_weekly_seq_by_location>
+  "sequences", # <get_chart_f_weekly_seq_by_location>
+  "avg_sequences", # <get_chart_f_weekly_seq_by_location>
+  "nowcast_date", # <get_chart_g_timeseries_all_regions>
+  "model", # <get_chart_g_timeseries_all_regions>
+  "nowcast_date", # <get_chart_h_timeseries_california>
+  "model", # <get_chart_h_timeseries_california>
+  "brier_score", # <get_chart_i_avg_scores_over_time>
+  "energy_score", # <get_chart_i_avg_scores_over_time>
+  "model", # <get_chart_i_avg_scores_over_time>
+  "nowcast_date", # <get_chart_i_avg_scores_over_time>
+  "score_value", # <get_chart_i_avg_scores_over_time>
   NULL
 ))
