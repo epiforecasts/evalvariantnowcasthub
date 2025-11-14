@@ -2,7 +2,8 @@
 #'
 #' @param scores_obj Scoringutils scores object
 #' @param score_type Character string indicating which score metric to use
-#' @param by Character vector of grouping variables for relative skill calculation
+#' @param by Character vector of grouping variables for relative skill
+#' calculation
 #' @importFrom scoringutils add_relative_skill
 #' @importFrom dplyr filter
 #' @importFrom rlang sym
@@ -280,7 +281,7 @@ get_plot_overall <- function(scores_obj,
     )
 
     rel_skill_summarised <- rel_skill |>
-      scoringutils::summarise_scores(by = c("model")) |>
+      scoringutils::summarise_scores(by = "model") |>
       filter(model != "Hub-baseline")
 
     p <- ggplot(rel_skill_summarised) +
@@ -309,7 +310,7 @@ get_plot_overall <- function(scores_obj,
       )
   } else {
     scores_sum <- scores_obj |>
-      scoringutils::summarise_scores(by = c("model")) |>
+      scoringutils::summarise_scores(by = "model") |>
       filter(!is.na(!!sym(glue::glue("{score_type}"))))
 
     p <- ggplot(scores_sum) +
@@ -529,7 +530,10 @@ get_plot_seq_counts_date <- function(seq_counts_by_date) {
 #'
 #' @returns ggplot object
 get_overall_scores_figure <- function(a, b, c, d, e, f, g, h, i, j, k, l,
-                                      output_fp = file.path("output", "figs", "overall_scores"),
+                                      output_fp = file.path(
+                                        "output", "figs",
+                                        "overall_scores"
+                                      ),
                                       plot_name = "overall_scores") {
   fig_layout <- "
   ABCD
@@ -583,7 +587,10 @@ get_overall_scores_figure <- function(a, b, c, d, e, f, g, h, i, j, k, l,
 #'
 #' @returns ggplot object
 get_by_loc_figure <- function(a, b, c, d, e,
-                              output_fp = file.path("output", "figs", "overall_scores"),
+                              output_fp = file.path(
+                                "output", "figs",
+                                "overall_scores"
+                              ),
                               plot_name = "by_location") {
   fig_layout <- "
   AAAA
@@ -644,7 +651,10 @@ get_by_loc_figure <- function(a, b, c, d, e,
 #'
 #' @returns ggplot object
 get_scores_by_nowcast_date <- function(a, b, c, d, e, f, g, h, i, j,
-                                       output_fp = file.path("output", "figs", "overall_scores"),
+                                       output_fp = file.path(
+                                         "output", "figs",
+                                         "overall_scores"
+                                       ),
                                        plot_name = "scores_by_nowcast_date") {
   fig_layout <- "
   AABB

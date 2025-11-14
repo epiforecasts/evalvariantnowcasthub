@@ -15,7 +15,8 @@ get_relative_skill(
 
 \item{score_type}{Character string indicating which score metric to use}
 
-\item{by}{Character vector of grouping variables for relative skill calculation}
+\item{by}{Character vector of grouping variables for relative skill
+calculation}
 }
 \value{
 Data frame with relative skill scores
