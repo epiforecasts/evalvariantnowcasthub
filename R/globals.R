@@ -14,6 +14,13 @@ utils::globalVariables(c(
   "seq_clade", # <get_plot_mult_locs>
   "n_seq", # <get_plot_mult_locs>
   "obs_freq", # <get_plot_mult_locs>
+  "location", # <get_plot_clade_by_loc>
+  "sequences", # <get_plot_clade_by_loc>
+  "total_seq", # <get_plot_clade_by_loc>
+  "clades_modeled", # <get_plot_clade_by_loc>
+  "seq_clade", # <get_plot_clade_by_loc>
+  "n_seq", # <get_plot_clade_by_loc>
+  "obs_freq", # <get_plot_clade_by_loc>
   "nowcast_date", # <get_plot_scores_t>
   "location", # <get_plot_scores_t>
   "target_date", # <get_plot_scores_t>
