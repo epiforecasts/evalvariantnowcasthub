@@ -9,7 +9,9 @@ get_plot_freq_as_of_vs_eval(
   obs_data,
   final_data,
   location,
-  temporal_granularity
+  date_range,
+  temporal_granularity,
+  clades_to_plot = c("24E", "24F", "25A")
 )
 }
 \arguments{
@@ -19,7 +21,11 @@ get_plot_freq_as_of_vs_eval(
 
 \item{location}{Location to plot (abbreviation)}
 
+\item{date_range}{Date range to plot}
+
 \item{temporal_granularity}{Temporal granularity to plot}
+
+\item{clades_to_plot}{Vector of character strings of the clades to show}
 }
 \value{
 plot of clade frequencies as of nowcats date and when we evaluate

@@ -4,6 +4,7 @@
 #' @param final_data Data.frame of final sequences by clade and location
 #' @param location Location to plot (abbreviation)
 #' @param temporal_granularity Temporal granularity to plot
+#' @param date_range Date range to plot
 #' @param log_scale Boolean indicating whether or not y axis should be on log
 #'   scale, default is TRUE
 #'
@@ -13,6 +14,7 @@ get_bar_chart_comparison <- function(obs_data,
                                      final_data,
                                      location,
                                      temporal_granularity,
+                                     date_range,
                                      log_scale = TRUE) {
   nowcast_date <- obs_data |>
     select(nowcast_date) |>
@@ -47,8 +49,8 @@ get_bar_chart_comparison <- function(obs_data,
   # filter final data to dates we want
   final_data3 <- final_data2 |>
     filter(
-      date >= min(obs_data$date),
-      date <= ymd(nowcast_date) + days(10)
+      date >= min(obs_data2$date),
+      date <= max(obs_data2$date)
     ) |>
     rename(sequences_final = sequences) |>
     select(location, clades_modeled, sequences_final, date)
@@ -83,7 +85,6 @@ get_bar_chart_comparison <- function(obs_data,
 
   plot_comps <- plot_components()
 
-
   p <- ggplot(comb_data) +
     geom_bar(
       aes(
@@ -106,17 +107,19 @@ get_bar_chart_comparison <- function(obs_data,
     guides(
       fill = "none",
       alpha = guide_legend(
-        title.position = "top",
+        title.position = "left",
         title.hjust = 0.5,
         nrow = 2
       )
     ) +
     scale_x_date(
+      limits = date_range,
       date_breaks = "2 weeks",
       date_labels = "%d %b %Y"
     ) +
     theme(
-      legend.position = "bottom"
+      legend.position = "bottom",
+      axis.text.x = element_blank()
     ) +
     geom_vline(aes(xintercept = ymd(nowcast_date)),
       linetype = "dashed"
@@ -132,12 +135,16 @@ get_bar_chart_comparison <- function(obs_data,
 #' once we are ready to evaluate
 #'
 #' @inheritParams get_bar_chart_comparison
+#' @param clades_to_plot Vector of character strings of the clades to show
 #'
 #' @returns plot of clade frequencies as of nowcats date and when we evaluate
 get_plot_freq_as_of_vs_eval <- function(obs_data,
                                         final_data,
                                         location,
-                                        temporal_granularity) {
+                                        date_range,
+                                        temporal_granularity,
+                                        clades_to_plot =
+                                          c("24E", "24F", "25A")) {
   nowcast_date <- obs_data |>
     select(nowcast_date) |>
     distinct() |>
@@ -201,34 +208,43 @@ get_plot_freq_as_of_vs_eval <- function(obs_data,
     variant_data_by_loc,
     variant_data_by_loc_final
   )
+
+  if (!is.null(clades_to_plot)) {
+    comb_data <-
+      filter(
+        comb_data,
+        clades_modeled %in% clades_to_plot
+      )
+  }
   plot_comps <- plot_components()
   p <- ggplot(comb_data) +
     geom_line(aes(
       x = date, y = obs_freq, color = clades_modeled,
-      linetype = data_availability
+      alpha = data_availability
     )) +
-    geom_point(aes(x = date, y = obs_freq, color = clades_modeled)) +
+    geom_point(aes(
+      x = date, y = obs_freq, color = clades_modeled,
+      alpha = data_availability
+    )) +
     geom_vline(aes(xintercept = ymd(nowcast_date)), linetype = "dashed") +
-    get_plot_theme() +
+    get_plot_theme(dates = TRUE) +
     scale_color_manual(
       name = "Clades",
       values = plot_comps$clade_colors
     ) +
-    scale_linetype_manual(
+    scale_alpha_manual(
       name = "Data availability",
-      values = plot_comps$data_availability_linetype
+      values = plot_comps$data_availability_alpha
     ) +
     xlab("") +
-    ylab("Observed clade frequency") +
+    ylab("Observed\nclade frequency") +
     guides(
       color = "none",
-      linetype = guide_legend(
-        title.position = "top",
-        title.hjust = 0.5,
-        nrow = 2
-      )
+      linetype = "none",
+      alpha = "none"
     ) +
     scale_x_date(
+      limits = date_range,
       date_breaks = "2 weeks",
       date_labels = "%d %b %Y"
     ) +
@@ -238,7 +254,8 @@ get_plot_freq_as_of_vs_eval <- function(obs_data,
         size = 10
       ),
       legend.position = "bottom"
-    )
+    ) +
+    coord_cartesian(ylim = c(0, 1))
   return(p)
 }
 

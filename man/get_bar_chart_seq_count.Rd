@@ -13,7 +13,8 @@ get_bar_chart_seq_count(
   output_fp = file.path("output", "figs", "data_figs"),
   log_scale = FALSE,
   nowcast_date_line = FALSE,
-  title = FALSE
+  title = NULL,
+  remove_xticks = FALSE
 )
 }
 \arguments{
@@ -33,7 +34,10 @@ scale, default is TRUE}
 \item{nowcast_date_line}{Boolean indicating whether or not to include a
 dashed line for the nowcast date}
 
-\item{title}{Boolean indicating whether to include the title}
+\item{title}{Title to plot, default is NULL which plots no title.}
+
+\item{remove_x_ticks}{Boolean indicating to remove x tick text, default is
+FALSE}
 }
 \value{
 ggplot object

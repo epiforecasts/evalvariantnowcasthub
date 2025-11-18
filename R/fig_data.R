@@ -97,7 +97,9 @@ get_plot_obs_clade_freq <- function(obs_data,
 #'   scale, default is TRUE
 #' @param nowcast_date_line Boolean indicating whether or not to include a
 #'   dashed line for the nowcast date
-#' @param title Boolean indicating whether to include the title
+#' @param remove_x_ticks Boolean indicating to remove x tick text, default is
+#'   FALSE
+#' @param title Title to plot, default is NULL which plots no title.
 #'
 #' @returns ggplot object
 #' @autoglobal
@@ -112,7 +114,8 @@ get_bar_chart_seq_count <- function(obs_data,
                                     ),
                                     log_scale = FALSE,
                                     nowcast_date_line = FALSE,
-                                    title = FALSE) {
+                                    title = NULL,
+                                    remove_xticks = FALSE) {
   if (isTRUE(nowcast_date_line)) {
     nowcast_date <- obs_data |>
       select(nowcast_date) |>
@@ -177,15 +180,13 @@ get_bar_chart_seq_count <- function(obs_data,
   if (isTRUE(nowcast_date_line)) {
     p <- p + geom_vline(aes(xintercept = ymd(nowcast_date)),
       linetype = "dashed"
-    ) +
-      scale_x_date(
-        limits = c(min(obs_data$date), ymd(nowcast_date) + days(10)),
-        date_breaks = "2 weeks",
-        date_labels = "%d %b %Y"
-      )
+    )
   }
-  if (isTRUE(title)) {
-    p <- p + ggtitle(glue::glue("{location}"))
+  if (!is.null(title)) {
+    p <- p + ggtitle(title)
+  }
+  if (isTRUE(remove_xticks)) {
+    p <- p + theme(axis.text.x = element_blank())
   }
 
   dir_create(output_fp, recurse = TRUE)
