@@ -13,7 +13,7 @@ fig_nowcast_targets <- list(
   # Sequence counts by location
   tar_target(
     name = bar_chart_seq_counts_as_of,
-    command = get_faceted_bar_chart_seq_as_of(
+    command = get_faceted_seq_as_of(
       obs_data = clean_variant_data_as_of_nowcast_date,
       log_scale = FALSE,
       remove_legend = FALSE
@@ -44,7 +44,7 @@ fig_nowcast_targets <- list(
   # Sequence counts by location
   tar_target(
     name = bar_chart_as_of_add_mod,
-    command = get_faceted_bar_chart_seq_as_of(
+    command = get_faceted_seq_as_of(
       obs_data = clean_variant_data_as_of_nowcast_date |>
         filter(location == "CA"),
       log_scale = FALSE,

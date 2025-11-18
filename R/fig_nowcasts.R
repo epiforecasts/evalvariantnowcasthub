@@ -107,12 +107,12 @@ get_plot_model_outputs <- function(nowcasts,
 #'
 #' @returns ggplot object
 #' @autoglobal
-get_faceted_bar_chart_seq_as_of <- function(obs_data,
-                                            location,
-                                            temporal_granularity = "weeks",
-                                            log_scale = TRUE,
-                                            prev_data_to_show = 70,
-                                            remove_legend = TRUE) {
+get_faceted_seq_as_of <- function(obs_data,
+                                  location,
+                                  temporal_granularity = "weeks",
+                                  log_scale = TRUE,
+                                  prev_data_to_show = 70,
+                                  remove_legend = TRUE) {
   nowcast_date <- obs_data |>
     select(nowcast_date) |>
     distinct() |>
