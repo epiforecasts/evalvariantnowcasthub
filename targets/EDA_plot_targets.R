@@ -14,6 +14,15 @@ eda_plot_targets <- list(
     )
   ),
   tar_target(
+    name = plot_25A_by_loc,
+    command = get_plot_clade_by_loc(
+      data = clean_variant_data_final_all_states,
+      clade = "25A",
+      date_of_interest = nowcast_date_for_vis,
+      plot_name = "plot_25A_emergence"
+    )
+  ),
+  tar_target(
     name = plot_a_few_states_data,
     command = get_plot_mult_locs(
       data = clean_variant_data_final_all_states |>

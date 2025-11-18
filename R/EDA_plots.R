@@ -91,6 +91,68 @@ get_plot_mult_locs <- function(data,
   return(p)
 }
 
+#' Plot multiple locations
+#'
+#' @param data Data.frame with all sequence data for multiple locations
+#' @inheritParams get_plot_nowcasts
+#' @importFrom ggplot2 ggplot geom_line aes facet_grid theme_bw vars
+#'   element_blank theme xlab ylab facet_wrap ggtitle
+#' @importFrom dplyr filter group_by summarise mutate left_join
+#' @returns ggplot object
+#' @autoglobal
+get_plot_clade_by_loc <- function(data,
+                                  clade,
+                                  plot_name,
+                                  date_of_interest,
+                                  output_fp = file.path("output", "figs", "eda"),
+                                  temporal_granularity = "weeks",
+                                  save = TRUE) {
+  seq_counts_by_loc <- data |>
+    group_by(location) |>
+    summarise(
+      total_seq = sum(sequences),
+    ) |>
+    arrange(desc(total_seq)) |>
+    head(10)
+
+  if (temporal_granularity == "weeks") {
+    obs_data <- daily_to_weekly(data)
+  }
+  seq_data <- obs_data |>
+    group_by(date, location) |>
+    summarise(n_seq = sum(sequences))
+  variant_data_by_loc <- obs_data |>
+    group_by(clades_modeled, date, location) |>
+    summarise(seq_clade = sum(sequences)) |>
+    left_join(seq_data) |>
+    mutate(obs_freq = seq_clade / n_seq) |>
+    filter(
+      clades_modeled == clade,
+      date >= ymd(date_of_interest) - days(120),
+      date <= ymd(date_of_interest) + days(60),
+      location %in% c(seq_counts_by_loc$location)
+    )
+
+
+  p <- ggplot(variant_data_by_loc) +
+    geom_line(aes(x = date, y = obs_freq, color = location)) +
+    get_plot_theme(dates = TRUE) +
+    scale_x_date(
+      date_breaks = "1 week",
+      date_labels = "%d %b %Y"
+    ) +
+    xlab("") +
+    ylab(glue::glue("Observed frequency {clade}"))
+
+  if (isTRUE(save)) {
+    dir_create(output_fp, recurse = TRUE)
+    ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
+      plot = p
+    )
+  }
+  return(p)
+}
+
 #' Plot scores over time for a few locations and a specific nowcast date
 #'
 #' @param scores_data_hub Data.frame of scores from the Hub
