@@ -8,7 +8,7 @@ get_fig_nowcasts_supp(
   faceted_nowcasts,
   row_seq_counts,
   plot_name,
-  output_fp = file.path("output", "figs", "nowcasts", "final")
+  output_fp = file.path("output", "figs", "nowcasts", "supp")
 )
 }
 \arguments{

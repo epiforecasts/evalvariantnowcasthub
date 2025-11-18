@@ -6,7 +6,6 @@
 \usage{
 get_faceted_seq_as_of(
   obs_data,
-  location,
   temporal_granularity = "weeks",
   log_scale = TRUE,
   prev_data_to_show = 70,
@@ -16,8 +15,6 @@ get_faceted_seq_as_of(
 \arguments{
 \item{obs_data}{Data.frame of number of sequences by clade and location}
 
-\item{location}{Location to plot (abbreviation)}
-
 \item{temporal_granularity}{Temporal granularity to plot}
 
 \item{log_scale}{Boolean indicating whether or not y axis should be on log
@@ -25,6 +22,8 @@ scale, default is TRUE.}
 
 \item{prev_data_to_show}{Number of days before nowcast date to show data,
 default is 70.}
+
+\item{location}{Location to plot (abbreviation)}
 }
 \value{
 ggplot object

@@ -108,7 +108,6 @@ get_plot_model_outputs <- function(nowcasts,
 #' @returns ggplot object
 #' @autoglobal
 get_faceted_seq_as_of <- function(obs_data,
-                                  location,
                                   temporal_granularity = "weeks",
                                   log_scale = TRUE,
                                   prev_data_to_show = 70,
@@ -165,7 +164,7 @@ get_faceted_seq_as_of <- function(obs_data,
       linetype = "dashed"
     )
   if (isTRUE(log_scale)) {
-    p <- p + scale_y_continuous(transform = "log10")
+    p <- p + scale_y_continuous(trans = "log10")
   }
   if (isTRUE(remove_legend)) {
     p <- p + guides(

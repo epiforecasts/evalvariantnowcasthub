@@ -25,4 +25,4 @@ output:
 
 ## Model nowcasts
 
-![Fig. S5 Model nowcasts compared for the CADPH-CATaLog model from February 19th, 2025.](../output/figs/nowcasts/supp/fig_model_nowcasts_CADPH.png){figs4}
+![Fig. S5 Model nowcasts compared for the CADPH-CATaLog model from February 19th, 2025.](../output/figs/nowcasts/supp/fig_model_nowcasts_CADPH.png){figs5}
