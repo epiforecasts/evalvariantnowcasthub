@@ -12,10 +12,12 @@ get_plot_obs_clade_freq <- function(obs_data,
                                     location,
                                     temporal_granularity,
                                     plot_name,
+                                    date_range,
                                     output_fp = file.path(
                                       "output", "figs",
                                       "data_figs"
-                                    )) {
+                                    ),
+                                    title = NULL) {
   if (temporal_granularity == "weeks") {
     obs_data <- daily_to_weekly(obs_data)
   }
@@ -55,11 +57,11 @@ get_plot_obs_clade_freq <- function(obs_data,
     ) +
     xlab("") +
     ylab("Observed clade frequency") +
-    ggtitle(glue::glue("{location}")) +
     guides(
       color = "none"
     ) +
     scale_x_date(
+      limits = date_range,
       date_breaks = "2 weeks",
       date_labels = "%d %b %Y"
     ) +
@@ -69,7 +71,11 @@ get_plot_obs_clade_freq <- function(obs_data,
         size = 10
       ),
       legend.position = "bottom"
-    )
+    ) +
+    coord_cartesian(ylim = c(0, 1))
+  if (!is.null(title)) {
+    p <- p + ggtitle(title)
+  }
 
   dir_create(output_fp, recurse = TRUE)
   ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
@@ -99,11 +105,12 @@ get_bar_chart_seq_count <- function(obs_data,
                                     location,
                                     temporal_granularity,
                                     plot_name,
+                                    date_range,
                                     output_fp = file.path(
                                       "output", "figs",
                                       "data_figs"
                                     ),
-                                    log_scale = TRUE,
+                                    log_scale = FALSE,
                                     nowcast_date_line = FALSE,
                                     title = FALSE) {
   if (isTRUE(nowcast_date_line)) {
@@ -153,6 +160,7 @@ get_bar_chart_seq_count <- function(obs_data,
       )
     ) +
     scale_x_date(
+      limits = date_range,
       date_breaks = "2 weeks",
       date_labels = "%d %b %Y"
     ) +
@@ -212,14 +220,26 @@ get_plot_hosp_admissions <- function(location_to_plot,
                                        "data_figs"
                                      ),
                                      url = "https://raw.githubusercontent.com/CDCgov/covid19-forecast-hub/refs/heads/main/target-data/covid-hospital-admissions.csv") { # nolint
+  if (location_to_plot != "US minus CA") {
+    raw_data <- read_csv(url) |>
+      left_join(location_data, by = "location") |>
+      filter(
+        abbreviation == !!location_to_plot,
+        date >= min(date_range),
+        date <= max(date_range)
+      )
+  } else {
+    raw_data <- read_csv(url) |>
+      left_join(location_data, by = "location") |>
+      filter(
+        !abbreviation %in% c("US", "CA"),
+        date >= min(date_range),
+        date <= max(date_range)
+      ) |>
+      group_by(date) |>
+      summarise(value = sum(value, na.rm = TRUE))
+  }
 
-  raw_data <- read_csv(url) |>
-    left_join(location_data, by = "location") |>
-    filter(
-      abbreviation == !!location_to_plot,
-      date >= min(date_range),
-      date <= max(date_range)
-    )
 
 
   p <- ggplot(raw_data) +
@@ -271,13 +291,12 @@ get_first_data_fig <- function(plot_freq,
                                )) {
   fig_layout <- "
   AAAA
-  AAAA
   BBBB
   CCCC"
 
   fig_data <- plot_freq +
-    (plot_seq + theme(plot.tag.position = c(0, 1.2))) +
-    (plot_hosp + theme(plot.tag.position = c(0, 1.2))) +
+    plot_seq +
+    plot_hosp +
     plot_layout(
       design = fig_layout,
       axes = "collect",
@@ -299,6 +318,67 @@ get_first_data_fig <- function(plot_freq,
   ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
     plot = fig_data,
     width = 8,
+    height = 10
+  )
+
+  return(fig_data)
+}
+
+#' Patchwork first data figure -- alternate version with US mins CA and CA
+#'
+#' @param plot_freq1 A
+#' @param plot_seq1 B
+#' @param plot_hosp1 C
+#' @param plot_freq2 D
+#' @param plot_seq2 E
+#' @param plot_hosp2 F
+#' @param plot_name name of figure
+#' @param output_fp directory to save
+#'
+#' @returns combined figure
+get_first_data_fig_alt <- function(plot_freq1,
+                                   plot_seq1,
+                                   plot_hosp1,
+                                   plot_freq2,
+                                   plot_seq2,
+                                   plot_hosp2,
+                                   plot_name,
+                                   output_fp = file.path(
+                                     "output", "figs",
+                                     "data_figs", "final"
+                                   )) {
+  fig_layout <- "
+  AADD
+  BBEE
+  CCFF"
+
+  fig_data <- plot_freq1 +
+    plot_seq1 +
+    plot_hosp1 +
+    plot_freq2 +
+    plot_seq2 +
+    plot_hosp2 +
+    plot_layout(
+      design = fig_layout,
+      axes = "collect",
+      guides = "collect"
+    ) +
+    plot_annotation(
+      tag_levels = "A",
+      tag_suffix = "", # adds a period after each letter
+      tag_sep = "", # no separator between tag levels
+      theme = theme(
+        legend.position = "top",
+        legend.title = element_text(hjust = 0.5),
+        legend.justification = "center",
+        plot.tag = element_text(size = 20)
+      )
+    )
+
+  dir_create(output_fp, recurse = TRUE)
+  ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
+    plot = fig_data,
+    width = 9,
     height = 10
   )
 

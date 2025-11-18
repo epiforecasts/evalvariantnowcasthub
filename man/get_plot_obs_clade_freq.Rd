@@ -9,7 +9,9 @@ get_plot_obs_clade_freq(
   location,
   temporal_granularity,
   plot_name,
-  output_fp = file.path("output", "figs", "data_figs")
+  date_range,
+  output_fp = file.path("output", "figs", "data_figs"),
+  title = NULL
 )
 }
 \arguments{
