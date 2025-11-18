@@ -104,13 +104,16 @@ get_plot_clade_by_loc <- function(data,
                                   clade,
                                   plot_name,
                                   date_of_interest,
-                                  output_fp = file.path("output", "figs", "eda"),
+                                  output_fp = file.path(
+                                    "output",
+                                    "figs", "eda"
+                                  ),
                                   temporal_granularity = "weeks",
                                   save = TRUE) {
   seq_counts_by_loc <- data |>
     group_by(location) |>
     summarise(
-      total_seq = sum(sequences),
+      total_seq = sum(sequences)
     ) |>
     arrange(desc(total_seq)) |>
     head(10)
