@@ -41,7 +41,8 @@ fig_data_as_of_targets <- list(
       final_data = clean_variant_data_final_all_states,
       location = states_for_vis[1],
       date_range = date_range_as_of,
-      temporal_granularity = "weeks"
+      temporal_granularity = "weeks",
+      clades_to_plot = c("24E", "24F", "25A")
     )
   ),
   tar_target(
@@ -83,7 +84,8 @@ fig_data_as_of_targets <- list(
         filter(location != "CA"),
       date_range = date_range_as_of,
       location = "US",
-      temporal_granularity = "weeks"
+      temporal_granularity = "weeks",
+      clades_to_plot = c("24E", "24F", "25A")
     )
   ),
   tar_target(

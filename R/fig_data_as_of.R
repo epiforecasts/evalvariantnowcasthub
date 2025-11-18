@@ -210,8 +210,11 @@ get_plot_freq_as_of_vs_eval <- function(obs_data,
   )
 
   if (!is.null(clades_to_plot)) {
-    comb_data <- comb_data |>
-      filter(clades_modeled %in% clades_to_plot)
+    comb_data <-
+      filter(
+        comb_data,
+        clades_modeled %in% clades_to_plot
+      )
   }
   plot_comps <- plot_components()
   p <- ggplot(comb_data) +
