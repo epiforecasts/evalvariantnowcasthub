@@ -5,6 +5,7 @@ fig_data_as_of_targets <- list(
     command = get_bar_chart_seq_count(
       obs_data = clean_variant_data_as_of_nowcast_date,
       location = states_for_vis[1],
+      date_range = date_range_to_plot,
       temporal_granularity = "weeks",
       plot_name = "bar_chart_seq_as_of_ex",
       log_scale = FALSE,
@@ -38,6 +39,7 @@ fig_data_as_of_targets <- list(
     command = get_bar_chart_seq_count(
       obs_data = clean_variant_data_as_of_nowcast_date,
       location = "US",
+      date_range = date_range_to_plot,
       temporal_granularity = "weeks",
       plot_name = "bar_chart_seq_as_of_ex",
       log_scale = FALSE,

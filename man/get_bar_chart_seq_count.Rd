@@ -9,8 +9,9 @@ get_bar_chart_seq_count(
   location,
   temporal_granularity,
   plot_name,
+  date_range,
   output_fp = file.path("output", "figs", "data_figs"),
-  log_scale = TRUE,
+  log_scale = FALSE,
   nowcast_date_line = FALSE,
   title = FALSE
 )
