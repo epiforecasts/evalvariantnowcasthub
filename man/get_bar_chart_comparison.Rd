@@ -9,6 +9,7 @@ get_bar_chart_comparison(
   final_data,
   location,
   temporal_granularity,
+  date_range,
   log_scale = TRUE
 )
 }
@@ -20,6 +21,8 @@ get_bar_chart_comparison(
 \item{location}{Location to plot (abbreviation)}
 
 \item{temporal_granularity}{Temporal granularity to plot}
+
+\item{date_range}{Date range to plot}
 
 \item{log_scale}{Boolean indicating whether or not y axis should be on log
 scale, default is TRUE}
