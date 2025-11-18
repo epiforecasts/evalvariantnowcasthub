@@ -7,9 +7,6 @@
 get_plot_model_outputs(
   nowcasts,
   data_as_of,
-  plot_name,
-  output_fp = file.path("output", "figs", "nowcasts"),
-  save = TRUE,
   remove_legend = TRUE,
   title = NULL,
   temporal_granularity = "weeks",
@@ -23,16 +20,15 @@ multiple teams and (a few) locations}
 \item{data_as_of}{Data.frame with data for a few locations up until a single
 nowcast date}
 
-\item{plot_name}{Character string indicating name of plot}
-
-\item{output_fp}{Character string indicating directory to save file.}
-
-\item{save}{Boolean indicating whether or not to save the plot.}
-
 \item{remove_legend}{Boolean indicating whether to keep legend, default
 is TRUE.}
 
 \item{title}{Character string indicating title, default is NULL.}
+
+\item{temporal_granularity}{Temporal granularity to plot}
+
+\item{prev_data_to_show}{Number of days before nowcast date to show data,
+default is 70.}
 }
 \value{
 ggplot object

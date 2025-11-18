@@ -77,6 +77,8 @@ utils::globalVariables(c(
   "clade", # <get_plot_model_outputs>
   "output_type_id_clade", # <get_plot_model_outputs>
   "model_id", # <get_plot_model_outputs>
+  "sequences", # <get_faceted_bar_chart_seq_as_of>
+  "clades_modeled", # <get_faceted_bar_chart_seq_as_of>
   "total_seq", # <get_plot_by_location>
   "location", # <get_plot_by_location>
   "model", # <get_plot_by_location>
