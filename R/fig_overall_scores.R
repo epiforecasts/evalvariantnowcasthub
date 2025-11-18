@@ -34,6 +34,8 @@ get_relative_skill <- function(scores_obj,
 #' @param seq_counts_by_loc Total sequences for each location
 #' @param rel_skill_plot Boolean indicating to return a relative skill plot
 #' @param score_type Character string indicating which score metric to use
+#' @param remove_legend Boolean indicating whether to keep legend, default
+#'   is TRUE.
 #' @importFrom scoringutils summarise_scores
 #' @importFrom ggplot2 ggplot geom_bar aes geom_hline coord_flip
 #' @importFrom rlang sym
@@ -134,6 +136,9 @@ get_plot_by_location <- function(scores_obj,
 #' @param scores_obj Scoringutils scores object
 #' @param rel_skill_plot Boolean indicating to return a relative skill plot
 #' @param score_type Character string indicating which score metric to use
+#' @param remove_legend Boolean indicating whether to keep legend, default
+#'   is TRUE.
+#' @param title Character string indicating title, default is NULL.
 #' @importFrom scoringutils summarise_scores
 #' @importFrom ggplot2 ggplot geom_bar aes geom_hline coord_flip
 #' @importFrom rlang sym
@@ -211,7 +216,7 @@ get_plot_by_nowcast_date <- function(scores_obj,
           )),
           color = model
         ),
-        linewidth = 1.5
+        size = 1.5
       ) +
       geom_line(
         aes(
@@ -253,11 +258,14 @@ get_plot_by_nowcast_date <- function(scores_obj,
 }
 
 
-#' Brier/Energy Relative/Overall by nowcast date
+#' Brier/Energy Relative/Overall by model
 #'
 #' @param scores_obj Scoringutils scores object
 #' @param rel_skill_plot Boolean indicating to return a relative skill plot
 #' @param score_type Character string indicating which score metric to use
+#' @param remove_legend Boolean indicating whether to keep legend, default
+#'   is TRUE.
+#' @param title Character string indicating title, default is NULL.
 #' @importFrom scoringutils summarise_scores
 #' @importFrom ggplot2 ggplot geom_bar aes geom_hline coord_flip
 #' @importFrom rlang sym
@@ -487,13 +495,13 @@ get_plot_seq_counts_loc <- function(seq_counts_by_loc) {
     ) +
     scale_y_continuous(trans = "log10") +
     xlab("") +
-    ylab("Total number of sequences\n ep. 2024-June 2025")
+    ylab("Total number of sequences\n Sept. 2024-June 2025")
   return(p)
 }
 
-#' Sequence counts by location
+#' Sequence counts by nowcast date
 #'
-#' @param seq_counts_by_loc Total sequences for each location
+#' @param seq_counts_by_date Total sequences for each nowcast date
 #' @importFrom ggplot2 ggplot geom_bar aes geom_hline coord_flip
 #' @importFrom rlang sym
 #' @returns ggplot object
@@ -637,7 +645,7 @@ get_by_loc_figure <- function(a, b, c, d, e,
   return(combined_fig)
 }
 
-#' Get a plot of the summary of the overall scores
+#' Get a plot of the overall scores by nowcast date
 #'
 #' @param a A
 #' @param b B

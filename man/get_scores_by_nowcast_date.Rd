@@ -2,7 +2,7 @@
 % Please edit documentation in R/fig_overall_scores.R
 \name{get_scores_by_nowcast_date}
 \alias{get_scores_by_nowcast_date}
-\title{Get a plot of the summary of the overall scores}
+\title{Get a plot of the overall scores by nowcast date}
 \usage{
 get_scores_by_nowcast_date(
   a,
@@ -48,5 +48,5 @@ get_scores_by_nowcast_date(
 ggplot object
 }
 \description{
-Get a plot of the summary of the overall scores
+Get a plot of the overall scores by nowcast date
 }

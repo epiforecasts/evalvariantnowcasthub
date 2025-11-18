@@ -2,7 +2,7 @@
 % Please edit documentation in R/fig_overall_scores.R
 \name{get_plot_overall}
 \alias{get_plot_overall}
-\title{Brier/Energy Relative/Overall by nowcast date}
+\title{Brier/Energy Relative/Overall by model}
 \usage{
 get_plot_overall(
   scores_obj,
@@ -18,10 +18,15 @@ get_plot_overall(
 \item{score_type}{Character string indicating which score metric to use}
 
 \item{rel_skill_plot}{Boolean indicating to return a relative skill plot}
+
+\item{remove_legend}{Boolean indicating whether to keep legend, default
+is TRUE.}
+
+\item{title}{Character string indicating title, default is NULL.}
 }
 \value{
 ggplot object
 }
 \description{
-Brier/Energy Relative/Overall by nowcast date
+Brier/Energy Relative/Overall by model
 }

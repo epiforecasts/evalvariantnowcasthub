@@ -18,6 +18,11 @@ get_plot_by_nowcast_date(
 \item{score_type}{Character string indicating which score metric to use}
 
 \item{rel_skill_plot}{Boolean indicating to return a relative skill plot}
+
+\item{remove_legend}{Boolean indicating whether to keep legend, default
+is TRUE.}
+
+\item{title}{Character string indicating title, default is NULL.}
 }
 \value{
 ggplot object

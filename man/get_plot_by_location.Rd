@@ -20,6 +20,9 @@ get_plot_by_location(
 \item{score_type}{Character string indicating which score metric to use}
 
 \item{rel_skill_plot}{Boolean indicating to return a relative skill plot}
+
+\item{remove_legend}{Boolean indicating whether to keep legend, default
+is TRUE.}
 }
 \value{
 ggplot object

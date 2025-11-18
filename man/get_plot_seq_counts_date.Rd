@@ -2,16 +2,16 @@
 % Please edit documentation in R/fig_overall_scores.R
 \name{get_plot_seq_counts_date}
 \alias{get_plot_seq_counts_date}
-\title{Sequence counts by location}
+\title{Sequence counts by nowcast date}
 \usage{
 get_plot_seq_counts_date(seq_counts_by_date)
 }
 \arguments{
-\item{seq_counts_by_loc}{Total sequences for each location}
+\item{seq_counts_by_date}{Total sequences for each nowcast date}
 }
 \value{
 ggplot object
 }
 \description{
-Sequence counts by location
+Sequence counts by nowcast date
 }
