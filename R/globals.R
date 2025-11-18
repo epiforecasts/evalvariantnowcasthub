@@ -65,6 +65,20 @@ utils::globalVariables(c(
   "data_availability", # <get_bar_chart_comparison>
   "sequence_counts", # <get_bar_chart_comparison>
   "fill_group", # <get_bar_chart_comparison>
+  "location", # <get_plot_model_outputs>
+  "sequences", # <get_plot_model_outputs>
+  "clades_modeled", # <get_plot_model_outputs>
+  "seq_clade", # <get_plot_model_outputs>
+  "n_seq", # <get_plot_model_outputs>
+  "obs_freq", # <get_plot_model_outputs>
+  "output_type", # <get_plot_model_outputs>
+  "target_date", # <get_plot_model_outputs>
+  "value", # <get_plot_model_outputs>
+  "clade", # <get_plot_model_outputs>
+  "output_type_id_clade", # <get_plot_model_outputs>
+  "model_id", # <get_plot_model_outputs>
+  "sequences", # <get_faceted_seq_as_of>
+  "clades_modeled", # <get_faceted_seq_as_of>
   "total_seq", # <get_plot_by_location>
   "location", # <get_plot_by_location>
   "model", # <get_plot_by_location>

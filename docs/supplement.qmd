@@ -22,3 +22,7 @@ output:
 ![Fig. S3 Example final sequence data from OH](../output/figs/data_figs/supp/final_seq_data_ex2.png){figs3}
 
 ![Fig. S4 Example final sequence data from MN](../output/figs/data_figs/supp/final_seq_data_ex3.png){figs4}
+
+## Model nowcasts
+
+![Fig. S5 Model nowcasts compared for the CADPH-CATaLog model from February 19th, 2025.](../output/figs/nowcasts/supp/fig_model_nowcasts_CADPH.png){figs5}
