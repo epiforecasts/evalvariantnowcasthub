@@ -238,7 +238,7 @@ get_fig_nowcasts_supp <- function(faceted_nowcasts,
                                   plot_name,
                                   output_fp = file.path(
                                     "output", "figs",
-                                    "nowcasts", "final"
+                                    "nowcasts", "supp"
                                   )) {
   fig_layout <- "
   A
