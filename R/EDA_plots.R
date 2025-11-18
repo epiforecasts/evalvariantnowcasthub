@@ -120,6 +120,8 @@ get_plot_clade_by_loc <- function(data,
 
   if (temporal_granularity == "weeks") {
     obs_data <- daily_to_weekly(data)
+  } else {
+    obs_data <- data
   }
   seq_data <- obs_data |>
     group_by(date, location) |>
