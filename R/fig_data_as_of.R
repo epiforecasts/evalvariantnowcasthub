@@ -92,7 +92,7 @@ get_bar_chart_comparison <- function(obs_data,
       ),
       stat = "identity", position = position_stack(reverse = TRUE)
     ) +
-    get_plot_theme() +
+    get_plot_theme(dates = TRUE) +
     scale_fill_manual(
       name = "Clades",
       values = plot_comps$clade_colors
@@ -116,10 +116,6 @@ get_bar_chart_comparison <- function(obs_data,
       date_labels = "%d %b %Y"
     ) +
     theme(
-      axis.text.x = element_text(
-        angle = 45, hjust = 1,
-        size = 10
-      ),
       legend.position = "bottom"
     ) +
     geom_vline(aes(xintercept = ymd(nowcast_date)),
