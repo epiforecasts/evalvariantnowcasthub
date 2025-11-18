@@ -1,21 +1,32 @@
 #' Get standardized plot theme to add to figures
-#'
+#' @param dates Boolean indicating whether dates are on x-axis
 #' @returns a theme object to add to a [ggplot2::ggplot()] object
 #' @autoglobal
 #' @importFrom ggplot2 theme element_rect
 #' @importFrom cowplot theme_half_open background_grid
-get_plot_theme <- function() {
+get_plot_theme <- function(dates = FALSE) {
   plot_theme <- cowplot::theme_half_open() +
     cowplot::background_grid() +
     theme(
       plot.background = element_rect(fill = "white"),
-      legend.text = element_text(size = 10),
-      legend.title = element_text(size = 10),
+      legend.text = element_text(size = 14),
+      legend.title = element_text(size = 14),
       axis.text.x = element_text(size = 10),
       axis.text.y = element_text(size = 10),
-      axis.title = element_text(size = 10),
+      axis.title = element_text(size = 14),
       strip.text = element_text(size = 10)
     )
+  if (isTRUE(dates)) {
+    plot_theme <- plot_theme +
+      theme(
+        axis.text.x = element_text(
+          vjust = 1,
+          hjust = 1,
+          angle = 45,
+          size = 11
+        )
+      )
+  }
 
   return(plot_theme)
 }
@@ -27,7 +38,7 @@ get_plot_theme <- function() {
 #' @autoglobal
 #' @importFrom RColorBrewer brewer.pal
 plot_components <- function() {
-  pal_models <- brewer.pal(5, "Spectral")
+  pal_models <- brewer.pal(5, "Set2")
   pal_clades <- brewer.pal(12, "Paired")
   # nolint start
   model_colors <- c(

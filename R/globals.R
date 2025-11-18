@@ -65,5 +65,19 @@ utils::globalVariables(c(
   "data_availability", # <get_bar_chart_comparison>
   "sequence_counts", # <get_bar_chart_comparison>
   "fill_group", # <get_bar_chart_comparison>
+  "total_seq", # <get_plot_by_location>
+  "location", # <get_plot_by_location>
+  "model", # <get_plot_by_location>
+  "model", # <get_plot_by_nowcast_date>
+  "nowcast_date", # <get_plot_by_nowcast_date>
+  "model", # <get_plot_overall>
+  "target_date", # <get_plot_horizon>
+  "nowcast_date", # <get_plot_horizon>
+  "model", # <get_plot_horizon>
+  "horizon", # <get_plot_horizon>
+  "total_seq", # <get_plot_seq_counts_loc>
+  "location", # <get_plot_seq_counts_loc>
+  "nowcast_date", # <get_plot_seq_counts_date>
+  "total_sequences", # <get_plot_seq_counts_date>
   NULL
 ))

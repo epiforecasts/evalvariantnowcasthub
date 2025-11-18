@@ -4,7 +4,10 @@
 \alias{get_plot_theme}
 \title{Get standardized plot theme to add to figures}
 \usage{
-get_plot_theme()
+get_plot_theme(dates = FALSE)
+}
+\arguments{
+\item{dates}{Boolean indicating whether dates are on x-axis}
 }
 \value{
 a theme object to add to a \code{\link[ggplot2:ggplot]{ggplot2::ggplot()}} object

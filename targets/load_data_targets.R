@@ -22,6 +22,29 @@ load_data_targets <- list(
       states = states_for_vis
     )
   ),
+  # Number of sequences available within the nowcast horizon
+  tar_target(
+    name = seq_counts_by_date_us,
+    command = get_target_data(
+      hub_path = hub_path,
+      nowcast_dates = nowcast_dates,
+      states = NULL
+    ) |> mutate(horizon = target_date - nowcast_date) |>
+      filter(horizon >= -31, location != "CA") |>
+      group_by(nowcast_date) |>
+      summarise(total_sequences = sum(observation))
+  ),
+  tar_target(
+    name = seq_counts_by_date_ca,
+    command = get_target_data(
+      hub_path = hub_path,
+      nowcast_dates = nowcast_dates,
+      states = "CA"
+    ) |> mutate(horizon = target_date - nowcast_date) |>
+      filter(horizon >= -31, location == "CA") |>
+      group_by(nowcast_date) |>
+      summarise(total_sequences = sum(observation))
+  ),
   # Clades
   tar_target(
     name = clade_list,
