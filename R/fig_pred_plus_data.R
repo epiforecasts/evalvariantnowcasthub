@@ -195,7 +195,8 @@ get_plot_scores_over_time <- function(scores,
 get_plot_scores_w_exclusions <- function(scores,
                                          locs,
                                          nowcast_date,
-                                         plot_name = "scores_showing_exclusions",
+                                         plot_name =
+                                           "scores_showing_exclusions",
                                          output_fp = file.path(
                                            "output", "figs",
                                            "pred_obs", "supp"
@@ -346,7 +347,7 @@ get_fig_preds <- function(faceted_preds,
   ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
     plot = fig_preds,
     width = 8,
-    height = 11
+    height = 13
   )
   return(fig_preds)
 }
