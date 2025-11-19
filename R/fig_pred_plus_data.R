@@ -4,7 +4,7 @@
 #'   quantile values
 #' @param eval_seq Counts of sequences by clade for evaluating on a particular
 #'   nowcast date
-#' @param clades_to_plot Vector of chharacter strings of clades to plot,
+#' @param clades_to_plot Vector of character strings of clades to plot,
 #'   default is NULL which plots all of them
 #'
 #' @returns ggplot object
@@ -333,8 +333,8 @@ get_fig_preds <- function(faceted_preds,
     ) +
     plot_annotation(
       tag_levels = "A",
-      tag_suffix = "", # adds a period after each letter
-      tag_sep = "", # no separator between tag levels
+      tag_suffix = "",
+      tag_sep = "",
       theme = theme(
         legend.position = "top",
         legend.title = element_text(hjust = 0.5),

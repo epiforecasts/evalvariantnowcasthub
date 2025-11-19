@@ -38,7 +38,6 @@ get_plot_theme <- function(dates = FALSE) {
 #' @autoglobal
 #' @importFrom RColorBrewer brewer.pal
 plot_components <- function() {
-  pal_models <- brewer.pal(5, "Accent")
   pal_clades <- brewer.pal(12, "Paired")
   # Combine them for 12+ distinct colors
   pal_models <- c(

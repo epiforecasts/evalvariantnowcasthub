@@ -11,24 +11,21 @@ get_pred_int <- function(model_pred_prop,
   nowcast_dates <- unique(model_pred_prop$nowcast_date)
   locs <- unique(model_pred_prop$location)
   target_dates <- unique(model_pred_prop$target_date)
-  models <- unique(
-    model_pred_prop$model_id[model_pred_prop$output_type == "sample"]
-  )
   df_summary <- data.frame()
   i <- 0
-  for (nowcast_date in nowcast_dates) {
+  for (nowcast_date_i in nowcast_dates) {
     for (loc in locs) {
       for (date in target_dates) {
         N <- seq_counts_by_date_loc |>
           filter(
-            nowcast_date == nowcast_date,
+            nowcast_date == nowcast_date_i,
             location == loc,
             date == !!date
           ) |>
           pull(n_seq)
         obs_data <- eval_seq |>
           filter(
-            nowcast_date == nowcast_date,
+            nowcast_date == nowcast_date_i,
             location == loc,
             date == !!date
           ) |>
@@ -37,7 +34,7 @@ get_pred_int <- function(model_pred_prop,
         # for this target date and location
         df_samp <- filter(
           model_pred_prop,
-          nowcast_date == nowcast_date,
+          nowcast_date == nowcast_date_i,
           location == loc,
           target_date == date,
           output_type == "sample"
@@ -65,9 +62,10 @@ get_pred_int <- function(model_pred_prop,
           values_from = value
         ) |>
           ungroup()
-        for (model in models) {
+        models_this_combo <- unique(df_samp_wide$model_id)
+        for (model in models_this_combo) {
           i <- i + 1
-          if (N != 0) {
+          if (length(N) == 1 && N > 0) {
             df_model <- filter(
               df_samp_wide,
               model_id == !!model
