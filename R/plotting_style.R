@@ -38,11 +38,20 @@ get_plot_theme <- function(dates = FALSE) {
 #' @autoglobal
 #' @importFrom RColorBrewer brewer.pal
 plot_components <- function() {
-  pal_models <- brewer.pal(5, "Set2")
+  pal_models <- brewer.pal(5, "Accent")
   pal_clades <- brewer.pal(12, "Paired")
+  # Combine them for 12+ distinct colors
+  pal_models <- c(
+    "#E41A1C", # red
+    "#377EB8", # blue
+    "#984EA3", # purple
+    "#A65628", # brown
+    "#66C2A5", # teal
+    "#8DA0CB" # lavender
+  )
   # nolint start
   model_colors <- c(
-    "Hub-baseline" = "gray",
+    "Hub-baseline" = "gray30",
     "CADPH-CATaLog" = pal_models[1],
     "CADPH-CATaMaran" = pal_models[2],
     "LANL-CovTransformer" = pal_models[3],
@@ -54,7 +63,7 @@ plot_components <- function() {
     "24B" = pal_clades[2],
     "24C" = pal_clades[3],
     "24E" = pal_clades[4],
-    "recombinant" = "brown4",
+    "recombinant" = "#8B0000",
     "24F" = pal_clades[5],
     "24G" = pal_clades[6],
     "24H" = pal_clades[7],
@@ -63,12 +72,12 @@ plot_components <- function() {
     "24D" = pal_clades[10],
     "23A" = pal_clades[11],
     "25B" = pal_clades[12],
-    "other" = "darkgray",
+    "other" = "gray50",
     "24A.as of nowcast date" = pal_clades[1],
     "24B.as of nowcast date" = pal_clades[2],
     "24C.as of nowcast date" = pal_clades[3],
     "24E.as of nowcast date" = pal_clades[4],
-    "recombinant.as of nowcast date" = "brown4",
+    "recombinant.as of nowcast date" = "#8B0000",
     "24F.as of nowcast date" = pal_clades[5],
     "24G.as of nowcast date" = pal_clades[6],
     "24H.as of nowcast date" = pal_clades[7],
@@ -77,12 +86,12 @@ plot_components <- function() {
     "24D.as of nowcast date" = pal_clades[10],
     "23A.as of nowcast date" = pal_clades[11],
     "25B.as of nowcast date" = pal_clades[12],
-    "other.as of nowcast date" = "darkgray",
+    "other.as of nowcast date" = "gray50",
     "24A.evaluation" = pal_clades[1],
     "24B.evaluation" = pal_clades[2],
     "24C.evaluation" = pal_clades[3],
     "24E.evaluation" = pal_clades[4],
-    "recombinant.evaluation" = "brown4",
+    "recombinant.evaluation" = "#8B0000",
     "24F.evaluation" = pal_clades[5],
     "24G.evaluation" = pal_clades[6],
     "24H.evaluation" = pal_clades[7],
@@ -91,8 +100,9 @@ plot_components <- function() {
     "24D.evaluation" = pal_clades[10],
     "23A.evaluation" = pal_clades[11],
     "25B.evaluation" = pal_clades[12],
-    "other.evaluation" = "darkgray"
+    "other.evaluation" = "gray50"
   )
+
   percentile_colors <- c(
     "top 90%" = "darkblue",
     "bottom 10%" = "brown"

@@ -11,7 +11,9 @@ get_pred_int <- function(model_pred_prop,
   nowcast_dates <- unique(model_pred_prop$nowcast_date)
   locs <- unique(model_pred_prop$location)
   target_dates <- unique(model_pred_prop$target_date)
-  models <- unique(model_pred_prop$model_id[model_pred_prop$output_type == "sample"])
+  models <- unique(
+    model_pred_prop$model_id[model_pred_prop$output_type == "sample"]
+  )
   df_summary <- data.frame()
   i <- 0
   for (nowcast_date in nowcast_dates) {
@@ -33,20 +35,22 @@ get_pred_int <- function(model_pred_prop,
           mutate(nowcast_date = ymd(nowcast_date))
         # Get sample of modeled counts from each model with samples
         # for this target date and location
-        df_samp <- model_pred_prop |>
-          filter(
-            nowcast_date == nowcast_date,
-            location == loc,
-            target_date == date,
-            output_type == "sample"
-          )
+        df_samp <- filter(
+          model_pred_prop,
+          nowcast_date == nowcast_date,
+          location == loc,
+          target_date == date,
+          output_type == "sample"
+        )
         # Combine and renumber
         df_comb <- df_samp |>
+          # nolint start
           left_join(obs_data, by = c("nowcast_date",
             "location",
             "target_date" = "date",
             "clade" = "clades_modeled"
           )) |>
+          # nolint end
           mutate(
             n_seq = N,
             sample_id = as.numeric(gsub("[^0-9]", "", output_type_id))
@@ -64,16 +68,18 @@ get_pred_int <- function(model_pred_prop,
         for (model in models) {
           i <- i + 1
           if (N != 0) {
-            df_model <- df_samp_wide |>
-              filter(model_id == !!model)
+            df_model <- filter(
+              df_samp_wide,
+              model_id == !!model
+            )
 
-            df_spine <- df_model |>
-              select(
-                model_id, nowcast_date, target_date,
-                location, clade, output_type,
-                location_name, location_code, population,
-                type, sequences, n_seq
-              )
+            df_spine <- select(
+              df_model,
+              model_id, nowcast_date, target_date,
+              location, clade, output_type,
+              location_name, location_code, population,
+              type, sequences, n_seq
+            )
 
             # 100 column matrix 1 for each draw
             samp_matrix <- as.matrix(df_model[, 13:ncol(df_model)])
@@ -82,13 +88,13 @@ get_pred_int <- function(model_pred_prop,
             samp_multinomial_counts <- do.call(
               cbind,
               lapply(
-                1:ncol(samp_matrix),
+                seq_len(ncol(samp_matrix)),
                 function(col) {
-                  rmultinom(
+                  return(rmultinom(
                     n = 100,
                     size = N,
                     prob = samp_matrix[, col]
-                  )
+                  ))
                 }
               )
             )
