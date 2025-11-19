@@ -71,9 +71,9 @@ data_targets <- list(
 )
 
 # Summarise and analyse the scores and predictions
-#  analysis_targets <- list(
-#   pred_int_targets
-# )
+analysis_targets <- list(
+  pred_int_targets
+)
 
 # Make plots
 plot_targets <- list(
@@ -81,7 +81,7 @@ plot_targets <- list(
   fig_data_targets,
   fig_data_as_of_targets,
   fig_nowcast_targets,
-  #   fig_pred_plus_data_targets,
+  fig_pred_plus_data_targets,
   fig_overall_targets
 )
 
@@ -89,6 +89,6 @@ plot_targets <- list(
 list(
   config_targets,
   data_targets,
-  # analysis_targets,
+  analysis_targets,
   plot_targets
 )

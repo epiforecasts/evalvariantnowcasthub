@@ -10,6 +10,10 @@ config_targets <- list(
       )
     ),
   ),
+  tar_target(
+    name = clades_to_plot,
+    command = c("24E", "24F", "25A")
+  ),
   # Url to load in the oracle output, which contains the data available as of the nowcast date
   tar_target(
     name = hub_path,
