@@ -32,6 +32,17 @@ clean_data_targets <- list(
     )
   ),
   tar_target(
+    name = clean_variant_data_for_eval_mult_nowcasts,
+    command = get_clean_variant_data(
+      variant_data_for_eval_mult_nowcasts,
+      clade_list,
+      location_data,
+      nowcast_date_range_to_zoom,
+      seq_col_name = "oracle_value",
+      type = "evaluation"
+    )
+  ),
+  tar_target(
     name = final_seq_counts,
     command = clean_variant_data_final_all_states |>
       group_by(date, location) |>

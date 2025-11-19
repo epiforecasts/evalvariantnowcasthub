@@ -22,6 +22,14 @@ load_data_targets <- list(
       states = states_for_vis
     )
   ),
+  tar_target(
+    name = variant_data_for_eval_mult_nowcasts,
+    command = get_oracle_output(
+      hub_path = hub_path,
+      nowcast_dates = nowcast_date_range_to_zoom,
+      states = states_for_vis
+    )
+  ),
   # Number of sequences available within the nowcast horizon
   tar_target(
     name = seq_counts_by_date_us,
@@ -63,6 +71,15 @@ load_data_targets <- list(
     name = raw_selected_model_outputs,
     command = extract_nowcasts(
       nowcast_dates = nowcast_date_for_vis,
+      states = states_for_vis,
+      bucket_name = nowcast_bucket_name
+    )
+  ),
+  # Model outputs for the selected dates
+  tar_target(
+    name = model_outputs_mult_nowcasts,
+    command = extract_nowcasts(
+      nowcast_dates = nowcast_date_range_to_zoom,
       states = states_for_vis,
       bucket_name = nowcast_bucket_name
     )

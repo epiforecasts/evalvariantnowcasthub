@@ -82,7 +82,8 @@ plot_targets <- list(
   fig_data_as_of_targets,
   fig_nowcast_targets,
   fig_pred_plus_data_targets,
-  fig_overall_targets
+  fig_overall_targets,
+  fig_zoom_25A_targets
 )
 
 

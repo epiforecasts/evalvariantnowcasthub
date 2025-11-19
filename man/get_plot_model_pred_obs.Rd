@@ -13,7 +13,7 @@ quantile values}
 \item{eval_seq}{Counts of sequences by clade for evaluating on a particular
 nowcast date}
 
-\item{clades_to_plot}{Vector of chharacter strings of clades to plot,
+\item{clades_to_plot}{Vector of character strings of clades to plot,
 default is NULL which plots all of them}
 }
 \value{
