@@ -13,7 +13,7 @@ fig_submission_heatmaps_targets <- list(
     name = fig_submission_heatmaps,
     command = create_submission_heatmap_figure(
       submission_presence_data,
-      plot_components
+      plot_components()
     )
   ),
   # Save the figure to output/figs/metadata/
