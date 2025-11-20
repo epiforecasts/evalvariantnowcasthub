@@ -57,10 +57,10 @@ get_plot_by_location <- function(scores_obj,
   if (isTRUE(rel_skill_plot)) {
     rel_skill <- scores_obj |>
       ungroup() |>
-      summarise_scores(by = c("model", "location")) |>
       add_relative_skill(
         metric = score_type,
-        baseline = "Hub-baseline"
+        baseline = "Hub-baseline",
+        by = "location"
       ) |>
       left_join(seq_counts_by_loc) |>
       arrange(desc(total_seq)) |>
@@ -76,7 +76,7 @@ get_plot_by_location <- function(scores_obj,
           )),
           color = model
         ),
-        size = 4
+        size = 4, alpha = 0.5
       ) +
       geom_hline(yintercept = 1, linetype = "dashed", color = "gray50") +
       scale_color_manual(values = plot_components_list$model_colors) +
@@ -162,10 +162,10 @@ get_plot_by_nowcast_date <- function(scores_obj,
   if (isTRUE(rel_skill_plot)) {
     rel_skill <- scores_obj |>
       ungroup() |>
-      summarise_scores(by = c("model", "nowcast_date")) |>
       add_relative_skill(
         metric = score_type,
-        baseline = "Hub-baseline"
+        baseline = "Hub-baseline",
+        by = "nowcast_date"
       )
 
     p <- ggplot(rel_skill) +
@@ -176,7 +176,8 @@ get_plot_by_nowcast_date <- function(scores_obj,
             "{score_type}_scaled_relative_skill"
           )),
           color = model
-        )
+        ),
+        alpha = 0.5
       ) +
       geom_line(
         aes(
@@ -284,11 +285,12 @@ get_plot_overall <- function(scores_obj,
   if (isTRUE(rel_skill_plot)) {
     rel_skill <- scores_obj |>
       ungroup() |>
-      summarise_scores(by = "model") |>
       add_relative_skill(
         metric = score_type,
-        baseline = "Hub-baseline"
-      )
+        baseline = "Hub-baseline",
+        by = NULL
+      ) |>
+      summarise_scores(by = "model")
 
     p <- ggplot(rel_skill) +
       geom_point(
