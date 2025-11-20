@@ -100,5 +100,17 @@ utils::globalVariables(c(
   "location", # <get_plot_seq_counts_loc>
   "nowcast_date", # <get_plot_seq_counts_date>
   "total_sequences", # <get_plot_seq_counts_date>
+  "model_id", # <prepare_submission_data>
+  "location", # <prepare_submission_data>
+  "nowcast_date", # <prepare_submission_data>
+  "submitted", # <prepare_submission_data>
+  "submssion_data", # <plot_model_submission_heatmap>
+  "location", # <plot_model_submission_heatmap>
+  "nowcast_date", # <plot_model_submission_heatmap>
+  "submitted", # <plot_model_submission_heatmap>
+  "location", # <plot_submission_summary>
+  "nowcast_date", # <plot_submission_summary>
+  "submitted", # <plot_submission_summary>
+  "n_models", # <plot_submission_summary>
   NULL
 ))
