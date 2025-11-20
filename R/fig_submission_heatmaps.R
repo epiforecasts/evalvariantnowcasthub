@@ -132,8 +132,7 @@ create_submission_heatmap_figure <- function(submission_data,
     ncol = 2
   ) +
     plot_annotation(
-      title = "Model Submission Coverage by Location and Nowcast Date",
-      theme = theme(plot.title = element_text(size = 16, face = "bold"))
+      title = "Model Submission Coverage by Location and Nowcast Date"
     )
 
   return(combined)
