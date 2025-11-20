@@ -46,23 +46,27 @@ plot_model_submission_heatmap <- function(submission_data,
                                           model_id,
                                           plot_components) {
   model_data <- submission_data |>
-    filter(model_id == !!model_id)
+    filter(model_id == !!model_id, location != "US")
 
   model_color <- plot_components$model_colors[model_id]
 
   ggplot(model_data, aes(x = nowcast_date, y = location, fill = submitted)) +
     geom_tile(color = "white", linewidth = 0.5) +
     scale_fill_manual(
-      values = c("TRUE" = model_color, "FALSE" = "gray90"),
-      labels = c("TRUE" = "Submitted", "FALSE" = "Not submitted"),
+      values = setNames(c(model_color, "gray90"), c(TRUE, FALSE)),
+      labels = c("Submitted", "Not submitted"),
       name = "Status"
+    ) +
+    scale_x_date(
+      date_breaks = "1 week",
+      date_labels = "%d %b %Y"
     ) +
     labs(
       title = model_id,
       x = "Nowcast Date",
       y = "Location"
     ) +
-    plot_components$theme +
+    get_plot_theme(dates = TRUE) +
     theme(
       axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
       axis.text.y = element_text(size = 6),
@@ -80,6 +84,7 @@ plot_model_submission_heatmap <- function(submission_data,
 plot_submission_summary_heatmap <- function(submission_data,
                                             plot_components) {
   summary_data <- submission_data |>
+    filter(location != "US") |>
     group_by(location, nowcast_date) |>
     summarise(n_models = sum(submitted), .groups = "drop")
 
@@ -91,12 +96,16 @@ plot_submission_summary_heatmap <- function(submission_data,
       breaks = 0:6,
       name = "Number of\nModels"
     ) +
+    scale_x_date(
+      date_breaks = "1 week",
+      date_labels = "%d %b %Y"
+    ) +
     labs(
       title = "All Models Summary",
       x = "Nowcast Date",
       y = "Location"
     ) +
-    plot_components$theme +
+    get_plot_theme(dates = TRUE) +
     theme(
       axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
       axis.text.y = element_text(size = 6),
