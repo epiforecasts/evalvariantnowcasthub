@@ -46,7 +46,7 @@ plot_model_submission_heatmap <- function(submission_data,
                                           model_id,
                                           plot_components) {
   model_data <- filter(
-    submssion_data,
+    submission_data,
     model_id == !!model_id, location != "US"
   )
 

@@ -55,20 +55,19 @@ get_plot_by_location <- function(scores_obj,
   }
 
   if (isTRUE(rel_skill_plot)) {
-    rel_skill <- get_relative_skill(
-      scores_obj,
-      score_type = score_type,
-      by = c("target_date", "location")
-    )
-
-    rel_skill_summarised <- rel_skill |>
-      scoringutils::summarise_scores(by = c("model", "location")) |>
+    rel_skill <- scores_obj |>
+      ungroup() |>
+      summarise_scores(by = c("model", "location")) |>
+      add_relative_skill(
+        metric = score_type,
+        baseline = "Hub-baseline"
+      ) |>
       left_join(seq_counts_by_loc) |>
       arrange(desc(total_seq)) |>
       mutate(location = factor(location, levels = unique(location))) |>
       filter(model != "Hub-baseline")
 
-    p <- ggplot(rel_skill_summarised) +
+    p <- ggplot(rel_skill) +
       geom_point(
         aes(
           x = location,
@@ -161,17 +160,15 @@ get_plot_by_nowcast_date <- function(scores_obj,
   }
 
   if (isTRUE(rel_skill_plot)) {
-    rel_skill <- get_relative_skill(
-      scores_obj,
-      score_type = score_type,
-      by = c("target_date", "nowcast_date")
-    )
+    rel_skill <- scores_obj |>
+      ungroup() |>
+      summarise_scores(by = c("model", "nowcast_date")) |>
+      add_relative_skill(
+        metric = score_type,
+        baseline = "Hub-baseline"
+      )
 
-    rel_skill_summarised <- rel_skill |>
-      scoringutils::summarise_scores(by = c("model", "nowcast_date")) |>
-      filter(model != "Hub-baseline")
-
-    p <- ggplot(rel_skill_summarised) +
+    p <- ggplot(rel_skill) +
       geom_point(
         aes(
           x = nowcast_date,
@@ -285,17 +282,15 @@ get_plot_overall <- function(scores_obj,
   }
 
   if (isTRUE(rel_skill_plot)) {
-    rel_skill <- get_relative_skill(
-      scores_obj,
-      score_type = score_type,
-      by = c("target_date", "nowcast_date")
-    )
+    rel_skill <- scores_obj |>
+      ungroup() |>
+      summarise_scores(by = "model") |>
+      add_relative_skill(
+        metric = score_type,
+        baseline = "Hub-baseline"
+      )
 
-    rel_skill_summarised <- rel_skill |>
-      scoringutils::summarise_scores(by = "model") |>
-      filter(model != "Hub-baseline")
-
-    p <- ggplot(rel_skill_summarised) +
+    p <- ggplot(rel_skill) +
       geom_point(
         aes(
           x = model,
