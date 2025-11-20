@@ -45,12 +45,14 @@ prepare_submission_data <- function(all_model_outputs,
 plot_model_submission_heatmap <- function(submission_data,
                                           model_id,
                                           plot_components) {
-  model_data <- submission_data |>
-    filter(model_id == !!model_id, location != "US")
+  model_data <- filter(
+    submssion_data,
+    model_id == !!model_id, location != "US"
+  )
 
   model_color <- plot_components$model_colors[model_id]
 
-  ggplot(model_data, aes(x = nowcast_date, y = location, fill = submitted)) +
+  p <- ggplot(model_data, aes(x = nowcast_date, y = location, fill = submitted)) +
     geom_tile(color = "white", linewidth = 0.5) +
     scale_fill_manual(
       values = setNames(c(model_color, "gray90"), c(TRUE, FALSE)),
@@ -72,6 +74,7 @@ plot_model_submission_heatmap <- function(submission_data,
       axis.text.y = element_text(size = 6),
       legend.position = "bottom"
     )
+  return(p)
 }
 
 #' Plot summary heatmap across all models
@@ -81,14 +84,14 @@ plot_model_submission_heatmap <- function(submission_data,
 #'
 #' @returns ggplot2 object
 #' @autoglobal
-plot_submission_summary_heatmap <- function(submission_data,
-                                            plot_components) {
+plot_submission_summary <- function(submission_data,
+                                    plot_components) {
   summary_data <- submission_data |>
     filter(location != "US") |>
     group_by(location, nowcast_date) |>
     summarise(n_models = sum(submitted), .groups = "drop")
 
-  ggplot(summary_data, aes(x = nowcast_date, y = location, fill = n_models)) +
+  p <- ggplot(summary_data, aes(x = nowcast_date, y = location, fill = n_models)) +
     geom_tile(color = "white", linewidth = 0.5) +
     scale_fill_viridis_c(
       option = "viridis",
@@ -111,6 +114,7 @@ plot_submission_summary_heatmap <- function(submission_data,
       axis.text.y = element_text(size = 6),
       legend.position = "bottom"
     )
+  return(p)
 }
 
 #' Create per-model submission heatmap figure
@@ -120,14 +124,18 @@ plot_submission_summary_heatmap <- function(submission_data,
 #'
 #' @returns Combined patchwork plot of all per-model heatmaps
 #' @autoglobal
-create_per_model_heatmap_figure <- function(submission_data,
-                                            plot_components) {
+create_per_model_heatmap_fig <- function(submission_data,
+                                         plot_components) {
   # Get all unique models
   model_ids <- unique(submission_data$model_id)
 
   # Create per-model plots
   model_plots <- lapply(model_ids, function(mid) {
-    plot_model_submission_heatmap(submission_data, mid, plot_components)
+    return(plot_model_submission_heatmap(
+      submission_data,
+      mid,
+      plot_components
+    ))
   })
 
   # Combine using patchwork
@@ -148,7 +156,7 @@ create_per_model_heatmap_figure <- function(submission_data,
 #' @autoglobal
 create_summary_heatmap_figure <- function(submission_data,
                                           plot_components) {
-  summary_plot <- plot_submission_summary_heatmap(
+  summary_plot <- plot_submission_summary(
     submission_data,
     plot_components
   )

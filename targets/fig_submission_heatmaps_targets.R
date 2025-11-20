@@ -11,7 +11,7 @@ fig_submission_heatmaps_targets <- list(
   # Create per-model heatmap figure
   tar_target(
     name = fig_submission_heatmaps_by_model,
-    command = create_per_model_heatmap_figure(
+    command = create_per_model_heatmap_fig(
       submission_presence_data,
       plot_components()
     )
