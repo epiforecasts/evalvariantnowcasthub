@@ -52,7 +52,10 @@ plot_model_submission_heatmap <- function(submission_data,
 
   model_color <- plot_components$model_colors[model_id]
 
-  p <- ggplot(model_data, aes(x = nowcast_date, y = location, fill = submitted)) +
+  p <- ggplot(model_data, aes(
+    x = nowcast_date, y = location,
+    fill = submitted
+  )) +
     geom_tile(color = "white", linewidth = 0.5) +
     scale_fill_manual(
       values = setNames(c(model_color, "gray90"), c(TRUE, FALSE)),
@@ -91,7 +94,10 @@ plot_submission_summary <- function(submission_data,
     group_by(location, nowcast_date) |>
     summarise(n_models = sum(submitted), .groups = "drop")
 
-  p <- ggplot(summary_data, aes(x = nowcast_date, y = location, fill = n_models)) +
+  p <- ggplot(summary_data, aes(
+    x = nowcast_date, y = location,
+    fill = n_models
+  )) +
     geom_tile(color = "white", linewidth = 0.5) +
     scale_fill_viridis_c(
       option = "viridis",
