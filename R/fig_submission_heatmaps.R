@@ -11,10 +11,11 @@ prepare_submission_data <- function(all_model_outputs,
                                     location_data,
                                     nowcast_dates) {
   # Create complete grid of all combinations
+  # Convert nowcast_dates to Date to match all_model_outputs
   all_combinations <- expand.grid(
     model_id = unique(all_model_outputs$model_id),
     location = location_data$abbreviation,
-    nowcast_date = nowcast_dates,
+    nowcast_date = ymd(nowcast_dates),
     stringsAsFactors = FALSE
   )
 

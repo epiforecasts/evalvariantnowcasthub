@@ -15,5 +15,20 @@ fig_submission_heatmaps_targets <- list(
       submission_presence_data,
       plot_components
     )
+  ),
+  # Save the figure to output/figs/metadata/
+  tar_target(
+    name = submission_heatmaps_file,
+    command = {
+      dir.create("output/figs/metadata", recursive = TRUE, showWarnings = FALSE)
+      ggsave(
+        filename = "output/figs/metadata/submission_heatmaps.png",
+        plot = fig_submission_heatmaps,
+        width = 16,
+        height = 20,
+        dpi = 300
+      )
+      "output/figs/metadata/submission_heatmaps.png"
+    }
   )
 )
