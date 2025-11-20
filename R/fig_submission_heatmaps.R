@@ -104,15 +104,15 @@ plot_submission_summary_heatmap <- function(submission_data,
     )
 }
 
-#' Create complete submission heatmap figure
+#' Create per-model submission heatmap figure
 #'
 #' @param submission_data Prepared submission status data
 #' @param plot_components List containing theme and color information
 #'
-#' @returns Combined patchwork plot
+#' @returns Combined patchwork plot of all per-model heatmaps
 #' @autoglobal
-create_submission_heatmap_figure <- function(submission_data,
-                                             plot_components) {
+create_per_model_heatmap_figure <- function(submission_data,
+                                            plot_components) {
   # Get all unique models
   model_ids <- unique(submission_data$model_id)
 
@@ -121,19 +121,28 @@ create_submission_heatmap_figure <- function(submission_data,
     plot_model_submission_heatmap(submission_data, mid, plot_components)
   })
 
-  # Create summary plot
-  summary_plot <- plot_submission_summary_heatmap(
-    submission_data,
-    plot_components
-  )
-
   # Combine using patchwork
-  combined <- wrap_plots(c(model_plots, list(summary_plot)),
-    ncol = 2
-  ) +
+  combined <- wrap_plots(model_plots, ncol = 2) +
     plot_annotation(
       title = "Model Submission Coverage by Location and Nowcast Date"
     )
 
   return(combined)
+}
+
+#' Create summary submission heatmap figure
+#'
+#' @param submission_data Prepared submission status data
+#' @param plot_components List containing theme and color information
+#'
+#' @returns ggplot2 object showing summary across all models
+#' @autoglobal
+create_summary_heatmap_figure <- function(submission_data,
+                                          plot_components) {
+  summary_plot <- plot_submission_summary_heatmap(
+    submission_data,
+    plot_components
+  )
+
+  return(summary_plot)
 }

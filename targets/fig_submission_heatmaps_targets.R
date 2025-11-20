@@ -8,27 +8,50 @@ fig_submission_heatmaps_targets <- list(
       nowcast_dates
     )
   ),
-  # Create the combined heatmap figure
+  # Create per-model heatmap figure
   tar_target(
-    name = fig_submission_heatmaps,
-    command = create_submission_heatmap_figure(
+    name = fig_submission_heatmaps_by_model,
+    command = create_per_model_heatmap_figure(
       submission_presence_data,
       plot_components()
     )
   ),
-  # Save the figure to output/figs/metadata/
+  # Create summary heatmap figure
   tar_target(
-    name = submission_heatmaps_file,
+    name = fig_submission_heatmaps_summary,
+    command = create_summary_heatmap_figure(
+      submission_presence_data,
+      plot_components()
+    )
+  ),
+  # Save per-model figure to output/figs/metadata/supp/
+  tar_target(
+    name = submission_heatmaps_by_model_file,
     command = {
-      dir.create("output/figs/metadata", recursive = TRUE, showWarnings = FALSE)
+      dir.create("output/figs/metadata/supp", recursive = TRUE, showWarnings = FALSE)
       ggsave(
-        filename = "output/figs/metadata/submission_heatmaps.png",
-        plot = fig_submission_heatmaps,
+        filename = "output/figs/metadata/supp/submission_heatmaps_by_model.png",
+        plot = fig_submission_heatmaps_by_model,
         width = 16,
         height = 20,
         dpi = 300
       )
-      "output/figs/metadata/submission_heatmaps.png"
+      "output/figs/metadata/supp/submission_heatmaps_by_model.png"
+    }
+  ),
+  # Save summary figure to output/figs/metadata/supp/
+  tar_target(
+    name = submission_heatmaps_summary_file,
+    command = {
+      dir.create("output/figs/metadata/supp", recursive = TRUE, showWarnings = FALSE)
+      ggsave(
+        filename = "output/figs/metadata/supp/submission_heatmaps_summary.png",
+        plot = fig_submission_heatmaps_summary,
+        width = 10,
+        height = 8,
+        dpi = 300
+      )
+      "output/figs/metadata/supp/submission_heatmaps_summary.png"
     }
   )
 )
