@@ -57,9 +57,9 @@ get_plot_by_location <- function(scores_obj,
   if (isTRUE(rel_skill_plot)) {
     rel_skill <- scores_obj |>
       ungroup() |>
-      add_relative_skill(
-        metric = score_type,
+      scoringutils::get_pairwise_comparisons(
         baseline = "Hub-baseline",
+        metric = score_type,
         by = "location"
       ) |>
       left_join(seq_counts_by_loc) |>
@@ -162,9 +162,9 @@ get_plot_by_nowcast_date <- function(scores_obj,
   if (isTRUE(rel_skill_plot)) {
     rel_skill <- scores_obj |>
       ungroup() |>
-      add_relative_skill(
-        metric = score_type,
+      scoringutils::get_pairwise_comparisons(
         baseline = "Hub-baseline",
+        metric = score_type,
         by = "nowcast_date"
       )
 
@@ -285,12 +285,10 @@ get_plot_overall <- function(scores_obj,
   if (isTRUE(rel_skill_plot)) {
     rel_skill <- scores_obj |>
       ungroup() |>
-      add_relative_skill(
-        metric = score_type,
+      scoringutils::get_pairwise_comparisons(
         baseline = "Hub-baseline",
-        by = NULL
-      ) |>
-      summarise_scores(by = "model")
+        metric = score_type
+      )
 
     p <- ggplot(rel_skill) +
       geom_point(
