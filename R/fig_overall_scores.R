@@ -57,7 +57,7 @@ get_plot_by_location <- function(scores_obj,
   if (isTRUE(rel_skill_plot)) {
     rel_skill <- scores_obj |>
       ungroup() |>
-      filter(!is.na(score_type)) |>
+      filter(!is.na(!!sym(score_type))) |>
       scoringutils::get_pairwise_comparisons(
         baseline = "Hub-baseline",
         metric = score_type,
@@ -166,7 +166,7 @@ get_plot_by_nowcast_date <- function(scores_obj,
   if (isTRUE(rel_skill_plot)) {
     rel_skill <- scores_obj |>
       ungroup() |>
-      filter(!is.na(score_type)) |>
+      filter(!is.na(!!sym(score_type))) |>
       scoringutils::get_pairwise_comparisons(
         baseline = "Hub-baseline",
         metric = score_type,
@@ -292,7 +292,7 @@ get_plot_overall <- function(scores_obj,
   if (isTRUE(rel_skill_plot)) {
     rel_skill <- scores_obj |>
       ungroup() |>
-      filter(!is.na(score_type)) |>
+      filter(!is.na(!!sym(score_type))) |>
       scoringutils::get_pairwise_comparisons(
         baseline = "Hub-baseline",
         metric = score_type
