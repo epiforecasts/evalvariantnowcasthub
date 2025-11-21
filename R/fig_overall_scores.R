@@ -76,7 +76,7 @@ get_plot_by_location <- function(scores_obj,
           y = !!sym(glue::glue(
             "{score_type}_scaled_relative_skill"
           )),
-          color = model,
+          color = model
         ),
         size = 4
       ) +
