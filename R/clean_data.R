@@ -43,11 +43,10 @@ get_clean_variant_data <- function(raw_variant_data,
     mutate(type = !!type) |>
     group_by(
       clades_modeled, location_name, location, location_code, population,
-      type, date
+      type, date, nowcast_date
     ) |>
     summarise(sequences = sum(sequences)) |>
-    ungroup() |>
-    mutate(nowcast_date = nowcast_date)
+    ungroup()
   return(clean_latest_data)
 }
 #' Get clean variant data from raw data
