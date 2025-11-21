@@ -8,26 +8,28 @@ get_pred_int <- function(model_pred_prop,
 
   # For each nowcast_date, location, target, date, and draw, sample from a
   # multinomial 100 times
-  nowcast_dates <- unique(model_pred_prop$nowcast_date)
+  nowcast_dates <- ymd(unique(model_pred_prop$nowcast_date))
   locs <- unique(model_pred_prop$location)
-  target_dates <- unique(model_pred_prop$target_date)
+  target_dates <- ymd(unique(model_pred_prop$target_date))
   df_summary <- data.frame()
   i <- 0
-  for (nowcast_date_i in nowcast_dates) {
+  for (k in seq_along(nowcast_dates)) {
     for (loc in locs) {
-      for (date in target_dates) {
+      for (j in seq_along(target_dates)) {
+        date_i <- target_dates[j]
+        nowcast_date_i <- nowcast_dates[k]
         N <- seq_counts_by_date_loc |>
           filter(
-            nowcast_date == nowcast_date_i,
+            nowcast_date == ymd(nowcast_date_i),
             location == loc,
-            date == !!date
+            date == !!ymd(date_i)
           ) |>
           pull(n_seq)
         obs_data <- eval_seq |>
           filter(
             nowcast_date == nowcast_date_i,
             location == loc,
-            date == !!date
+            date == !!date_i
           ) |>
           mutate(nowcast_date = ymd(nowcast_date))
         # Get sample of modeled counts from each model with samples
@@ -36,7 +38,7 @@ get_pred_int <- function(model_pred_prop,
           model_pred_prop,
           nowcast_date == nowcast_date_i,
           location == loc,
-          target_date == date,
+          target_date == date_i,
           output_type == "sample"
         )
         # Combine and renumber
