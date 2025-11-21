@@ -82,6 +82,15 @@ load_data_targets <- list(
       nowcast_dates = nowcast_date_range_to_zoom,
       states = states_for_vis,
       bucket_name = nowcast_bucket_name
+      )
+    ),
+  # All model outputs for heatmap (all dates and locations)
+  tar_target(
+    name = all_model_outputs_for_heatmap,
+    command = extract_nowcasts(
+      nowcast_dates = nowcast_dates,
+      states = location_data$abbreviation,
+      bucket_name = nowcast_bucket_name
     )
   ),
   # Scores corresponding to the nowcast dates we will evaluate
