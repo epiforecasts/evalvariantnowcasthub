@@ -57,6 +57,7 @@ get_plot_by_location <- function(scores_obj,
   if (isTRUE(rel_skill_plot)) {
     rel_skill <- scores_obj |>
       ungroup() |>
+      filter(!is.na(score_type)) |>
       scoringutils::get_pairwise_comparisons(
         baseline = "Hub-baseline",
         metric = score_type,
@@ -91,6 +92,8 @@ get_plot_by_location <- function(scores_obj,
       coord_cartesian(ylim = c(1 / 4.5, 4.5))
   } else {
     scores_sum <- scores_obj |>
+      ungroup() |>
+      filter(!is.na(score_type)) |>
       scoringutils::summarise_scores(by = c("model", "location")) |>
       left_join(seq_counts_by_loc) |>
       arrange(desc(total_seq)) |>
@@ -163,6 +166,7 @@ get_plot_by_nowcast_date <- function(scores_obj,
   if (isTRUE(rel_skill_plot)) {
     rel_skill <- scores_obj |>
       ungroup() |>
+      filter(!is.na(score_type)) |>
       scoringutils::get_pairwise_comparisons(
         baseline = "Hub-baseline",
         metric = score_type,
@@ -206,6 +210,7 @@ get_plot_by_nowcast_date <- function(scores_obj,
       coord_cartesian(ylim = c(1 / 1.5, 1.5))
   } else {
     scores_sum <- scores_obj |>
+      filter(!is.na(score_type)) |>
       scoringutils::summarise_scores(by = c("model", "nowcast_date"))
     p <- ggplot(scores_sum) +
       geom_point(
@@ -287,6 +292,7 @@ get_plot_overall <- function(scores_obj,
   if (isTRUE(rel_skill_plot)) {
     rel_skill <- scores_obj |>
       ungroup() |>
+      filter(!is.na(score_type)) |>
       scoringutils::get_pairwise_comparisons(
         baseline = "Hub-baseline",
         metric = score_type
@@ -319,6 +325,7 @@ get_plot_overall <- function(scores_obj,
       )
   } else {
     scores_sum <- scores_obj |>
+      filter(!is.na(score_type)) |>
       scoringutils::summarise_scores(by = "model") |>
       filter(!is.na(!!sym(glue::glue("{score_type}"))))
 
