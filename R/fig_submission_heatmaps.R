@@ -59,7 +59,7 @@ plot_model_submission_heatmap <- function(submission_data,
     geom_tile(color = "white", linewidth = 0.5) +
     scale_fill_manual(
       values = setNames(c(model_color, "gray90"), c(TRUE, FALSE)),
-      labels = c("Submitted", "Not submitted"),
+      labels = c("Not submitted", "Submitted"),
       name = "Status"
     ) +
     scale_x_date(

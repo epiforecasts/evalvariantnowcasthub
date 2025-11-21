@@ -62,6 +62,7 @@ get_plot_by_location <- function(scores_obj,
         metric = score_type,
         by = "location"
       ) |>
+      filter(model != "Hub-baseline") |>
       left_join(seq_counts_by_loc) |>
       arrange(desc(total_seq)) |>
       mutate(location = factor(location, levels = unique(location))) |>
@@ -74,9 +75,9 @@ get_plot_by_location <- function(scores_obj,
           y = !!sym(glue::glue(
             "{score_type}_scaled_relative_skill"
           )),
-          color = model
+          color = model,
         ),
-        size = 4, alpha = 0.5
+        size = 4
       ) +
       geom_hline(yintercept = 1, linetype = "dashed", color = "gray50") +
       scale_color_manual(values = plot_components_list$model_colors) +
@@ -166,7 +167,8 @@ get_plot_by_nowcast_date <- function(scores_obj,
         baseline = "Hub-baseline",
         metric = score_type,
         by = "nowcast_date"
-      )
+      ) |>
+      filter(model != "Hub-baseline")
 
     p <- ggplot(rel_skill) +
       geom_point(
@@ -201,7 +203,7 @@ get_plot_by_nowcast_date <- function(scores_obj,
         color = "Model"
       ) +
       scale_y_continuous(trans = "log10") +
-      coord_cartesian(ylim = c(1 / 3, 3))
+      coord_cartesian(ylim = c(1 / 1.5, 1.5))
   } else {
     scores_sum <- scores_obj |>
       scoringutils::summarise_scores(by = c("model", "nowcast_date"))
@@ -288,7 +290,8 @@ get_plot_overall <- function(scores_obj,
       scoringutils::get_pairwise_comparisons(
         baseline = "Hub-baseline",
         metric = score_type
-      )
+      ) |>
+      filter(model != "Hub-baseline")
 
     p <- ggplot(rel_skill) +
       geom_point(

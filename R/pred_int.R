@@ -16,20 +16,20 @@ get_pred_int <- function(model_pred_prop,
   for (k in seq_along(nowcast_dates)) {
     for (loc in locs) {
       for (j in seq_along(target_dates)) {
-        date <- target_dates[j]
+        date_i <- target_dates[j]
         nowcast_date_i <- nowcast_dates[k]
         N <- seq_counts_by_date_loc |>
           filter(
             nowcast_date == ymd(nowcast_date_i),
             location == loc,
-            date == !!ymd(date)
+            date == !!ymd(date_i)
           ) |>
           pull(n_seq)
         obs_data <- eval_seq |>
           filter(
             nowcast_date == nowcast_date_i,
             location == loc,
-            date == !!date
+            date == !!date_i
           ) |>
           mutate(nowcast_date = ymd(nowcast_date))
         # Get sample of modeled counts from each model with samples
@@ -38,7 +38,7 @@ get_pred_int <- function(model_pred_prop,
           model_pred_prop,
           nowcast_date == nowcast_date_i,
           location == loc,
-          target_date == date,
+          target_date == date_i,
           output_type == "sample"
         )
         # Combine and renumber
