@@ -2,7 +2,7 @@ fig_eval_sequence_heatmap_targets <- list(
   # Prepare evaluation sequence count data
   tar_target(
     name = eval_sequence_counts_data,
-    command = prepare_eval_sequence_data(clean_variant_data_for_eval)
+    command = prepare_eval_sequence_data(clean_variant_data_for_eval_all_dates_all_locs)
   ),
   # Create heatmap
   tar_target(

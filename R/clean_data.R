@@ -74,12 +74,25 @@ get_clean_variant_data_ns <- function(raw_variant_data,
                                       nowcast_dates,
                                       type,
                                       nowcast_days = 31,
-                                      forecast_days = 10) {
+                                      forecast_days = 10,
+                                      seq_col_name = "sequences") {
   loc_data_renamed <- rename(location_data,
     location_code = location,
     location = abbreviation
   )
-  clean_latest_data <- raw_variant_data |>
+  # Handle column renaming - oracle data has target_date, final data has date
+  if ("target_date" %in% colnames(raw_variant_data)) {
+    clean_latest_data <- raw_variant_data |>
+      rename(
+        sequences = {{ seq_col_name }},
+        date = target_date
+      )
+  } else {
+    clean_latest_data <- raw_variant_data |>
+      rename(sequences = {{ seq_col_name }})
+  }
+
+  clean_latest_data <- clean_latest_data |>
     dplyr::mutate(
       location_name =
         case_when(
@@ -103,7 +116,7 @@ get_clean_variant_data_ns <- function(raw_variant_data,
     mutate(type = !!type) |>
     group_by(
       clades_modeled, location_name, location, location_code, population,
-      type, date
+      type, date, nowcast_date
     ) |>
     summarise(sequences = sum(sequences)) |>
     ungroup()
