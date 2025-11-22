@@ -22,6 +22,15 @@ load_data_targets <- list(
       states = states_for_vis
     )
   ),
+  # Variant data for evaluation (all dates and locations)
+  tar_target(
+    name = variant_data_for_eval_all_dates_all_locs,
+    command = get_oracle_output(
+      hub_path = hub_path,
+      nowcast_dates = nowcast_dates,
+      states = location_data$abbreviation
+    )
+  ),
   # Number of sequences available within the nowcast horizon
   tar_target(
     name = seq_counts_by_date_us,

@@ -169,3 +169,61 @@ create_summary_heatmap_figure <- function(submission_data,
 
   return(summary_plot)
 }
+#' Prepare evaluation sequence count data
+#'
+#' @param clean_variant_data_for_eval Cleaned evaluation variant data
+#'
+#' @returns Data frame with total sequences by nowcast_date and location
+#' @autoglobal
+prepare_eval_sequence_data <- function(clean_variant_data_for_eval) {
+  # Aggregate sequences by nowcast_date and location
+  # Sum across all clades and target dates
+  sequence_counts <- clean_variant_data_for_eval |>
+    mutate(nowcast_date = ymd(nowcast_date)) |>
+    group_by(nowcast_date, location) |>
+    summarise(total_sequences = sum(sequences, na.rm = TRUE), .groups = "drop")
+
+  return(sequence_counts)
+}
+
+#' Plot evaluation sequence heatmap
+#'
+#' @param sequence_data Prepared sequence count data
+#' @param plot_components List containing theme and color information
+#'
+#' @returns ggplot2 object
+#' @autoglobal
+plot_eval_sequence_heatmap <- function(sequence_data, plot_components) {
+  # Filter out US
+  sequence_data <- sequence_data |>
+    filter(location != "US")
+
+  # Replace 0 with NA for gray display
+  sequence_data <- sequence_data |>
+    mutate(total_sequences = ifelse(total_sequences == 0, NA, total_sequences))
+
+  ggplot(sequence_data, aes(x = nowcast_date, y = location, fill = total_sequences)) +
+    geom_tile(color = "white", linewidth = 0.5) +
+    scale_fill_viridis_c(
+      option = "viridis",
+      trans = "log10", # Log scale
+      na.value = "gray90", # Gray for missing/zero sequences
+      name = "Sequence\nCounts\n(log scale)",
+      labels = scales::comma
+    ) +
+    scale_x_date(
+      date_breaks = "1 week",
+      date_labels = "%d %b %Y"
+    ) +
+    labs(
+      title = "Evaluation Sequence Counts by Location and Nowcast Date",
+      x = "Nowcast Date",
+      y = "Location"
+    ) +
+    get_plot_theme(dates = TRUE) +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+      axis.text.y = element_text(size = 6),
+      legend.position = "right"
+    )
+}

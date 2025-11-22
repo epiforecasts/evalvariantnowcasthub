@@ -74,36 +74,70 @@ get_clean_variant_data_ns <- function(raw_variant_data,
                                       nowcast_dates,
                                       type,
                                       nowcast_days = 31,
-                                      forecast_days = 10) {
+                                      forecast_days = 10,
+                                      seq_col_name = "sequences") {
   loc_data_renamed <- rename(location_data,
     location_code = location,
     location = abbreviation
   )
-  clean_latest_data <- raw_variant_data |>
-    dplyr::mutate(
-      location_name =
-        case_when(
-          location == "Washington DC" ~ "District of Columbia",
-          location == "Deleware" ~ "Delaware",
-          location == "Louisana" ~ "Louisiana",
-          TRUE ~ location
-        ),
-      clades_modeled = ifelse(clade %in% clade_list, clade, "other")
-    ) |>
-    dplyr::select(-location) |>
-    dplyr::filter(
-      location_name %in% location_data$location_name,
-      date <= ymd(max(nowcast_dates)) + days(forecast_days),
-      date >= ymd(min(nowcast_dates)) - days(nowcast_days)
-    ) |>
-    left_join(
-      loc_data_renamed,
-      by = "location_name"
-    ) |>
+  # Handle column renaming - oracle data has target_date, final data has date
+  if ("target_date" %in% colnames(raw_variant_data)) {
+    clean_latest_data <- raw_variant_data |>
+      rename(
+        sequences = {{ seq_col_name }},
+        date = target_date
+      )
+  } else {
+    clean_latest_data <- raw_variant_data |>
+      rename(sequences = {{ seq_col_name }})
+  }
+
+  # Check if data has abbreviations (oracle data) or full names (NextStrain data)
+  has_abbreviations <- any(clean_latest_data$location %in% location_data$abbreviation)
+
+  if (has_abbreviations) {
+    # Oracle data: location column has abbreviations (AL, AK, etc.)
+    clean_latest_data <- clean_latest_data |>
+      dplyr::mutate(clades_modeled = ifelse(clade %in% clade_list, clade, "other")) |>
+      dplyr::filter(
+        location %in% location_data$abbreviation,
+        date <= ymd(max(nowcast_dates)) + days(forecast_days),
+        date >= ymd(min(nowcast_dates)) - days(nowcast_days)
+      ) |>
+      left_join(
+        location_data |> select(abbreviation, location_name, location_code = location, population),
+        by = c("location" = "abbreviation")
+      )
+  } else {
+    # NextStrain data: location column has full names
+    clean_latest_data <- clean_latest_data |>
+      dplyr::mutate(
+        location_name =
+          case_when(
+            location == "Washington DC" ~ "District of Columbia",
+            location == "Deleware" ~ "Delaware",
+            location == "Louisana" ~ "Louisiana",
+            TRUE ~ location
+          ),
+        clades_modeled = ifelse(clade %in% clade_list, clade, "other")
+      ) |>
+      dplyr::select(-location) |>
+      dplyr::filter(
+        location_name %in% location_data$location_name,
+        date <= ymd(max(nowcast_dates)) + days(forecast_days),
+        date >= ymd(min(nowcast_dates)) - days(nowcast_days)
+      ) |>
+      left_join(
+        loc_data_renamed,
+        by = "location_name"
+      )
+  }
+
+  clean_latest_data <- clean_latest_data |>
     mutate(type = !!type) |>
     group_by(
       clades_modeled, location_name, location, location_code, population,
-      type, date
+      type, date, nowcast_date
     ) |>
     summarise(sequences = sum(sequences)) |>
     ungroup()

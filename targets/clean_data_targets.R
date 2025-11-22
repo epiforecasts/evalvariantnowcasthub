@@ -32,6 +32,17 @@ clean_data_targets <- list(
     )
   ),
   tar_target(
+    name = clean_variant_data_for_eval_all_dates_all_locs,
+    command = get_clean_variant_data_ns(
+      variant_data_for_eval_all_dates_all_locs,
+      clade_list,
+      location_data,
+      nowcast_dates,
+      type = "evaluation",
+      seq_col_name = "oracle_value"
+    )
+  ),
+  tar_target(
     name = final_seq_counts,
     command = clean_variant_data_final_all_states |>
       group_by(date, location) |>
