@@ -127,11 +127,20 @@ plot_submission_summary <- function(submission_data,
 #'
 #' @param submission_data Prepared submission status data
 #' @param plot_components List containing theme and color information
+#' @param output_fp Character string indicating directory to save file
+#' @param plot_name Character string indicating name of plot
 #'
 #' @returns Combined patchwork plot of all per-model heatmaps
 #' @autoglobal
 create_per_model_heatmap_fig <- function(submission_data,
-                                         plot_components) {
+                                         plot_components,
+                                         output_fp = file.path(
+                                           "output",
+                                           "figs",
+                                           "metadata",
+                                           "supp"
+                                         ),
+                                         plot_name = "submissions_heatmap_by_model") { # nolint
   # Get all unique models
   model_ids <- unique(submission_data$model_id)
 
@@ -144,11 +153,18 @@ create_per_model_heatmap_fig <- function(submission_data,
     ))
   })
 
-  # Combine using patchwork
   combined <- wrap_plots(model_plots, ncol = 2) +
     plot_annotation(
-      title = "Model Submission Coverage by Location and Nowcast Date"
+      title = "Model submission status by location and nowcast date"
     )
+  dir.create(output_fp, recursive = TRUE, showWarnings = FALSE)
+  ggsave(
+    filename = file.path(output_fp, glue::glue("{plot_name}.png")),
+    plot = combined,
+    width = 16,
+    height = 20,
+    dpi = 300
+  )
 
   return(combined)
 }
@@ -157,16 +173,31 @@ create_per_model_heatmap_fig <- function(submission_data,
 #'
 #' @param submission_data Prepared submission status data
 #' @param plot_components List containing theme and color information
+#' @inheritParams create_per_model_heatmap
 #'
 #' @returns ggplot2 object showing summary across all models
 #' @autoglobal
 create_summary_heatmap_figure <- function(submission_data,
-                                          plot_components) {
+                                          plot_components,
+                                          output_fp = file.path(
+                                            "output",
+                                            "figs",
+                                            "metadata",
+                                            "supp"
+                                          ),
+                                          plot_name = "submissions_heatmap_summary") { # nolint
   summary_plot <- plot_submission_summary(
     submission_data,
     plot_components
   )
-
+  dir.create(output_fp, recursive = TRUE, showWarnings = FALSE)
+  ggsave(
+    filename = file.path(output_fp, glue::glue("{plot_name}.png")),
+    plot = summary_plot,
+    width = 10,
+    height = 8,
+    dpi = 300
+  )
   return(summary_plot)
 }
 #' Prepare evaluation sequence count data
@@ -190,10 +221,19 @@ prepare_eval_sequence_data <- function(clean_variant_data_for_eval) {
 #'
 #' @param sequence_data Prepared sequence count data
 #' @param plot_components List containing theme and color information
+#' @inheritParams create_per_model_heatmap
 #'
 #' @returns ggplot2 object
 #' @autoglobal
-plot_eval_sequence_heatmap <- function(sequence_data, plot_components) {
+plot_eval_sequence_heatmap <- function(sequence_data,
+                                       plot_components,
+                                       output_fp = file.path(
+                                         "output",
+                                         "figs",
+                                         "metadata",
+                                         "supp"
+                                       ),
+                                       plot_name = "eval_sequence_counts_heatmap") { # nolint
   # Filter out US
   sequence_data <- sequence_data |>
     filter(location != "US")
@@ -202,7 +242,10 @@ plot_eval_sequence_heatmap <- function(sequence_data, plot_components) {
   sequence_data <- sequence_data |>
     mutate(total_sequences = ifelse(total_sequences == 0, NA, total_sequences))
 
-  ggplot(sequence_data, aes(x = nowcast_date, y = location, fill = total_sequences)) +
+  p <- ggplot(sequence_data, aes(
+    x = nowcast_date, y = location,
+    fill = total_sequences
+  )) +
     geom_tile(color = "white", linewidth = 0.5) +
     scale_fill_viridis_c(
       option = "viridis",
@@ -226,4 +269,14 @@ plot_eval_sequence_heatmap <- function(sequence_data, plot_components) {
       axis.text.y = element_text(size = 6),
       legend.position = "right"
     )
+
+  dir.create(output_fp, recursive = TRUE, showWarnings = FALSE)
+  ggsave(
+    filename = file.path(output_fp, glue::glue("{plot_name}.png")),
+    plot = p,
+    width = 10,
+    height = 8,
+    dpi = 300
+  )
+  return(p)
 }

@@ -32,9 +32,9 @@ clean_data_targets <- list(
     )
   ),
   tar_target(
-    name = clean_variant_data_for_eval_all_dates_all_locs,
-    command = get_clean_variant_data_ns(
-      variant_data_for_eval_all_dates_all_locs,
+    name = clean_variant_data_eval_all,
+    command = get_clean_variant_data(
+      variant_data_eval_all,
       clade_list,
       location_data,
       nowcast_dates,

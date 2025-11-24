@@ -43,11 +43,10 @@ get_clean_variant_data <- function(raw_variant_data,
     mutate(type = !!type) |>
     group_by(
       clades_modeled, location_name, location, location_code, population,
-      type, date
+      type, date, nowcast_date
     ) |>
     summarise(sequences = sum(sequences)) |>
-    ungroup() |>
-    mutate(nowcast_date = nowcast_date)
+    ungroup()
   return(clean_latest_data)
 }
 #' Get clean variant data from raw data
@@ -93,19 +92,27 @@ get_clean_variant_data_ns <- function(raw_variant_data,
   }
 
   # Check if data has abbreviations (oracle data) or full names (NextStrain data)
-  has_abbreviations <- any(clean_latest_data$location %in% location_data$abbreviation)
+  has_abbreviations <- any(
+    clean_latest_data$location %in% location_data$abbreviation
+  )
 
   if (has_abbreviations) {
     # Oracle data: location column has abbreviations (AL, AK, etc.)
     clean_latest_data <- clean_latest_data |>
-      dplyr::mutate(clades_modeled = ifelse(clade %in% clade_list, clade, "other")) |>
+      dplyr::mutate(clades_modeled = ifelse(clade %in% clade_list,
+        clade,
+        "other"
+      )) |>
       dplyr::filter(
         location %in% location_data$abbreviation,
         date <= ymd(max(nowcast_dates)) + days(forecast_days),
         date >= ymd(min(nowcast_dates)) - days(nowcast_days)
       ) |>
       left_join(
-        location_data |> select(abbreviation, location_name, location_code = location, population),
+        location_data |> select(abbreviation, location_name,
+          location_code = location,
+          population
+        ),
         by = c("location" = "abbreviation")
       )
   } else {
@@ -137,7 +144,7 @@ get_clean_variant_data_ns <- function(raw_variant_data,
     mutate(type = !!type) |>
     group_by(
       clades_modeled, location_name, location, location_code, population,
-      type, date, nowcast_date
+      type, date
     ) |>
     summarise(sequences = sum(sequences)) |>
     ungroup()

@@ -24,7 +24,7 @@ load_data_targets <- list(
   ),
   # Variant data for evaluation (all dates and locations)
   tar_target(
-    name = variant_data_for_eval_all_dates_all_locs,
+    name = variant_data_eval_all,
     command = get_oracle_output(
       hub_path = hub_path,
       nowcast_dates = nowcast_dates,
