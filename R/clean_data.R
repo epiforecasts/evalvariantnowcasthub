@@ -81,23 +81,28 @@ get_clean_variant_data_ns <- function(raw_variant_data,
   )
   # Handle column renaming - oracle data has target_date, final data has date
   if ("target_date" %in% colnames(raw_variant_data)) {
-    clean_latest_data <- raw_variant_data |>
-      rename(
-        sequences = {{ seq_col_name }},
-        date = target_date
-      )
+    clean_latest_data <- rename(raw_variant_data,
+      sequences = {{ seq_col_name }},
+      date = target_date
+    )
   } else {
-    clean_latest_data <- raw_variant_data |>
-      rename(sequences = {{ seq_col_name }})
+    clean_latest_data <- rename(raw_variant_data,
+      sequences = {{ seq_col_name }}
+    )
   }
 
-  # Check if data has abbreviations (oracle data) or full names (NextStrain data)
+  # Check if data has abbreviations (oracle data) or full names
   has_abbreviations <- any(
     clean_latest_data$location %in% location_data$abbreviation
   )
 
   if (has_abbreviations) {
     # Oracle data: location column has abbreviations (AL, AK, etc.)
+    loc_data_for_join <- select(location_data,
+      abbreviation, location_name,
+      location_code = location,
+      population
+    )
     clean_latest_data <- clean_latest_data |>
       dplyr::mutate(clades_modeled = ifelse(clade %in% clade_list,
         clade,
@@ -109,11 +114,8 @@ get_clean_variant_data_ns <- function(raw_variant_data,
         date >= ymd(min(nowcast_dates)) - days(nowcast_days)
       ) |>
       left_join(
-        location_data |> select(abbreviation, location_name,
-          location_code = location,
-          population
-        ),
-        by = c("location" = "abbreviation")
+        loc_data_for_join,
+        by = c(location = "abbreviation")
       )
   } else {
     # NextStrain data: location column has full names

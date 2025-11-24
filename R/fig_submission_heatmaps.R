@@ -140,7 +140,7 @@ create_per_model_heatmap_fig <- function(submission_data,
                                            "metadata",
                                            "supp"
                                          ),
-                                         plot_name = "submissions_heatmap_by_model") { # nolint
+                                         plot_name = "submission_heatmap_by_model") { # nolint
   # Get all unique models
   model_ids <- unique(submission_data$model_id)
 
@@ -185,7 +185,7 @@ create_summary_heatmap_figure <- function(submission_data,
                                             "metadata",
                                             "supp"
                                           ),
-                                          plot_name = "submissions_heatmap_summary") { # nolint
+                                          plot_name = "submission_heatmap_summary") { # nolint
   summary_plot <- plot_submission_summary(
     submission_data,
     plot_components
@@ -235,12 +235,12 @@ plot_eval_sequence_heatmap <- function(sequence_data,
                                        ),
                                        plot_name = "eval_sequence_counts_heatmap") { # nolint
   # Filter out US
-  sequence_data <- sequence_data |>
-    filter(location != "US")
+  sequence_data <- filter(sequence_data, location != "US")
 
   # Replace 0 with NA for gray display
-  sequence_data <- sequence_data |>
-    mutate(total_sequences = ifelse(total_sequences == 0, NA, total_sequences))
+  sequence_data <- mutate(sequence_data,
+    total_sequences = ifelse(total_sequences == 0, NA, total_sequences)
+  )
 
   p <- ggplot(sequence_data, aes(
     x = nowcast_date, y = location,
