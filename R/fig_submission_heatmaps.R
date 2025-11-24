@@ -173,7 +173,7 @@ create_per_model_heatmap_fig <- function(submission_data,
 #'
 #' @param submission_data Prepared submission status data
 #' @param plot_components List containing theme and color information
-#' @inheritParams create_per_model_heatmap
+#' @inheritParams create_per_model_heatmap_fig
 #'
 #' @returns ggplot2 object showing summary across all models
 #' @autoglobal
@@ -221,7 +221,7 @@ prepare_eval_sequence_data <- function(clean_variant_data_for_eval) {
 #'
 #' @param sequence_data Prepared sequence count data
 #' @param plot_components List containing theme and color information
-#' @inheritParams create_per_model_heatmap
+#' @inheritParams create_per_model_heatmap_fig
 #'
 #' @returns ggplot2 object
 #' @autoglobal
