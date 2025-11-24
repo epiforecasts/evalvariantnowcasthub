@@ -4,12 +4,21 @@
 \alias{create_summary_heatmap_figure}
 \title{Create summary submission heatmap figure}
 \usage{
-create_summary_heatmap_figure(submission_data, plot_components)
+create_summary_heatmap_figure(
+  submission_data,
+  plot_components,
+  output_fp = file.path("output", "figs", "metadata", "supp"),
+  plot_name = "submission_heatmap_summary"
+)
 }
 \arguments{
 \item{submission_data}{Prepared submission status data}
 
 \item{plot_components}{List containing theme and color information}
+
+\item{output_fp}{Character string indicating directory to save file}
+
+\item{plot_name}{Character string indicating name of plot}
 }
 \value{
 ggplot2 object showing summary across all models
