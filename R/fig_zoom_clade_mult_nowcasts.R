@@ -17,7 +17,7 @@ get_plot_model_preds_mult <- function(model_preds_mult_nowcasts,
     filter(horizon <= max(horizon_to_plot), horizon >= min(horizon_to_plot))
 
   weekly_obs_data <- daily_to_weekly(final_eval_data) |>
-    filter(location %in% unique(df$location))
+    filter(location %in% unique(df_filt$location))
   total_seq <- weekly_obs_data |>
     group_by(date, location) |>
     summarise(n_seq = sum(sequences))
@@ -76,7 +76,7 @@ get_plot_model_preds_mult <- function(model_preds_mult_nowcasts,
       fill = "none"
     ) +
     scale_x_date(
-      limits = c(min(df$target_date), max(df$target_date)),
+      limits = c(min(df_filt$target_date), max(df_filt$target_date)),
       date_breaks = "1 week",
       date_labels = "%d %b %Y"
     ) +
