@@ -56,6 +56,14 @@ config_targets <- list(
     command = as.character(ymd("2025-02-19"))
   ),
   tar_target(
+    name = nowcast_date_range_to_zoom,
+    command = seq(
+      from = ymd("2025-01-15"),
+      to = ymd("2025-03-19"),
+      by = "week"
+    )
+  ),
+  tar_target(
     name = quantiles_to_vis,
     command = c(0.05, 0.25, 0.5, 0.75, 0.975)
   ),
