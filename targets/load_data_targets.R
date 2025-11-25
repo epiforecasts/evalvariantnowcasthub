@@ -28,6 +28,15 @@ load_data_targets <- list(
       hub_path = hub_path,
       nowcast_dates = nowcast_date_range_to_zoom,
       states = states_for_vis
+      )
+    ),
+  # Variant data for evaluation (all dates and locations)
+  tar_target(
+    name = variant_data_eval_all,
+    command = get_oracle_output(
+      hub_path = hub_path,
+      nowcast_dates = nowcast_dates,
+      states = location_data$abbreviation
     )
   ),
   # Number of sequences available within the nowcast horizon

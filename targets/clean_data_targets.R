@@ -40,6 +40,16 @@ clean_data_targets <- list(
       nowcast_date_range_to_zoom,
       seq_col_name = "oracle_value",
       type = "evaluation"
+      )
+    ),
+    name = clean_variant_data_eval_all,
+    command = get_clean_variant_data(
+      variant_data_eval_all,
+      clade_list,
+      location_data,
+      nowcast_dates,
+      type = "evaluation",
+      seq_col_name = "oracle_value"
     )
   ),
   tar_target(

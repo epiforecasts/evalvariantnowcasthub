@@ -161,8 +161,8 @@ fig_overall_targets <- list(
       h = rel_skill_energy_overall_ca,
       i = absolute_brier_horizon,
       j = absolute_brier_horizon_ca,
-      k = absolute_energy_horizon,
-      l = absolute_energy_horizon_ca,
+      k = rel_skill_energy_horizon,
+      l = rel_skill_energy_horizon_ca,
       plot_name = "overall_score_comparison"
     )
   ),
