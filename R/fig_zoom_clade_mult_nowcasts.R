@@ -7,11 +7,11 @@
 #' @param horizon_to_plot Range of integers to filter to for the plot
 #'
 #' @returns ggplot object
-get_plot_model_preds_mult_nowcasts <- function(model_preds_mult_nowcasts,
-                                               final_eval_data,
-                                               clade_to_zoom = "25A",
-                                               horizon_to_plot = c(-6, 0)) {
-  df <- model_preds_mult_nowcasts |>
+get_plot_model_preds_mult <- function(model_preds_mult_nowcasts,
+                                      final_eval_data,
+                                      clade_to_zoom = "25A",
+                                      horizon_to_plot = c(-6, 0)) {
+  df_filt <- model_preds_mult_nowcasts |>
     filter(clade == clade_to_zoom) |>
     mutate(horizon = as.integer(target_date - nowcast_date)) |>
     filter(horizon <= max(horizon_to_plot), horizon >= min(horizon_to_plot))
@@ -26,7 +26,7 @@ get_plot_model_preds_mult_nowcasts <- function(model_preds_mult_nowcasts,
 
   plot_comps <- plot_components()
 
-  p <- ggplot(df) +
+  p <- ggplot(df_filt) +
     geom_line(aes(
       x = target_date, y = q_0.5, color = model_id,
       group = nowcast_date
@@ -90,18 +90,15 @@ get_plot_model_preds_mult_nowcasts <- function(model_preds_mult_nowcasts,
 #' @param scores Data.frame of scores
 #' @param locs Vector of character strings of locations
 #' @param nowcast_dates Set of nowcast dates to summarise over
-#' @param date_range
-#' @param horizon_to_plot
+#' @param date_range Range of dates to plot
+#' @param horizon_to_plot horizon days to plot
 #'
-#' @returns
-#' @export
-#'
-#' @examples
-get_plot_scores_by_nowcast_date <- function(scores,
-                                            locs,
-                                            nowcast_dates,
-                                            date_range,
-                                            horizon_to_plot = c(-6, 0)) {
+#' @returns ggplot
+get_plot_scores_by_date <- function(scores,
+                                    locs,
+                                    nowcast_dates,
+                                    date_range,
+                                    horizon_to_plot = c(-6, 0)) {
   scores_avg <- scores |>
     filter(
       location %in% locs,
@@ -124,7 +121,7 @@ get_plot_scores_by_nowcast_date <- function(scores,
     summarise(energy_score = mean(energy_score, na.rm = TRUE))
 
   plot_comps <- plot_components()
-  ggplot(scores_df) +
+  p <- ggplot(scores_df) +
     geom_point(aes(
       x = nowcast_date, y = energy_score,
       color = model
@@ -151,6 +148,7 @@ get_plot_scores_by_nowcast_date <- function(scores,
       date_breaks = "1 week",
       date_labels = "%d %b %Y"
     )
+  return(p)
 }
 
 #' Multiplot panel looking at 25A emergence across nowcast dates

@@ -1,7 +1,7 @@
 fig_zoom_25A_targets <- list(
   tar_target(
     name = plot_model_preds_mult_nowcasts,
-    command = get_plot_model_preds_mult_nowcasts(
+    command = get_plot_model_preds_mult(
       model_preds_mult_nowcasts = df_mult_nowcasts,
       final_eval_data = clean_variant_data_final_all_states,
       clade_to_zoom = "25A"
@@ -9,7 +9,7 @@ fig_zoom_25A_targets <- list(
   ),
   tar_target(
     name = plot_score_underlay,
-    command = get_plot_scores_by_nowcast_date(
+    command = get_plot_scores_by_date(
       scores = su_scores,
       locs = states_for_vis,
       nowcast_dates = nowcast_date_range_to_zoom,
