@@ -183,11 +183,11 @@ get_plot_bias_by_date <- function(bias_data,
     summarise(avg_bias = mean(bias, na.rm = TRUE), .groups = "drop")
 
   # Filter data for plotting
-  bias_df <- bias_data |>
-    filter(
-      location %in% locs,
-      nowcast_date %in% nowcast_dates
-    )
+  bias_df <- filter(
+    bias_data,
+    location %in% locs,
+    nowcast_date %in% nowcast_dates
+  )
 
   plot_comps <- plot_components()
 
