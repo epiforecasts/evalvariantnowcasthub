@@ -80,7 +80,8 @@ get_plot_model_preds_mult <- function(model_preds_mult_nowcasts,
       date_breaks = "1 week",
       date_labels = "%d %b %Y"
     ) +
-    ggtitle("25A emergence")
+    ggtitle("25A emergence") +
+    theme(axis.text.x = element_blank())
 
   return(p)
 }
@@ -135,19 +136,27 @@ get_plot_scores_by_date <- function(scores,
       aes(yintercept = energy_score, color = model),
       linetype = "dashed"
     ) +
-    facet_wrap(~location) +
+    facet_wrap(~location, scales = "free_y") +
     get_plot_theme(dates = TRUE) +
     scale_color_manual(
       name = "Model",
       values = plot_comps$model_colors
     ) +
     xlab("") +
+    guides(
+      color = guide_legend(
+        title.position = "top",
+        title.hjust = 0.5,
+        nrow = 1
+      )
+    ) +
     ylab("Average energy score") +
     scale_x_date(
       limits = date_range,
       date_breaks = "1 week",
       date_labels = "%d %b %Y"
-    )
+    ) +
+    theme(axis.text.x = element_blank())
   return(p)
 }
 
@@ -165,11 +174,11 @@ get_plot_bias_by_date <- function(bias_data,
                                   nowcast_dates,
                                   date_range) {
   # Calculate average bias across all nowcast dates for reference lines
-  bias_avg <- bias_data |>
-    filter(
-      location %in% locs,
-      nowcast_date %in% nowcast_dates
-    ) |>
+  bias_avg <- filter(
+    bias_data,
+    location %in% locs,
+    nowcast_date %in% nowcast_dates
+  ) |>
     group_by(model, location) |>
     summarise(avg_bias = mean(bias, na.rm = TRUE), .groups = "drop")
 
@@ -204,8 +213,9 @@ get_plot_bias_by_date <- function(bias_data,
       name = "Model",
       values = plot_comps$model_colors
     ) +
+    guides(color = "none") +
     xlab("") +
-    ylab("Bias (predicted - observed)") +
+    ylab("Bias") +
     scale_x_date(
       limits = date_range,
       date_breaks = "1 week",

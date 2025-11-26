@@ -10,7 +10,7 @@
 #' @autoglobal
 prepare_data_for_scoring_25A <- function(df_mult_nowcasts,
                                          clade = "25A",
-                                         horizon_range = c(-6, 0)) {
+                                         horizon_range = c(-31, 10)) {
   # Filter for specified clade and horizon range
   df_filtered <- df_mult_nowcasts |>
     filter(clade == !!clade) |>
@@ -47,11 +47,11 @@ prepare_data_for_scoring_25A <- function(df_mult_nowcasts,
 #' @autoglobal
 compute_bias_25A <- function(df_prepared, locs, nowcast_dates) {
   # Filter to specific locations and nowcast dates
-  df_to_score <- df_prepared |>
-    filter(
-      location %in% locs,
-      nowcast_date %in% nowcast_dates
-    )
+  df_to_score <- filter(
+    df_prepared,
+    location %in% locs,
+    nowcast_date %in% nowcast_dates
+  )
 
   # Convert to scoringutils forecast object
   forecast_obj <- scoringutils::as_forecast_quantile(
