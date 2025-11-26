@@ -154,7 +154,7 @@ get_plot_scores_over_time <- function(scores,
       x = date, y = energy_score,
       color = model
     )) +
-    facet_wrap(~location, ncol = 3) +
+    facet_wrap(~location, ncol = 3, scales = "free_y") +
     get_plot_theme(dates = TRUE) +
     xlab("") +
     ylab("Energy score") +
