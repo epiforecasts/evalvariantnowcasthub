@@ -24,34 +24,17 @@ fig_submission_heatmaps_targets <- list(
       plot_components()
     )
   ),
-  # Save per-model figure to output/figs/metadata/supp/
+  # Prepare evaluation sequence count data
   tar_target(
-    name = submission_heatmaps_by_model_file,
-    command = {
-      dir.create("output/figs/metadata/supp", recursive = TRUE, showWarnings = FALSE)
-      ggsave(
-        filename = "output/figs/metadata/supp/submission_heatmaps_by_model.png",
-        plot = fig_submission_heatmaps_by_model,
-        width = 16,
-        height = 20,
-        dpi = 300
-      )
-      "output/figs/metadata/supp/submission_heatmaps_by_model.png"
-    }
+    name = eval_sequence_counts_data,
+    command = prepare_eval_sequence_data(clean_variant_data_eval_all)
   ),
-  # Save summary figure to output/figs/metadata/supp/
+  # Create heatmap
   tar_target(
-    name = submission_heatmaps_summary_file,
-    command = {
-      dir.create("output/figs/metadata/supp", recursive = TRUE, showWarnings = FALSE)
-      ggsave(
-        filename = "output/figs/metadata/supp/submission_heatmaps_summary.png",
-        plot = fig_submission_heatmaps_summary,
-        width = 10,
-        height = 8,
-        dpi = 300
-      )
-      "output/figs/metadata/supp/submission_heatmaps_summary.png"
-    }
+    name = fig_eval_sequence_heatmap,
+    command = plot_eval_sequence_heatmap(
+      eval_sequence_counts_data,
+      plot_components()
+    )
   )
 )

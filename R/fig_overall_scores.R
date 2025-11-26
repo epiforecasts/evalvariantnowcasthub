@@ -207,7 +207,7 @@ get_plot_by_nowcast_date <- function(scores_obj,
         color = "Model"
       ) +
       scale_y_continuous(trans = "log10") +
-      coord_cartesian(ylim = c(1 / 1.5, 1.5))
+      coord_cartesian(ylim = c(1 / 2.4, 2.4))
   } else {
     scores_sum <- scores_obj |>
       filter(!is.na(score_type)) |>
@@ -322,7 +322,8 @@ get_plot_overall <- function(scores_obj,
       theme(
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank()
-      )
+      ) +
+      coord_cartesian(ylim = c(1 / 1.3, 1.3))
   } else {
     scores_sum <- scores_obj |>
       filter(!is.na(score_type)) |>
@@ -434,8 +435,9 @@ get_plot_horizon <- function(scores_obj,
         y = glue::glue("Relative scaled skill ({label})"),
         color = "Model"
       ) +
+      guides(color = "none") +
       scale_y_continuous(trans = "log10") +
-      guides(color = "none")
+      coord_cartesian(ylim = c(1 / 1.4, 1.4))
   } else {
     scores_sum <- scores_obj |>
       mutate(horizon = as.integer(target_date - nowcast_date)) |>

@@ -38,11 +38,12 @@ utils::globalVariables(c(
   "sequences", # <get_clean_variant_data>
   "location", # <get_clean_variant_data_ns>
   "abbreviation", # <get_clean_variant_data_ns>
-  "clade", # <get_clean_variant_data_ns>
+  "target_date", # <get_clean_variant_data_ns>
   "location_name", # <get_clean_variant_data_ns>
+  "population", # <get_clean_variant_data_ns>
+  "clade", # <get_clean_variant_data_ns>
   "clades_modeled", # <get_clean_variant_data_ns>
   "location_code", # <get_clean_variant_data_ns>
-  "population", # <get_clean_variant_data_ns>
   "sequences", # <get_clean_variant_data_ns>
   "location", # <extract_nowcasts>
   "nowcast_date", # <extract_nowcasts>
@@ -111,5 +112,11 @@ utils::globalVariables(c(
   "nowcast_date", # <plot_submission_summary>
   "submitted", # <plot_submission_summary>
   "n_models", # <plot_submission_summary>
+  "nowcast_date", # <prepare_eval_sequence_data>
+  "location", # <prepare_eval_sequence_data>
+  "sequences", # <prepare_eval_sequence_data>
+  "location", # <plot_eval_sequence_heatmap>
+  "total_sequences", # <plot_eval_sequence_heatmap>
+  "nowcast_date", # <plot_eval_sequence_heatmap>
   NULL
 ))

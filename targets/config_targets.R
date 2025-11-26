@@ -49,11 +49,19 @@ config_targets <- list(
   # outputs figures
   tar_target(
     name = states_for_vis,
-    command = c("CA", "OH", "MN")
+    command = c("CA", "MN", "IL")
   ),
   tar_target(
     name = nowcast_date_for_vis,
     command = as.character(ymd("2025-02-19"))
+  ),
+  tar_target(
+    name = nowcast_date_range_to_zoom,
+    command = seq(
+      from = ymd("2025-01-15"),
+      to = ymd("2025-03-19"),
+      by = "week"
+    )
   ),
   tar_target(
     name = quantiles_to_vis,

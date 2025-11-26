@@ -36,8 +36,8 @@ nowcast_dates:
 - '2025-06-04'
 states_for_vis:
 - CA
-- OH
 - MN
+- IL
 nowcast_date_for_vis: '2025-02-19'
 quantiles_to_vis:
 - 0.05

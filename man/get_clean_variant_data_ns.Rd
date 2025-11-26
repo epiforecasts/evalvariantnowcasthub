@@ -11,7 +11,8 @@ get_clean_variant_data_ns(
   nowcast_dates,
   type,
   nowcast_days = 31,
-  forecast_days = 10
+  forecast_days = 10,
+  seq_col_name = "sequences"
 )
 }
 \arguments{
