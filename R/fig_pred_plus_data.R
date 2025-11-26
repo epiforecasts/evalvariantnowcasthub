@@ -18,7 +18,6 @@ get_plot_model_pred_obs <- function(model_pred_obs_df,
     )
   }
 
-  # weekly_obs_data <- daily_to_weekly(eval_seq)
   total_seq <- eval_seq |>
     group_by(date, location) |>
     summarise(n_seq = sum(sequences))
