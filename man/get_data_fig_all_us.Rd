@@ -2,7 +2,8 @@
 % Please edit documentation in R/fig_data_as_of.R
 \name{get_data_fig_all_us}
 \alias{get_data_fig_all_us}
-\title{Make data comparing data as of nowcast date vs when evaluating - All US version}
+\title{Make data comparing data as of nowcast date vs when evaluating -
+All US version}
 \usage{
 get_data_fig_all_us(
   seq_counts_as_of,
@@ -27,5 +28,6 @@ get_data_fig_all_us(
 patchwork figure
 }
 \description{
-Make data comparing data as of nowcast date vs when evaluating - All US version
+Make data comparing data as of nowcast date vs when evaluating -
+All US version
 }

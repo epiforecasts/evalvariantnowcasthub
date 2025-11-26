@@ -320,7 +320,8 @@ get_second_data_fig <- function(seq_counts_as_of1,
   return(fig_eval)
 }
 
-#' Make data comparing data as of nowcast date vs when evaluating - All US version
+#' Make data comparing data as of nowcast date vs when evaluating -
+#'  All US version
 #'
 #' @param seq_counts_as_of A plot showing sequence counts as of nowcast date
 #' @param seq_counts_eval B plot showing sequence counts for evaluation
@@ -329,13 +330,13 @@ get_second_data_fig <- function(seq_counts_as_of1,
 #'
 #' @returns patchwork figure
 get_data_fig_all_us <- function(seq_counts_as_of,
-                                 seq_counts_eval,
-                                 eval_freq,
-                                 plot_name,
-                                 output_fp = file.path(
-                                   "output", "figs",
-                                   "as_of_data_figs", "final"
-                                 )) {
+                                seq_counts_eval,
+                                eval_freq,
+                                plot_name,
+                                output_fp = file.path(
+                                  "output", "figs",
+                                  "as_of_data_figs", "final"
+                                )) {
   fig_layout <- "
   AAA
   BBB
@@ -371,7 +372,8 @@ get_data_fig_all_us <- function(seq_counts_as_of,
   return(fig_eval)
 }
 
-#' Make data comparing data as of nowcast date vs when evaluating - Horizontal layout
+#' Make data comparing data as of nowcast date vs when evaluating -
+#'  Horizontal layout
 #'
 #' @param seq_counts_as_of A plot showing sequence counts as of nowcast date
 #' @param seq_counts_eval B plot showing sequence counts for evaluation
@@ -380,13 +382,13 @@ get_data_fig_all_us <- function(seq_counts_as_of,
 #'
 #' @returns patchwork figure
 get_data_fig_all_us_horizontal <- function(seq_counts_as_of,
-                                            seq_counts_eval,
-                                            eval_freq,
-                                            plot_name,
-                                            output_fp = file.path(
-                                              "output", "figs",
-                                              "as_of_data_figs", "final"
-                                            )) {
+                                           seq_counts_eval,
+                                           eval_freq,
+                                           plot_name,
+                                           output_fp = file.path(
+                                             "output", "figs",
+                                             "as_of_data_figs", "final"
+                                           )) {
   fig_layout <- "ABC"
 
   # Add x-axis text to all plots
@@ -396,10 +398,10 @@ get_data_fig_all_us_horizontal <- function(seq_counts_as_of,
   seq_counts_eval <- seq_counts_eval +
     theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 10))
 
-  fig_eval <- seq_counts_as_of +
-    ylab("Sequence counts as of\nthe nowcast date") +
-    seq_counts_eval +
-    ylab("Sequence counts\nfor evaluation") +
+  fig_eval <- (seq_counts_as_of +
+    ylab("Sequence counts as of\nthe nowcast date")) +
+    (seq_counts_eval +
+      ylab("Sequence counts\nfor evaluation")) +
     eval_freq +
     plot_layout(
       design = fig_layout,
@@ -426,7 +428,8 @@ get_data_fig_all_us_horizontal <- function(seq_counts_as_of,
   return(fig_eval)
 }
 
-#' Make data comparing data as of nowcast date vs when evaluating - Triangular layout
+#' Make data comparing data as of nowcast date vs when evaluating -
+#' Triangular layout
 #'
 #' @param seq_counts_as_of A plot showing sequence counts as of nowcast date
 #' @param seq_counts_eval B plot showing sequence counts for evaluation
@@ -435,13 +438,13 @@ get_data_fig_all_us_horizontal <- function(seq_counts_as_of,
 #'
 #' @returns patchwork figure
 get_data_fig_all_us_triangular <- function(seq_counts_as_of,
-                                            seq_counts_eval,
-                                            eval_freq,
-                                            plot_name,
-                                            output_fp = file.path(
-                                              "output", "figs",
-                                              "as_of_data_figs", "final"
-                                            )) {
+                                           seq_counts_eval,
+                                           eval_freq,
+                                           plot_name,
+                                           output_fp = file.path(
+                                             "output", "figs",
+                                             "as_of_data_figs", "final"
+                                           )) {
   # Inverted triangle: two plots on top, one wide plot on bottom
   fig_layout <- "
   AAABBB
@@ -454,7 +457,8 @@ get_data_fig_all_us_triangular <- function(seq_counts_as_of,
   seq_counts_eval <- seq_counts_eval +
     theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 10))
 
-  fig_eval <- (seq_counts_as_of + ylab("Sequence counts as of\nthe nowcast date")) +
+  fig_eval <- (seq_counts_as_of +
+    ylab("Sequence counts as of\nthe nowcast date")) +
     (seq_counts_eval + ylab("Sequence counts\nfor evaluation")) +
     eval_freq +
     plot_layout(

@@ -2,7 +2,8 @@
 % Please edit documentation in R/fig_data_as_of.R
 \name{get_data_fig_all_us_triangular}
 \alias{get_data_fig_all_us_triangular}
-\title{Make data comparing data as of nowcast date vs when evaluating - Triangular layout}
+\title{Make data comparing data as of nowcast date vs when evaluating -
+Triangular layout}
 \usage{
 get_data_fig_all_us_triangular(
   seq_counts_as_of,
@@ -27,5 +28,6 @@ get_data_fig_all_us_triangular(
 patchwork figure
 }
 \description{
-Make data comparing data as of nowcast date vs when evaluating - Triangular layout
+Make data comparing data as of nowcast date vs when evaluating -
+Triangular layout
 }
