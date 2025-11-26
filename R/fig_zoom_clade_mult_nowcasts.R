@@ -151,16 +151,83 @@ get_plot_scores_by_date <- function(scores,
   return(p)
 }
 
+#' Get a plot of bias by nowcast date for locations and models
+#'
+#' @param bias_data Data.frame of bias scores
+#' @param locs Vector of character strings of locations
+#' @param nowcast_dates Set of nowcast dates to include
+#' @param date_range Range of dates to plot
+#'
+#' @returns ggplot
+#' @autoglobal
+get_plot_bias_by_date <- function(bias_data,
+                                  locs,
+                                  nowcast_dates,
+                                  date_range) {
+  # Calculate average bias across all nowcast dates for reference lines
+  bias_avg <- bias_data |>
+    filter(
+      location %in% locs,
+      nowcast_date %in% nowcast_dates
+    ) |>
+    group_by(model, location) |>
+    summarise(avg_bias = mean(bias, na.rm = TRUE), .groups = "drop")
+
+  # Filter data for plotting
+  bias_df <- bias_data |>
+    filter(
+      location %in% locs,
+      nowcast_date %in% nowcast_dates
+    )
+
+  plot_comps <- plot_components()
+
+  p <- ggplot(bias_df) +
+    geom_hline(yintercept = 0, linetype = "solid", color = "gray50") +
+    geom_hline(
+      data = bias_avg,
+      aes(yintercept = avg_bias, color = model),
+      linetype = "dashed",
+      alpha = 0.7
+    ) +
+    geom_point(aes(
+      x = nowcast_date, y = bias,
+      color = model
+    )) +
+    geom_line(aes(
+      x = nowcast_date, y = bias,
+      color = model
+    )) +
+    facet_wrap(~location) +
+    get_plot_theme(dates = TRUE) +
+    scale_color_manual(
+      name = "Model",
+      values = plot_comps$model_colors
+    ) +
+    xlab("") +
+    ylab("Bias (predicted - observed)") +
+    scale_x_date(
+      limits = date_range,
+      date_breaks = "1 week",
+      date_labels = "%d %b %Y"
+    )
+
+  return(p)
+}
+
 #' Multiplot panel looking at 25A emergence across nowcast dates
 #'
-#' @param grid A
-#' @param underlay B
+#' @param grid Model predictions plot
+#' @param scores Energy scores plot
+#' @param bias Bias scores plot
 #' @param plot_name name of plot
 #' @param output_fp filepath directory
 #'
 #' @returns patchwork
+#' @autoglobal
 get_fig_zoom_25A <- function(grid,
-                             underlay,
+                             scores,
+                             bias,
                              plot_name,
                              output_fp = file.path(
                                "output", "figs",
@@ -171,10 +238,12 @@ get_fig_zoom_25A <- function(grid,
   AAA
   AAA
   BBB
+  CCC
   "
 
   fig_zoom <- grid +
-    underlay +
+    scores +
+    bias +
     plot_layout(
       design = fig_layout,
       axes = "collect",
@@ -196,7 +265,7 @@ get_fig_zoom_25A <- function(grid,
   ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
     plot = fig_zoom,
     width = 8,
-    height = 11
+    height = 14
   )
   return(fig_zoom)
 }
