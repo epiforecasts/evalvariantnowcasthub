@@ -156,8 +156,8 @@ get_bar_chart_seq_count <- function(obs_data,
     xlab("") +
     ylab("Sequence counts") +
     guides(
-      color = guide_legend(
-        title.position = "top",
+      fill = guide_legend(
+        title.position = "left",
         title.hjust = 0.5,
         nrow = 2
       )
@@ -354,10 +354,10 @@ get_first_data_fig_alt <- function(plot_freq1,
   EEFF"
 
   fig_data <- plot_freq1 +
-    plot_seq1 +
-    plot_hosp1 +
     plot_freq2 +
-    plot_seq2 +
+    (plot_seq1 + theme(plot.tag.position = c(-0.03, 1.05))) +
+    (plot_seq2 + theme(plot.tag.position = c(-0.03, 1.05))) +
+    plot_hosp1 +
     plot_hosp2 +
     plot_layout(
       design = fig_layout,

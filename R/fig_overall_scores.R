@@ -1,4 +1,4 @@
-date_breaks <- c(ymd("2024-10-07"), ymd("2025-06-02"))
+date_breaks <- ymd(c("2024-10-07", "2025-06-02"))
 
 #' Get relative skill scores with specified grouping
 #'
