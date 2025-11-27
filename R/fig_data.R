@@ -325,6 +325,105 @@ get_first_data_fig <- function(plot_freq,
   return(fig_data)
 }
 
+#' First data figure - Horizontal layout
+#'
+#' @param plot_freq Plot showing observed clade frequencies
+#' @param plot_seq Plot showing sequence counts
+#' @param plot_hosp Plot showing hospital admissions
+#' @param plot_name Name of figure
+#' @param output_fp Directory to save
+#'
+#' @returns patchwork figure
+get_first_data_fig_horizontal <- function(plot_freq,
+                                          plot_seq,
+                                          plot_hosp,
+                                          plot_name,
+                                          output_fp = file.path(
+                                            "output", "figs",
+                                            "data_figs", "final"
+                                          )) {
+  fig_layout <- "ABC"
+
+  fig_data <- plot_freq +
+    plot_seq +
+    plot_hosp +
+    plot_layout(
+      design = fig_layout,
+      guides = "collect"
+    ) +
+    plot_annotation(
+      tag_levels = "A",
+      tag_suffix = "",
+      tag_sep = "",
+      theme = theme(
+        legend.position = "top",
+        legend.title = element_text(hjust = 0.5),
+        legend.justification = "center",
+        plot.tag = element_text(size = 20)
+      )
+    )
+
+  dir_create(output_fp, recurse = TRUE)
+  ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
+    plot = fig_data,
+    width = 15,
+    height = 5
+  )
+
+  return(fig_data)
+}
+
+#' First data figure - Triangular layout
+#'
+#' @param plot_freq Plot showing observed clade frequencies
+#' @param plot_seq Plot showing sequence counts
+#' @param plot_hosp Plot showing hospital admissions
+#' @param plot_name Name of figure
+#' @param output_fp Directory to save
+#'
+#' @returns patchwork figure
+get_first_data_fig_triangular <- function(plot_freq,
+                                          plot_seq,
+                                          plot_hosp,
+                                          plot_name,
+                                          output_fp = file.path(
+                                            "output", "figs",
+                                            "data_figs", "final"
+                                          )) {
+  # Inverted triangle: two plots on top, one wide plot on bottom
+  fig_layout <- "
+  AAABBB
+  CCCCCC"
+
+  fig_data <- plot_freq +
+    plot_seq +
+    plot_hosp +
+    plot_layout(
+      design = fig_layout,
+      guides = "collect"
+    ) +
+    plot_annotation(
+      tag_levels = "A",
+      tag_suffix = "",
+      tag_sep = "",
+      theme = theme(
+        legend.position = "top",
+        legend.title = element_text(hjust = 0.5),
+        legend.justification = "center",
+        plot.tag = element_text(size = 20)
+      )
+    )
+
+  dir_create(output_fp, recurse = TRUE)
+  ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
+    plot = fig_data,
+    width = 12,
+    height = 8
+  )
+
+  return(fig_data)
+}
+
 #' Patchwork first data figure -- alternate version with US mins CA and CA
 #'
 #' @param plot_freq1 A

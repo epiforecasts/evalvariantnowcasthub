@@ -46,6 +46,24 @@ fig_data_targets <- list(
       plot_name = "final_US_seq_data"
     )
   ),
+  tar_target(
+    name = first_data_fig_horizontal,
+    command = get_first_data_fig_horizontal(
+      plot_freq = plot_final_obs_clade_freq_US,
+      plot_seq = plot_seq_count_final_US,
+      plot_hosp = plot_hosp_admissions,
+      plot_name = "final_US_seq_data_horizontal"
+    )
+  ),
+  tar_target(
+    name = first_data_fig_triangular,
+    command = get_first_data_fig_triangular(
+      plot_freq = plot_final_obs_clade_freq_US,
+      plot_seq = plot_seq_count_final_US,
+      plot_hosp = plot_hosp_admissions,
+      plot_name = "final_US_seq_data_triangular"
+    )
+  ),
   # US minus CA figs-----------------------------------------------------
   tar_target(
     name = obs_data_us_min_ca,

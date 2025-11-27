@@ -86,9 +86,9 @@ utils::globalVariables(c(
   "model_id", # <get_plot_model_outputs>
   "sequences", # <get_faceted_seq_as_of>
   "clades_modeled", # <get_faceted_seq_as_of>
+  "model", # <get_plot_by_location>
   "total_seq", # <get_plot_by_location>
   "location", # <get_plot_by_location>
-  "model", # <get_plot_by_location>
   "model", # <get_plot_by_nowcast_date>
   "nowcast_date", # <get_plot_by_nowcast_date>
   "model", # <get_plot_overall>
@@ -104,7 +104,6 @@ utils::globalVariables(c(
   "location", # <prepare_submission_data>
   "nowcast_date", # <prepare_submission_data>
   "submitted", # <prepare_submission_data>
-  "submssion_data", # <plot_model_submission_heatmap>
   "location", # <plot_model_submission_heatmap>
   "nowcast_date", # <plot_model_submission_heatmap>
   "submitted", # <plot_model_submission_heatmap>
