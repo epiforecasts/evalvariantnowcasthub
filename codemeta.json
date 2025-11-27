@@ -263,6 +263,18 @@
     },
     "11": {
       "@type": "SoftwareApplication",
+      "identifier": "tidyr",
+      "name": "tidyr",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=tidyr"
+    },
+    "12": {
+      "@type": "SoftwareApplication",
       "identifier": "roxyglobals",
       "name": "roxyglobals",
       "provider": {
@@ -273,7 +285,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=roxyglobals"
     },
-    "12": {
+    "13": {
       "@type": "SoftwareApplication",
       "identifier": "data.table",
       "name": "data.table",
@@ -285,7 +297,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=data.table"
     },
-    "13": {
+    "14": {
       "@type": "SoftwareApplication",
       "identifier": "rlang",
       "name": "rlang",
@@ -297,7 +309,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=rlang"
     },
-    "14": {
+    "15": {
       "@type": "SoftwareApplication",
       "identifier": "cowplot",
       "name": "cowplot",
@@ -309,7 +321,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=cowplot"
     },
-    "15": {
+    "16": {
       "@type": "SoftwareApplication",
       "identifier": "lubridate",
       "name": "lubridate",
@@ -323,7 +335,7 @@
     },
     "SystemRequirements": null
   },
-  "fileSize": "66.121KB",
+  "fileSize": "198.537KB",
   "releaseNotes": "https://github.com/epiforecasts/evalvariantnowcasthub/blob/main/NEWS.md",
   "readme": "https://github.com/epiforecasts/evalvariantnowcasthub/blob/main/README.md"
 }
