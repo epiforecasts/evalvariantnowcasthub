@@ -321,3 +321,169 @@ get_second_data_fig <- function(seq_counts_as_of1,
   )
   return(fig_eval)
 }
+
+#' Make data comparing data as of nowcast date vs when evaluating -
+#'  All US version
+#'
+#' @param seq_counts_as_of A plot showing sequence counts as of nowcast date
+#' @param seq_counts_eval B plot showing sequence counts for evaluation
+#' @param eval_freq C plot showing clade frequencies
+#' @inheritParams get_plot_obs_clade_freq
+#'
+#' @returns patchwork figure
+get_data_fig_all_us <- function(seq_counts_as_of,
+                                seq_counts_eval,
+                                eval_freq,
+                                plot_name,
+                                output_fp = file.path(
+                                  "output", "figs",
+                                  "as_of_data_figs", "final"
+                                )) {
+  fig_layout <- "
+  AAA
+  BBB
+  CCC"
+
+  fig_eval <- (seq_counts_as_of +
+    ylab("Sequence counts as of\nthe nowcast date")) +
+    (seq_counts_eval + ylab("Sequence counts\nfor evaluation")) +
+    eval_freq +
+    plot_layout(
+      design = fig_layout,
+      axes = "collect",
+      guides = "collect"
+    ) +
+    plot_annotation(
+      tag_levels = "A",
+      tag_suffix = "",
+      tag_sep = "",
+      theme = theme(
+        legend.position = "top",
+        legend.title = element_text(hjust = 0.5),
+        legend.justification = "center",
+        plot.tag = element_text(size = 20)
+      )
+    )
+
+  dir_create(output_fp, recurse = TRUE)
+  ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
+    plot = fig_eval,
+    width = 10,
+    height = 10
+  )
+  return(fig_eval)
+}
+
+#' Make data comparing data as of nowcast date vs when evaluating -
+#'  Horizontal layout
+#'
+#' @param seq_counts_as_of A plot showing sequence counts as of nowcast date
+#' @param seq_counts_eval B plot showing sequence counts for evaluation
+#' @param eval_freq C plot showing clade frequencies
+#' @inheritParams get_plot_obs_clade_freq
+#'
+#' @returns patchwork figure
+get_data_fig_all_us_horizontal <- function(seq_counts_as_of,
+                                           seq_counts_eval,
+                                           eval_freq,
+                                           plot_name,
+                                           output_fp = file.path(
+                                             "output", "figs",
+                                             "as_of_data_figs", "final"
+                                           )) {
+  fig_layout <- "ABC"
+
+  # Add x-axis text to all plots
+  seq_counts_as_of <- seq_counts_as_of +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 10))
+
+  seq_counts_eval <- seq_counts_eval +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 10))
+
+  fig_eval <- (seq_counts_as_of +
+    ylab("Sequence counts as of\nthe nowcast date")) +
+    (seq_counts_eval +
+      ylab("Sequence counts\nfor evaluation")) +
+    eval_freq +
+    plot_layout(
+      design = fig_layout,
+      guides = "collect"
+    ) +
+    plot_annotation(
+      tag_levels = "A",
+      tag_suffix = "",
+      tag_sep = "",
+      theme = theme(
+        legend.position = "top",
+        legend.title = element_text(hjust = 0.5),
+        legend.justification = "center",
+        plot.tag = element_text(size = 20)
+      )
+    )
+
+  dir_create(output_fp, recurse = TRUE)
+  ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
+    plot = fig_eval,
+    width = 15,
+    height = 5
+  )
+  return(fig_eval)
+}
+
+#' Make data comparing data as of nowcast date vs when evaluating -
+#' Triangular layout
+#'
+#' @param seq_counts_as_of A plot showing sequence counts as of nowcast date
+#' @param seq_counts_eval B plot showing sequence counts for evaluation
+#' @param eval_freq C plot showing clade frequencies
+#' @inheritParams get_plot_obs_clade_freq
+#'
+#' @returns patchwork figure
+get_data_fig_all_us_triangular <- function(seq_counts_as_of,
+                                           seq_counts_eval,
+                                           eval_freq,
+                                           plot_name,
+                                           output_fp = file.path(
+                                             "output", "figs",
+                                             "as_of_data_figs", "final"
+                                           )) {
+  # Inverted triangle: two plots on top, one wide plot on bottom
+  fig_layout <- "
+  AAABBB
+  CCCCCC"
+
+  # Add x-axis text to top plots (they were set to remove it)
+  seq_counts_as_of <- seq_counts_as_of +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 10))
+
+  seq_counts_eval <- seq_counts_eval +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 10))
+
+  fig_eval <- (seq_counts_as_of +
+    ylab("Sequence counts as of\nthe nowcast date")) +
+    (seq_counts_eval + ylab("Sequence counts\nfor evaluation")) +
+    eval_freq +
+    plot_layout(
+      design = fig_layout,
+      guides = "collect"
+    ) +
+    plot_annotation(
+      tag_levels = "A",
+      tag_suffix = "",
+      tag_sep = "",
+      theme = theme(
+        legend.position = "top",
+        legend.title = element_text(hjust = 0.5),
+        legend.justification = "center",
+        plot.tag = element_text(size = 20)
+      )
+    )
+
+  dir_create(output_fp, recurse = TRUE)
+  ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
+    plot = fig_eval,
+    width = 12,
+    height = 8
+  )
+  return(fig_eval)
+}
