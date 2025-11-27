@@ -58,7 +58,7 @@ config_targets <- list(
   tar_target(
     name = nowcast_date_range_to_zoom,
     command = seq(
-      from = ymd("2025-01-15"),
+      from = ymd("2025-02-05"),
       to = ymd("2025-03-19"),
       by = "week"
     )

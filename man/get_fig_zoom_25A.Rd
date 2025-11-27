@@ -6,15 +6,18 @@
 \usage{
 get_fig_zoom_25A(
   grid,
-  underlay,
+  scores,
+  bias,
   plot_name,
   output_fp = file.path("output", "figs", "zoom_25A", "final")
 )
 }
 \arguments{
-\item{grid}{A}
+\item{grid}{Model predictions plot}
 
-\item{underlay}{B}
+\item{scores}{Energy scores plot}
+
+\item{bias}{Bias scores plot}
 
 \item{plot_name}{name of plot}
 

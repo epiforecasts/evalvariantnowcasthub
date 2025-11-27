@@ -26,6 +26,7 @@ Imports:
   arrow,
   hubData,
   readr,
+  tidyr,
   roxyglobals,
   data.table,
   rlang,
