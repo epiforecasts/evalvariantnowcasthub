@@ -6,8 +6,11 @@
 \usage{
 get_plot_horizon(
   scores_obj,
+  output_fp = file.path("output", "figs", "overall_scores", "supp"),
   score_type = c("brier_score", "energy_score"),
-  rel_skill_plot = TRUE
+  rel_skill_plot = TRUE,
+  title = NULL,
+  show_legend = FALSE
 )
 }
 \arguments{
@@ -16,6 +19,10 @@ get_plot_horizon(
 \item{score_type}{Character string indicating which score metric to use}
 
 \item{rel_skill_plot}{Boolean indicating to return a relative skill plot}
+
+\item{title}{Character string indicating title, default is NULL.}
+
+\item{show_legend}{Boolean indicating to add legend, default is FALSE}
 }
 \value{
 ggplot object

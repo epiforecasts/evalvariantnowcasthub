@@ -378,14 +378,22 @@ get_plot_overall <- function(scores_obj,
 #' @param scores_obj Scoringutils scores object
 #' @param rel_skill_plot Boolean indicating to return a relative skill plot
 #' @param score_type Character string indicating which score metric to use
+#' @param show_legend Boolean indicating to add legend, default is FALSE
+#' @param title Character string indicating title, default is NULL.
 #' @importFrom scoringutils summarise_scores
 #' @importFrom ggplot2 ggplot geom_bar aes geom_hline coord_flip
 #' @importFrom rlang sym
 #' @returns ggplot object
 #' @autoglobal
 get_plot_horizon <- function(scores_obj,
+                             output_fp = file.path(
+                               "output", "figs",
+                               "overall_scores", "supp"
+                             ),
                              score_type = c("brier_score", "energy_score"),
-                             rel_skill_plot = TRUE) {
+                             rel_skill_plot = TRUE,
+                             title = NULL,
+                             show_legend = FALSE) {
   score_type <- rlang::arg_match(score_type)
   plot_components_list <- plot_components()
   if (score_type == "brier_score") {
@@ -474,6 +482,18 @@ get_plot_horizon <- function(scores_obj,
       ) +
       guides(color = "none")
   }
+  if (isTRUE(show_legend)) {
+    p <- p + guides(
+      color = guide_legend(
+        title.position = "top",
+        position = "right",
+        nrow = 6
+      )
+    )
+  }
+  if (!is.null(title)) {
+    p <- p + ggtitle(title)
+  }
   return(p)
 }
 
@@ -503,6 +523,7 @@ get_plot_seq_counts_loc <- function(seq_counts_by_loc) {
     scale_y_continuous(trans = "log10") +
     xlab("") +
     ylab("Total number of sequences\n Sept. 2024-June 2025")
+
   return(p)
 }
 
@@ -587,6 +608,57 @@ get_overall_scores_figure <- function(a, b, c, d, e, f, g, h, i, j, k, l,
     plot = combined_fig,
     width = 16,
     height = 20,
+    dpi = 300
+  )
+
+  return(combined_fig)
+}
+
+#' Get a plot of absolute scores by horizon
+#'
+#' @param a A
+#' @param b B
+#' @param c C
+#' @param d D
+#' @param output_fp directory to save figures
+#' @param plot_name name of the plot
+#'
+#' @returns ggplot object
+get_panel_horizon <- function(a, b, c, d,
+                              plot_name,
+                              output_fp = file.path(
+                                "output", "figs",
+                                "overall_scores", "supp"
+                              )) {
+  fig_layout <- "
+  AC
+  BD"
+
+  combined_fig <- a + b + c + d +
+    plot_layout(
+      design = fig_layout,
+      guides = "collect"
+    ) +
+    plot_annotation(
+      tag_levels = "A",
+      tag_suffix = "",
+      theme = theme(
+        legend.position = "right",
+        legend.box = "horizontal",
+        legend.title = element_text(hjust = 0.5),
+        plot.tag = element_text(size = 14, face = "bold")
+      )
+    )
+
+  # Create output directory if it doesn't exist
+  dir_create(output_fp, recurse = TRUE)
+
+  # Save figure
+  ggsave(
+    file.path(output_fp, glue::glue("{plot_name}.png")),
+    plot = combined_fig,
+    width = 12,
+    height = 8,
     dpi = 300
   )
 

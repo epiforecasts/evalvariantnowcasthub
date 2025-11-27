@@ -36,3 +36,5 @@ output:
 ![Fig. S8 Summary of model submission coverage across all models. Color indicates the number of models that submitted forecasts for each location and nowcast date combination, ranging from 0 (no models) to 6 (all models).](../output/figs/metadata/supp/submission_heatmaps_summary.png)
 
 ![Fig. S9 Evaluation sequence counts by location and nowcast date. Color indicates the total number of sequences available in the evaluation data (log scale) for each location and nowcast date combination. Gray tiles indicate nowcast date-location pairs with no sequences across all horizons.](../output/figs/metadata/supp/eval_sequence_counts_heatmap.png)
+
+![Fig. S10 Absolute Brier (top) and energy (bottom) in the U.S. excluding California (left) and California (right)](../output/figs/overall_scores/supp/absolute_scores_by_horizon.png)

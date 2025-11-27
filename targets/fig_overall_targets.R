@@ -52,7 +52,8 @@ fig_overall_targets <- list(
     command = get_plot_horizon(
       scores_obj = su_scores_ep,
       rel_skill_plot = FALSE,
-      score_type = "brier_score"
+      score_type = "brier_score",
+      title = "US minus CA"
     )
   ),
   tar_target(
@@ -120,7 +121,9 @@ fig_overall_targets <- list(
     command = get_plot_horizon(
       scores_obj = su_scores_ca,
       rel_skill_plot = FALSE,
-      score_type = "brier_score"
+      score_type = "brier_score",
+      show_legend = TRUE,
+      title = "CA"
     )
   ),
   tar_target(
@@ -136,7 +139,7 @@ fig_overall_targets <- list(
     command = get_plot_horizon(
       scores_obj = su_scores_ca,
       rel_skill_plot = FALSE,
-      score_type = "energy_score"
+      score_type = "energy_score",
     )
   ),
   tar_target(
@@ -167,6 +170,17 @@ fig_overall_targets <- list(
     )
   ),
 
+  # Supplement absolute score by horizon
+  tar_target(
+    name = abs_horizon_fig,
+    command = get_panel_horizon(
+      a = absolute_brier_horizon,
+      b = absolute_energy_horizon,
+      c = absolute_brier_horizon_ca,
+      d = absolute_energy_horizon_ca,
+      plot_name = "absolute_scores_by_horizon"
+    )
+  ),
 
   # By location -------------------------------
   tar_target(
