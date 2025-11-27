@@ -62,7 +62,7 @@ load_data_targets <- list(
       group_by(nowcast_date) |>
       summarise(total_sequences = sum(observation))
   ),
-  # Number of sequences available for evaluation by nwocats date
+  # Number of sequences available for evaluation by nowcast date
   tar_target(
     name = seq_counts_by_eval_date_us,
     command = variant_data_eval_all |>

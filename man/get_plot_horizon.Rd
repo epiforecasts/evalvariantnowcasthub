@@ -6,7 +6,6 @@
 \usage{
 get_plot_horizon(
   scores_obj,
-  output_fp = file.path("output", "figs", "overall_scores", "supp"),
   score_type = c("brier_score", "energy_score"),
   rel_skill_plot = TRUE,
   title = NULL,

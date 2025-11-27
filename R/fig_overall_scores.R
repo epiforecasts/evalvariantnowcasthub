@@ -395,10 +395,6 @@ get_plot_overall <- function(scores_obj,
 #' @returns ggplot object
 #' @autoglobal
 get_plot_horizon <- function(scores_obj,
-                             output_fp = file.path(
-                               "output", "figs",
-                               "overall_scores", "supp"
-                             ),
                              score_type = c("brier_score", "energy_score"),
                              rel_skill_plot = TRUE,
                              title = NULL,
@@ -545,7 +541,6 @@ get_plot_seq_counts_loc <- function(seq_counts_by_loc) {
 #' @returns ggplot object
 #' @autoglobal
 get_plot_seq_counts_date <- function(seq_counts_by_date) {
-  plot_comps <- plot_components()
   p <- ggplot(seq_counts_by_date) +
     geom_bar(aes(x = nowcast_date, y = total_sequences),
       stat = "identity", position = "dodge"
@@ -573,7 +568,6 @@ get_plot_seq_counts_date <- function(seq_counts_by_date) {
 #' @returns ggplot object
 #' @autoglobal
 get_plot_seq_eval_date <- function(seq_counts_by_eval_date) {
-  plot_comps <- plot_components()
   p <- ggplot(seq_counts_by_eval_date) +
     geom_bar(aes(x = nowcast_date, y = total_sequences),
       stat = "identity", position = "dodge"
