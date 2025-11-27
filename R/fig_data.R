@@ -349,9 +349,9 @@ get_first_data_fig_alt <- function(plot_freq1,
                                      "data_figs", "final"
                                    )) {
   fig_layout <- "
-  AADD
-  BBEE
-  CCFF"
+  AABB
+  CCDD
+  EEFF"
 
   fig_data <- plot_freq1 +
     plot_seq1 +

@@ -28,8 +28,8 @@ load_data_targets <- list(
       hub_path = hub_path,
       nowcast_dates = nowcast_date_range_to_zoom,
       states = states_for_vis
-      )
-    ),
+    )
+  ),
   # Variant data for evaluation (all dates and locations)
   tar_target(
     name = variant_data_eval_all,
@@ -62,6 +62,21 @@ load_data_targets <- list(
       group_by(nowcast_date) |>
       summarise(total_sequences = sum(observation))
   ),
+  # Number of sequences available for evaluation by nwocats date
+  tar_target(
+    name = seq_counts_by_eval_date_us,
+    command = variant_data_eval_all |>
+      filter(location != "CA") |>
+      group_by(nowcast_date) |>
+      summarise(total_sequences = sum(oracle_value))
+  ),
+  tar_target(
+    name = seq_counts_by_eval_date_ca,
+    command = variant_data_eval_all |>
+      filter(location == "CA") |>
+      group_by(nowcast_date) |>
+      summarise(total_sequences = sum(oracle_value))
+  ),
   # Clades
   tar_target(
     name = clade_list,
@@ -91,8 +106,8 @@ load_data_targets <- list(
       nowcast_dates = nowcast_date_range_to_zoom,
       states = states_for_vis,
       bucket_name = nowcast_bucket_name
-      )
-    ),
+    )
+  ),
   # All model outputs for heatmap (all dates and locations)
   tar_target(
     name = all_model_outputs_for_heatmap,

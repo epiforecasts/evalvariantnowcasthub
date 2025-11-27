@@ -347,7 +347,7 @@ get_fig_preds <- function(faceted_preds,
   ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
     plot = fig_preds,
     width = 8,
-    height = 13
+    height = 10
   )
   return(fig_preds)
 }

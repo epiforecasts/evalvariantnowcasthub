@@ -277,10 +277,18 @@ fig_overall_targets <- list(
     name = plot_seq_counts_by_date_us,
     command = get_plot_seq_counts_date(seq_counts_by_date_us)
   ),
+  tar_target(
+    name = plot_seq_by_eval_date_us,
+    command = get_plot_seq_eval_date(seq_counts_by_eval_date_us)
+  ),
   ## CA --------------------------------------------------
   tar_target(
     name = plot_seq_counts_by_date_ca,
     command = get_plot_seq_counts_date(seq_counts_by_date_ca)
+  ),
+  tar_target(
+    name = plot_seq_by_eval_date_ca,
+    command = get_plot_seq_eval_date(seq_counts_by_eval_date_ca)
   ),
   tar_target(
     name = abs_brier_nowcast_date_ca,
@@ -329,6 +337,8 @@ fig_overall_targets <- list(
       h = rel_skill_energy_nowcast_date_ca,
       i = plot_seq_counts_by_date_us,
       j = plot_seq_counts_by_date_ca,
+      k = plot_seq_by_eval_date_us,
+      l = plot_seq_by_eval_date_ca,
       plot_name = "by_nowcast_date"
     )
   )

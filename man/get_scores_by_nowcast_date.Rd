@@ -15,6 +15,8 @@ get_scores_by_nowcast_date(
   h,
   i,
   j,
+  k,
+  l,
   output_fp = file.path("output", "figs", "overall_scores"),
   plot_name = "scores_by_nowcast_date"
 )
@@ -39,6 +41,10 @@ get_scores_by_nowcast_date(
 \item{i}{I}
 
 \item{j}{J}
+
+\item{k}{K}
+
+\item{l}{L}
 
 \item{output_fp}{directory to save figures}
 

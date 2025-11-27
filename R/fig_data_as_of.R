@@ -262,19 +262,19 @@ get_plot_freq_as_of_vs_eval <- function(obs_data,
 #' Make data comparing data as of nowcast date vs when evaluating
 #'
 #' @param seq_counts_as_of1 A
-#' @param seq_counts_eval1 B
-#' @param eval_freq1 C
-#' @param seq_counts_as_of2 D
-#' @param seq_counts_eval2 E
+#' @param seq_counts_eval1 C
+#' @param eval_freq1 E
+#' @param seq_counts_as_of2 B
+#' @param seq_counts_eval2 D
 #' @param eval_freq2 F
 #' @inheritParams get_plot_obs_clade_freq
 #'
 #' @returns patchwork figure
 get_second_data_fig <- function(seq_counts_as_of1,
-                                seq_counts_eval1,
-                                eval_freq1,
                                 seq_counts_as_of2,
+                                seq_counts_eval1,
                                 seq_counts_eval2,
+                                eval_freq1,
                                 eval_freq2,
                                 plot_name,
                                 output_fp = file.path(
@@ -282,17 +282,19 @@ get_second_data_fig <- function(seq_counts_as_of1,
                                   "as_of_data_figs", "final"
                                 )) {
   fig_layout <- "
-  AAADDD
-  BBBEEE
-  CCCFFF"
+  AAABBB
+  CCCDDD
+  EEEFFF"
 
   fig_eval <- (seq_counts_as_of1 +
     ylab("Sequence counts as of\nthe nowcast date")) +
-    (seq_counts_eval1 + ylab("Sequence counts\nfor evaluation")) +
-    eval_freq1 +
     (seq_counts_as_of2 +
       ylab("Sequence counts as of\nthe nowcast date")) +
-    (seq_counts_eval2 + ylab("Sequence counts\nfor evaluation")) +
+    (seq_counts_eval1 + ylab("Sequence counts\nfor evaluation") +
+      theme(plot.tag.position = c(-0.01, 1.05))) +
+    (seq_counts_eval2 + ylab("Sequence counts\nfor evaluation") +
+      theme(plot.tag.position = c(-0.01, 1.05))) +
+    eval_freq1 +
     eval_freq2 +
     plot_layout(
       design = fig_layout,

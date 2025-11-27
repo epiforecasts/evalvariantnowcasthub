@@ -6,10 +6,10 @@
 \usage{
 get_second_data_fig(
   seq_counts_as_of1,
-  seq_counts_eval1,
-  eval_freq1,
   seq_counts_as_of2,
+  seq_counts_eval1,
   seq_counts_eval2,
+  eval_freq1,
   eval_freq2,
   plot_name,
   output_fp = file.path("output", "figs", "as_of_data_figs", "final")
@@ -18,13 +18,13 @@ get_second_data_fig(
 \arguments{
 \item{seq_counts_as_of1}{A}
 
-\item{seq_counts_eval1}{B}
+\item{seq_counts_as_of2}{B}
 
-\item{eval_freq1}{C}
+\item{seq_counts_eval1}{C}
 
-\item{seq_counts_as_of2}{D}
+\item{seq_counts_eval2}{D}
 
-\item{seq_counts_eval2}{E}
+\item{eval_freq1}{E}
 
 \item{eval_freq2}{F}
 

@@ -101,6 +101,8 @@ utils::globalVariables(c(
   "location", # <get_plot_seq_counts_loc>
   "nowcast_date", # <get_plot_seq_counts_date>
   "total_sequences", # <get_plot_seq_counts_date>
+  "nowcast_date", # <get_plot_seq_eval_date>
+  "total_sequences", # <get_plot_seq_eval_date>
   "model_id", # <prepare_submission_data>
   "location", # <prepare_submission_data>
   "nowcast_date", # <prepare_submission_data>
