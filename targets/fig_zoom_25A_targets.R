@@ -48,11 +48,32 @@ fig_zoom_25A_targets <- list(
     )
   ),
   tar_target(
+    name = coverage_25A_scores,
+    command = compute_coverage_25A(
+      df_prepared = bias_25A_prepared,
+      locs = states_for_vis,
+      nowcast_dates = nowcast_date_range_to_zoom
+    )
+  ),
+  tar_target(
+    name = plot_coverage_by_date,
+    command = get_plot_coverage_by_date(
+      coverage_data = coverage_25A_scores,
+      locs = states_for_vis,
+      nowcast_dates = nowcast_date_range_to_zoom,
+      date_range = c(
+        min(nowcast_date_range_to_zoom) - days(6),
+        max(nowcast_date_range_to_zoom)
+      )
+    )
+  ),
+  tar_target(
     name = fig_zoom_25A,
     command = get_fig_zoom_25A(
       grid = plot_model_preds_mult_nowcasts,
       scores = plot_score_underlay,
       bias = plot_bias_by_date,
+      coverage = plot_coverage_by_date,
       plot_name = "fig_zoom_25A"
     )
   )

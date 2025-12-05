@@ -16,12 +16,13 @@ get_plot_model_preds_mult <- function(model_preds_mult_nowcasts,
     mutate(horizon = as.integer(target_date - nowcast_date)) |>
     filter(horizon <= max(horizon_to_plot), horizon >= min(horizon_to_plot))
 
-  weekly_obs_data <- daily_to_weekly(final_eval_data) |>
+  # Use daily observations instead of weekly
+  daily_obs_data <- final_eval_data |>
     filter(location %in% unique(df_filt$location))
-  total_seq <- weekly_obs_data |>
+  total_seq <- daily_obs_data |>
     group_by(date, location) |>
     summarise(n_seq = sum(sequences))
-  weekly_obs <- left_join(weekly_obs_data, total_seq) |>
+  daily_obs <- left_join(daily_obs_data, total_seq) |>
     filter(clades_modeled == clade_to_zoom)
 
   plot_comps <- plot_components()
@@ -50,12 +51,12 @@ get_plot_model_preds_mult <- function(model_preds_mult_nowcasts,
       alpha = 0.1
     ) +
     geom_point(
-      data = weekly_obs,
+      data = daily_obs,
       aes(x = date, y = sequences / n_seq),
       color = "#CAB2D6"
     ) +
     geom_line(
-      data = weekly_obs,
+      data = daily_obs,
       aes(x = date, y = sequences / n_seq),
       color = "#CAB2D6"
     ) +
@@ -72,8 +73,16 @@ get_plot_model_preds_mult <- function(model_preds_mult_nowcasts,
     xlab("") +
     ylab("Model predictions across nowcast dates") +
     guides(
-      color = "none",
-      fill = "none"
+      color = guide_legend(
+        title.position = "top",
+        title.hjust = 0.5,
+        nrow = 1
+      ),
+      fill = guide_legend(
+        title.position = "top",
+        title.hjust = 0.5,
+        nrow = 1
+      )
     ) +
     scale_x_date(
       limits = c(min(df_filt$target_date), max(df_filt$target_date)),
@@ -136,7 +145,7 @@ get_plot_scores_by_date <- function(scores,
       aes(yintercept = energy_score, color = model),
       linetype = "dashed"
     ) +
-    facet_wrap(~location, scales = "free_y") +
+    facet_wrap(~location, scales = "free_y", ncol = 3) +
     get_plot_theme(dates = TRUE) +
     scale_color_manual(
       name = "Model",
@@ -207,7 +216,7 @@ get_plot_bias_by_date <- function(bias_data,
       x = nowcast_date, y = bias,
       color = model
     )) +
-    facet_wrap(~location) +
+    facet_wrap(~location, ncol = 3) +
     get_plot_theme(dates = TRUE) +
     scale_color_manual(
       name = "Model",
@@ -225,11 +234,82 @@ get_plot_bias_by_date <- function(bias_data,
   return(p)
 }
 
+#' Get a plot of prediction interval coverage by nowcast date for locations
+#'
+#' @param coverage_data Data.frame of coverage scores with interval_range
+#' @param locs Vector of character strings of locations
+#' @param nowcast_dates Set of nowcast dates to include
+#' @param date_range Range of dates to plot
+#'
+#' @returns ggplot
+#' @autoglobal
+get_plot_coverage_by_date <- function(coverage_data,
+                                      locs,
+                                      nowcast_dates,
+                                      date_range) {
+  # Filter data for plotting
+  coverage_df <- filter(
+    coverage_data,
+    location %in% locs,
+    nowcast_date %in% nowcast_dates
+  )
+
+  plot_comps <- plot_components()
+
+  p <- ggplot(coverage_df) +
+    # Add reference lines for nominal coverage
+    geom_hline(
+      aes(yintercept = nominal_coverage, linetype = interval_label),
+      color = "gray50",
+      alpha = 0.7
+    ) +
+    # Plot actual coverage
+    geom_point(aes(
+      x = nowcast_date, y = coverage,
+      color = model
+    )) +
+    geom_line(aes(
+      x = nowcast_date, y = coverage,
+      color = model,
+      group = interaction(model, interval_range)
+    )) +
+    # Separate lines for 50% and 95% intervals
+    facet_wrap(~location, ncol = 3) +
+    get_plot_theme(dates = TRUE) +
+    scale_color_manual(
+      name = "Model",
+      values = plot_comps$model_colors
+    ) +
+    scale_linetype_manual(
+      name = "Nominal coverage",
+      values = c("50%" = "dashed", "95%" = "dotted")
+    ) +
+    guides(
+      color = "none",
+      linetype = guide_legend(
+        title.position = "top",
+        title.hjust = 0.5,
+        nrow = 1
+      )
+    ) +
+    xlab("Nowcast date") +
+    ylab("Prediction interval coverage") +
+    scale_x_date(
+      limits = date_range,
+      date_breaks = "1 week",
+      date_labels = "%d %b %Y"
+    ) +
+    scale_y_continuous(limits = c(0, 1))
+
+  return(p)
+}
+
 #' Multiplot panel looking at 25A emergence across nowcast dates
 #'
 #' @param grid Model predictions plot
 #' @param scores Energy scores plot
 #' @param bias Bias scores plot
+#' @param coverage Prediction interval coverage plot
 #' @param plot_name name of plot
 #' @param output_fp filepath directory
 #'
@@ -238,6 +318,7 @@ get_plot_bias_by_date <- function(bias_data,
 get_fig_zoom_25A <- function(grid,
                              scores,
                              bias,
+                             coverage,
                              plot_name,
                              output_fp = file.path(
                                "output", "figs",
@@ -249,11 +330,13 @@ get_fig_zoom_25A <- function(grid,
   AAA
   BBB
   CCC
+  DDD
   "
 
   fig_zoom <- grid +
     scores +
     bias +
+    coverage +
     plot_layout(
       design = fig_layout,
       axes = "collect",

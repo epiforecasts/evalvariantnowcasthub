@@ -81,3 +81,57 @@ compute_bias_25A <- function(df_prepared, locs, nowcast_dates) {
 
   return(bias_summary)
 }
+
+#' Compute prediction interval coverage using scoringutils
+#'
+#' @param df_prepared Prepared data in long format
+#' @param locs Vector of location codes to include
+#' @param nowcast_dates Vector of nowcast dates to include
+#'
+#' @returns Data frame with coverage for 50% and 95% intervals by model,
+#'   location, and nowcast_date
+#' @importFrom dplyr filter group_by summarise mutate
+#' @importFrom scoringutils as_forecast_quantile score interval_coverage
+#' @autoglobal
+compute_coverage_25A <- function(df_prepared, locs, nowcast_dates) {
+  # Filter to specific locations and nowcast dates
+  df_to_score <- filter(
+    df_prepared,
+    location %in% locs,
+    nowcast_date %in% nowcast_dates
+  )
+
+  # Convert to scoringutils forecast object
+  forecast_obj <- scoringutils::as_forecast_quantile(
+    df_to_score,
+    forecast_unit = c(
+      "model_id", "location", "nowcast_date",
+      "target_date", "clade"
+    ),
+    observed = "observed",
+    predicted = "predicted",
+    quantile_level = "quantile_level"
+  )
+
+  # Score the forecasts - compute interval coverage using scoringutils
+  scores <- scoringutils::score(
+    forecast_obj,
+    metrics = list(coverage = scoringutils::interval_coverage)
+  )
+
+  # Aggregate coverage by model, location, nowcast_date, and interval_range
+  coverage_summary <- scores |>
+    group_by(model = model_id, location, nowcast_date, interval_range) |>
+    summarise(
+      coverage = mean(coverage, na.rm = TRUE),
+      .groups = "drop"
+    ) |>
+    # Filter to only 50% and 95% intervals
+    filter(interval_range %in% c(50, 95)) |>
+    mutate(
+      interval_label = paste0(interval_range, "%"),
+      nominal_coverage = interval_range / 100
+    )
+
+  return(coverage_summary)
+}
