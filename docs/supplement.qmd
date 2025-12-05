@@ -15,22 +15,26 @@ output:
 
 ## Data landscape
 
-![Fig. S1 Distribution of sequence counts compared to population size in the U.S. A. Total number of sequences collected and submitted by the final evaluation date for each state during the period from September 2024 to June 2025. Color indicates whether the location's sequences are among the top 90th percentile of all sequences submitted nationally B. Population size for each jurisdiction, ordered by total number of sequences submitted. Color indicates whether the population size is amone the top 90th percentile of the total population.](../output/figs/data_figs/supp/bar_chart_all_seq_counts_final.png){figs1}
+![Fig. S1 Distribution of sequence counts compared to population size in the U.S. A. Total number of sequences collected and submitted by the final evaluation date for each state during the period from September 2024 to June 2025. Color indicates whether the location's sequences are among the top 90th percentile of all sequences submitted nationally B. Population size for each jurisdiction, ordered by total number of sequences submitted. Color indicates whether the population size is among the top 90th percentile of the total population.](../output/figs/data_figs/supp/bar_chart_all_seq_counts_final.png)
 
-![Fig. S2 Example final sequence data from CA](../output/figs/data_figs/supp/final_seq_data_ex1.png){figs2}
+![Fig. S2 Example final sequence data from CA](../output/figs/data_figs/supp/final_seq_data_ex1.png)
 
-![Fig. S3 Example final sequence data from OH](../output/figs/data_figs/supp/final_seq_data_ex2.png){figs3}
+![Fig. S3 Example final sequence data from IL](../output/figs/data_figs/supp/final_seq_data_ex2.png)
 
-![Fig. S4 Example final sequence data from MN](../output/figs/data_figs/supp/final_seq_data_ex3.png){figs4}
+![Fig. S4 Example final sequence data from MN](../output/figs/data_figs/supp/final_seq_data_ex3.png)
+
+![Fig. S5 Different dynamics of 25A emergence](../output/figs/eda/plot_25A_emergence.png)
 
 ## Model nowcasts
 
-![Fig. S5 Model nowcasts compared for the CADPH-CATaLog model from February 19th, 2025.](../output/figs/nowcasts/supp/fig_model_nowcasts_CADPH.png){figs5}
+![Fig. S6 Model nowcasts compared for the CADPH-CATaLog model from February 19th, 2025.](../output/figs/nowcasts/supp/fig_model_nowcasts_CADPH.png)
 
 ## Submission metadata
 
-![Fig. S6 Model submission coverage by location and nowcast date for each participating model. Tiles colored by model-specific colors indicate dates and locations where the model submitted a forecast. Gray tiles indicate missing submissions.](../output/figs/metadata/supp/submission_heatmaps_by_model.png)
+![Fig. S7 Model submission coverage by location and nowcast date for each participating model. Tiles colored by model-specific colors indicate dates and locations where the model submitted a forecast. Gray tiles indicate missing submissions.](../output/figs/metadata/supp/submission_heatmaps_by_model.png)
 
-![Fig. S7 Summary of model submission coverage across all models. Color indicates the number of models that submitted forecasts for each location and nowcast date combination, ranging from 0 (no models) to 6 (all models).](../output/figs/metadata/supp/submission_heatmaps_summary.png)
+![Fig. S8 Summary of model submission coverage across all models. Color indicates the number of models that submitted forecasts for each location and nowcast date combination, ranging from 0 (no models) to 6 (all models).](../output/figs/metadata/supp/submission_heatmaps_summary.png)
 
-![Fig. S8 Evaluation sequence counts by location and nowcast date. Color indicates the total number of sequences available in the evaluation data (log scale) for each location and nowcast date combination. Gray tiles indicate nowcast date-location pairs with no sequences across all horizons.](../output/figs/metadata/supp/eval_sequence_counts_heatmap.png)
+![Fig. S9 Evaluation sequence counts by location and nowcast date. Color indicates the total number of sequences available in the evaluation data (log scale) for each location and nowcast date combination. Gray tiles indicate nowcast date-location pairs with no sequences across all horizons.](../output/figs/metadata/supp/eval_sequence_counts_heatmap.png)
+
+![Fig. S10 Absolute Brier (top) and energy (bottom) in the U.S. excluding California (left) and California (right)](../output/figs/overall_scores/supp/absolute_scores_by_horizon.png)

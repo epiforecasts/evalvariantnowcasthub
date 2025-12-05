@@ -1,3 +1,5 @@
+date_breaks <- ymd(c("2024-10-07", "2025-06-02"))
+
 #' Get relative skill scores with specified grouping
 #'
 #' @param scores_obj Scoringutils scores object
@@ -113,7 +115,7 @@ get_plot_by_location <- function(scores_obj,
       scale_fill_manual(values = plot_components_list$model_colors) +
       get_plot_theme() +
       labs(
-        x = "Location",
+        x = "",
         y = label,
         fill = "Model"
       ) +
@@ -198,16 +200,21 @@ get_plot_by_nowcast_date <- function(scores_obj,
       scale_color_manual(values = plot_components_list$model_colors) +
       get_plot_theme(dates = TRUE) +
       scale_x_date(
+        limits = date_breaks,
         breaks = "2 weeks",
         date_labels = "%d %b %Y"
       ) +
       labs(
         x = "",
-        y = glue::glue("Relative scaled skill\n({label})"),
+        y = glue::glue("Relative scaled\nskill ({label})"),
         color = "Model"
       ) +
       scale_y_continuous(trans = "log10") +
-      coord_cartesian(ylim = c(1 / 2.4, 2.4))
+      coord_cartesian(ylim = c(1 / 2.4, 2.4)) +
+      theme(
+        axis.text.x = element_blank(),
+        axis.title.x = element_text(size = 12)
+      )
   } else {
     scores_sum <- scores_obj |>
       filter(!is.na(score_type)) |>
@@ -235,6 +242,7 @@ get_plot_by_nowcast_date <- function(scores_obj,
       scale_color_manual(values = plot_components_list$model_colors) +
       get_plot_theme(dates = TRUE) +
       scale_x_date(
+        limits = date_breaks,
         breaks = "2 weeks",
         date_labels = "%d %b %Y"
       ) +
@@ -248,7 +256,8 @@ get_plot_by_nowcast_date <- function(scores_obj,
           title.position = "top",
           nrow = 1
         )
-      )
+      ) +
+      theme(axis.text.x = element_blank())
   }
   if (isTRUE(remove_legend)) {
     p <- p + guides(
@@ -378,6 +387,8 @@ get_plot_overall <- function(scores_obj,
 #' @param scores_obj Scoringutils scores object
 #' @param rel_skill_plot Boolean indicating to return a relative skill plot
 #' @param score_type Character string indicating which score metric to use
+#' @param show_legend Boolean indicating to add legend, default is FALSE
+#' @param title Character string indicating title, default is NULL.
 #' @importFrom scoringutils summarise_scores
 #' @importFrom ggplot2 ggplot geom_bar aes geom_hline coord_flip
 #' @importFrom rlang sym
@@ -385,7 +396,9 @@ get_plot_overall <- function(scores_obj,
 #' @autoglobal
 get_plot_horizon <- function(scores_obj,
                              score_type = c("brier_score", "energy_score"),
-                             rel_skill_plot = TRUE) {
+                             rel_skill_plot = TRUE,
+                             title = NULL,
+                             show_legend = FALSE) {
   score_type <- rlang::arg_match(score_type)
   plot_components_list <- plot_components()
   if (score_type == "brier_score") {
@@ -432,7 +445,7 @@ get_plot_horizon <- function(scores_obj,
       get_plot_theme() +
       labs(
         x = "Horizon (days)",
-        y = glue::glue("Relative scaled skill ({label})"),
+        y = glue::glue("Relative scaled skill\n({label})"),
         color = "Model"
       ) +
       guides(color = "none") +
@@ -474,6 +487,18 @@ get_plot_horizon <- function(scores_obj,
       ) +
       guides(color = "none")
   }
+  if (isTRUE(show_legend)) {
+    p <- p + guides(
+      color = guide_legend(
+        title.position = "top",
+        position = "right",
+        nrow = 6
+      )
+    )
+  }
+  if (!is.null(title)) {
+    p <- p + ggtitle(title)
+  }
   return(p)
 }
 
@@ -502,7 +527,9 @@ get_plot_seq_counts_loc <- function(seq_counts_by_loc) {
     ) +
     scale_y_continuous(trans = "log10") +
     xlab("") +
-    ylab("Total number of sequences\n Sept. 2024-June 2025")
+    ylab("Total sequences\n Sept. 2024-June 2025") +
+    theme(axis.title.x = element_text(size = 12))
+
   return(p)
 }
 
@@ -514,7 +541,6 @@ get_plot_seq_counts_loc <- function(seq_counts_by_loc) {
 #' @returns ggplot object
 #' @autoglobal
 get_plot_seq_counts_date <- function(seq_counts_by_date) {
-  plot_comps <- plot_components()
   p <- ggplot(seq_counts_by_date) +
     geom_bar(aes(x = nowcast_date, y = total_sequences),
       stat = "identity", position = "dodge"
@@ -522,10 +548,39 @@ get_plot_seq_counts_date <- function(seq_counts_by_date) {
     get_plot_theme(dates = TRUE) +
     xlab("") +
     scale_x_date(
+      limits = date_breaks,
       breaks = "2 weeks",
       date_labels = "%d %b %Y"
     ) +
-    ylab("Number of sequences\nwithin nowcast period")
+    ylab("Sequences\nwithin nowcast period") +
+    theme(
+      axis.text.x = element_blank(),
+      axis.title = element_text(size = 12)
+    )
+  return(p)
+}
+
+#' Sequence counts by nowcast date
+#'
+#' @param seq_counts_by_eval_date Total sequences for each nowcast date
+#' @importFrom ggplot2 ggplot geom_bar aes geom_hline coord_flip
+#' @importFrom rlang sym
+#' @returns ggplot object
+#' @autoglobal
+get_plot_seq_eval_date <- function(seq_counts_by_eval_date) {
+  p <- ggplot(seq_counts_by_eval_date) +
+    geom_bar(aes(x = nowcast_date, y = total_sequences),
+      stat = "identity", position = "dodge"
+    ) +
+    get_plot_theme(dates = TRUE) +
+    xlab("") +
+    scale_x_date(
+      limits = date_breaks,
+      breaks = "2 weeks",
+      date_labels = "%d %b %Y"
+    ) +
+    ylab("Sequences\n for evaluation") +
+    theme(axis.title = element_text(size = 12))
   return(p)
 }
 
@@ -585,8 +640,59 @@ get_overall_scores_figure <- function(a, b, c, d, e, f, g, h, i, j, k, l,
   ggsave(
     file.path(output_fp, glue::glue("{plot_name}.png")),
     plot = combined_fig,
-    width = 16,
-    height = 20,
+    width = 12,
+    height = 15,
+    dpi = 300
+  )
+
+  return(combined_fig)
+}
+
+#' Get a plot of absolute scores by horizon
+#'
+#' @param a A
+#' @param b B
+#' @param c C
+#' @param d D
+#' @param output_fp directory to save figures
+#' @param plot_name name of the plot
+#'
+#' @returns ggplot object
+get_panel_horizon <- function(a, b, c, d,
+                              plot_name,
+                              output_fp = file.path(
+                                "output", "figs",
+                                "overall_scores", "supp"
+                              )) {
+  fig_layout <- "
+  AC
+  BD"
+
+  combined_fig <- a + b + c + d +
+    plot_layout(
+      design = fig_layout,
+      guides = "collect"
+    ) +
+    plot_annotation(
+      tag_levels = "A",
+      tag_suffix = "",
+      theme = theme(
+        legend.position = "right",
+        legend.box = "horizontal",
+        legend.title = element_text(hjust = 0.5),
+        plot.tag = element_text(size = 14, face = "bold")
+      )
+    )
+
+  # Create output directory if it doesn't exist
+  dir_create(output_fp, recurse = TRUE)
+
+  # Save figure
+  ggsave(
+    file.path(output_fp, glue::glue("{plot_name}.png")),
+    plot = combined_fig,
+    width = 12,
+    height = 8,
     dpi = 300
   )
 
@@ -644,8 +750,8 @@ get_by_loc_figure <- function(a, b, c, d, e,
   ggsave(
     file.path(output_fp, glue::glue("{plot_name}.png")),
     plot = combined_fig,
-    width = 16,
-    height = 20,
+    width = 12,
+    height = 15,
     dpi = 300
   )
 
@@ -664,11 +770,13 @@ get_by_loc_figure <- function(a, b, c, d, e,
 #' @param h H
 #' @param i I
 #' @param j J
+#' @param k K
+#' @param l L
 #' @param output_fp directory to save figures
 #' @param plot_name name of the plot
 #'
 #' @returns ggplot object
-get_scores_by_nowcast_date <- function(a, b, c, d, e, f, g, h, i, j,
+get_scores_by_nowcast_date <- function(a, b, c, d, e, f, g, h, i, j, k, l,
                                        output_fp = file.path(
                                          "output", "figs",
                                          "overall_scores"
@@ -679,11 +787,12 @@ get_scores_by_nowcast_date <- function(a, b, c, d, e, f, g, h, i, j,
   CCDD
   EEFF
   GGHH
-  IIJJ"
+  IIJJ
+  KKLL"
 
   combined_fig <- a + b + c + d +
     e + f + g + h +
-    i + j +
+    i + j + k + l +
     plot_layout(
       design = fig_layout,
       guides = "collect"
@@ -706,8 +815,8 @@ get_scores_by_nowcast_date <- function(a, b, c, d, e, f, g, h, i, j,
   ggsave(
     file.path(output_fp, glue::glue("{plot_name}.png")),
     plot = combined_fig,
-    width = 16,
-    height = 20,
+    width = 12,
+    height = 15,
     dpi = 300
   )
 

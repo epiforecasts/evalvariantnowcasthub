@@ -52,7 +52,8 @@ fig_overall_targets <- list(
     command = get_plot_horizon(
       scores_obj = su_scores_ep,
       rel_skill_plot = FALSE,
-      score_type = "brier_score"
+      score_type = "brier_score",
+      title = "US minus CA"
     )
   ),
   tar_target(
@@ -120,7 +121,9 @@ fig_overall_targets <- list(
     command = get_plot_horizon(
       scores_obj = su_scores_ca,
       rel_skill_plot = FALSE,
-      score_type = "brier_score"
+      score_type = "brier_score",
+      show_legend = TRUE,
+      title = "CA"
     )
   ),
   tar_target(
@@ -136,7 +139,7 @@ fig_overall_targets <- list(
     command = get_plot_horizon(
       scores_obj = su_scores_ca,
       rel_skill_plot = FALSE,
-      score_type = "energy_score"
+      score_type = "energy_score",
     )
   ),
   tar_target(
@@ -159,14 +162,25 @@ fig_overall_targets <- list(
       f = rel_skill_energy_overall,
       g = bar_chart_energy_overall_ca,
       h = rel_skill_energy_overall_ca,
-      i = absolute_brier_horizon,
-      j = absolute_brier_horizon_ca,
+      i = rel_skill_brier_horizon,
+      j = rel_skill_brier_horizon_ca,
       k = rel_skill_energy_horizon,
       l = rel_skill_energy_horizon_ca,
       plot_name = "overall_score_comparison"
     )
   ),
 
+  # Supplement absolute score by horizon
+  tar_target(
+    name = abs_horizon_fig,
+    command = get_panel_horizon(
+      a = absolute_brier_horizon,
+      b = absolute_energy_horizon,
+      c = absolute_brier_horizon_ca,
+      d = absolute_energy_horizon_ca,
+      plot_name = "absolute_scores_by_horizon"
+    )
+  ),
 
   # By location -------------------------------
   tar_target(
@@ -263,10 +277,18 @@ fig_overall_targets <- list(
     name = plot_seq_counts_by_date_us,
     command = get_plot_seq_counts_date(seq_counts_by_date_us)
   ),
+  tar_target(
+    name = plot_seq_by_eval_date_us,
+    command = get_plot_seq_eval_date(seq_counts_by_eval_date_us)
+  ),
   ## CA --------------------------------------------------
   tar_target(
     name = plot_seq_counts_by_date_ca,
     command = get_plot_seq_counts_date(seq_counts_by_date_ca)
+  ),
+  tar_target(
+    name = plot_seq_by_eval_date_ca,
+    command = get_plot_seq_eval_date(seq_counts_by_eval_date_ca)
   ),
   tar_target(
     name = abs_brier_nowcast_date_ca,
@@ -315,6 +337,8 @@ fig_overall_targets <- list(
       h = rel_skill_energy_nowcast_date_ca,
       i = plot_seq_counts_by_date_us,
       j = plot_seq_counts_by_date_ca,
+      k = plot_seq_by_eval_date_us,
+      l = plot_seq_by_eval_date_ca,
       plot_name = "by_nowcast_date"
     )
   )

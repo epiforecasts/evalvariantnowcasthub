@@ -45,6 +45,16 @@ utils::globalVariables(c(
   "clades_modeled", # <get_clean_variant_data_ns>
   "location_code", # <get_clean_variant_data_ns>
   "sequences", # <get_clean_variant_data_ns>
+  "target_date", # <prepare_data_for_scoring_25A>
+  "nowcast_date", # <prepare_data_for_scoring_25A>
+  "horizon", # <prepare_data_for_scoring_25A>
+  "quantile_level", # <prepare_data_for_scoring_25A>
+  "sequences", # <prepare_data_for_scoring_25A>
+  "n_seq", # <prepare_data_for_scoring_25A>
+  "location", # <compute_bias_25A>
+  "nowcast_date", # <compute_bias_25A>
+  "model_id", # <compute_bias_25A>
+  "bias", # <compute_bias_25A>
   "location", # <extract_nowcasts>
   "nowcast_date", # <extract_nowcasts>
   "location", # <get_oracle_output>
@@ -101,6 +111,8 @@ utils::globalVariables(c(
   "location", # <get_plot_seq_counts_loc>
   "nowcast_date", # <get_plot_seq_counts_date>
   "total_sequences", # <get_plot_seq_counts_date>
+  "nowcast_date", # <get_plot_seq_eval_date>
+  "total_sequences", # <get_plot_seq_eval_date>
   "model_id", # <prepare_submission_data>
   "location", # <prepare_submission_data>
   "nowcast_date", # <prepare_submission_data>
@@ -118,5 +130,10 @@ utils::globalVariables(c(
   "location", # <plot_eval_sequence_heatmap>
   "total_sequences", # <plot_eval_sequence_heatmap>
   "nowcast_date", # <plot_eval_sequence_heatmap>
+  "location", # <get_plot_bias_by_date>
+  "nowcast_date", # <get_plot_bias_by_date>
+  "model", # <get_plot_bias_by_date>
+  "bias", # <get_plot_bias_by_date>
+  "avg_bias", # <get_plot_bias_by_date>
   NULL
 ))
