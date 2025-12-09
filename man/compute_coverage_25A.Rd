@@ -4,7 +4,7 @@
 \alias{compute_coverage_25A}
 \title{Compute prediction interval coverage using scoringutils}
 \usage{
-compute_coverage_25A(df_prepared, locs, nowcast_dates)
+compute_coverage_25A(df_prepared, locs, nowcast_dates, intervals = c(50, 95))
 }
 \arguments{
 \item{df_prepared}{Prepared data in long format}

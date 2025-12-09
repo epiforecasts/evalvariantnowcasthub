@@ -234,12 +234,12 @@ get_plot_bias_by_date <- function(bias_data,
   return(p)
 }
 
-#' Get a plot of prediction interval coverage by nowcast date for locations
+#' Get a plot of prediction interval coverage summarized across nowcast dates
 #'
 #' @param coverage_data Data.frame of coverage scores with interval_range
 #' @param locs Vector of character strings of locations
 #' @param nowcast_dates Set of nowcast dates to include
-#' @param date_range Range of dates to plot
+#' @param date_range Range of dates to plot (not used but kept for compatibility)
 #'
 #' @returns ggplot
 #' @autoglobal
@@ -247,59 +247,49 @@ get_plot_coverage_by_date <- function(coverage_data,
                                       locs,
                                       nowcast_dates,
                                       date_range) {
-  # Filter data for plotting
-  coverage_df <- filter(
-    coverage_data,
-    location %in% locs,
-    nowcast_date %in% nowcast_dates
-  )
+  # Filter and summarize coverage across nowcast dates
+  coverage_summary <- coverage_data |>
+    filter(
+      location %in% locs,
+      nowcast_date %in% nowcast_dates
+    ) |>
+    group_by(model, location, interval_range, interval_label, nominal_coverage) |>
+    summarise(
+      mean_coverage = mean(coverage, na.rm = TRUE),
+      .groups = "drop"
+    )
 
   plot_comps <- plot_components()
 
-  p <- ggplot(coverage_df) +
-    # Add reference lines for nominal coverage
-    geom_hline(
-      aes(yintercept = nominal_coverage, linetype = interval_label),
-      color = "gray50",
-      alpha = 0.7
+  p <- ggplot(coverage_summary) +
+    # Add horizontal reference lines for nominal coverage
+    geom_hline(yintercept = 0.5, linetype = "dashed", color = "gray50", alpha = 0.7) +
+    geom_hline(yintercept = 0.95, linetype = "dotted", color = "gray50", alpha = 0.7) +
+    # Create stacked bar chart
+    geom_bar(
+      aes(x = model, y = mean_coverage, fill = interval_label),
+      stat = "identity",
+      position = "dodge",
+      width = 0.7
     ) +
-    # Plot actual coverage
-    geom_point(aes(
-      x = nowcast_date, y = coverage,
-      color = model
-    )) +
-    geom_line(aes(
-      x = nowcast_date, y = coverage,
-      color = model,
-      group = interaction(model, interval_range)
-    )) +
-    # Separate lines for 50% and 95% intervals
     facet_wrap(~location, ncol = 3) +
-    get_plot_theme(dates = TRUE) +
-    scale_color_manual(
-      name = "Model",
-      values = plot_comps$model_colors
-    ) +
-    scale_linetype_manual(
-      name = "Nominal coverage",
-      values = c("50%" = "dashed", "95%" = "dotted")
+    get_plot_theme(dates = FALSE) +
+    scale_fill_manual(
+      name = "Prediction interval",
+      values = c("50%" = "#CAB2D6", "95%" = "#A6CEE3"),
+      labels = c("50%" = "50%", "95%" = "95%")
     ) +
     guides(
-      color = "none",
-      linetype = guide_legend(
+      fill = guide_legend(
         title.position = "top",
         title.hjust = 0.5,
         nrow = 1
       )
     ) +
-    xlab("Nowcast date") +
-    ylab("Prediction interval coverage") +
-    scale_x_date(
-      limits = date_range,
-      date_breaks = "1 week",
-      date_labels = "%d %b %Y"
-    ) +
-    scale_y_continuous(limits = c(0, 1))
+    xlab("Model") +
+    ylab("Mean prediction interval coverage") +
+    scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2)) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
   return(p)
 }

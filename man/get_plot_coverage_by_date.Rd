@@ -2,7 +2,7 @@
 % Please edit documentation in R/fig_zoom_clade_mult_nowcasts.R
 \name{get_plot_coverage_by_date}
 \alias{get_plot_coverage_by_date}
-\title{Get a plot of prediction interval coverage by nowcast date for locations}
+\title{Get a plot of prediction interval coverage summarized across nowcast dates}
 \usage{
 get_plot_coverage_by_date(coverage_data, locs, nowcast_dates, date_range)
 }
@@ -13,11 +13,11 @@ get_plot_coverage_by_date(coverage_data, locs, nowcast_dates, date_range)
 
 \item{nowcast_dates}{Set of nowcast dates to include}
 
-\item{date_range}{Range of dates to plot}
+\item{date_range}{Range of dates to plot (not used but kept for compatibility)}
 }
 \value{
 ggplot
 }
 \description{
-Get a plot of prediction interval coverage by nowcast date for locations
+Get a plot of prediction interval coverage summarized across nowcast dates
 }
