@@ -93,7 +93,8 @@ compute_bias_25A <- function(df_prepared, locs, nowcast_dates) {
 #' @importFrom dplyr filter group_by summarise mutate
 #' @importFrom scoringutils as_forecast_quantile score interval_coverage
 #' @autoglobal
-compute_coverage_25A <- function(df_prepared, locs, nowcast_dates) {
+compute_coverage_25A <- function(df_prepared, locs, nowcast_dates,
+                                 intervals = c(50, 95)) {
   # Filter to specific locations and nowcast dates
   df_to_score <- filter(
     df_prepared,
@@ -112,26 +113,35 @@ compute_coverage_25A <- function(df_prepared, locs, nowcast_dates) {
     predicted = "predicted",
     quantile_level = "quantile_level"
   )
-
-  # Score the forecasts - compute interval coverage using scoringutils
-  scores <- scoringutils::score(
+  all_coverage <- scoringutils::get_coverage(
     forecast_obj,
-    metrics = list(coverage = scoringutils::interval_coverage)
+    by = c(
+      "location", "nowcast_date", "target_date",
+      "model_id", "clade"
+    )
+  )
+  coverage <- filter(
+    all_coverage,
+    interval_range %in% c(intervals)
   )
 
-  # Aggregate coverage by model, location, nowcast_date, and interval_range
-  coverage_summary <- scores |>
-    group_by(model = model_id, location, nowcast_date, interval_range) |>
-    summarise(
-      coverage = mean(coverage, na.rm = TRUE),
-      .groups = "drop"
+  coverage_summarised <- coverage |>
+    group_by(model_id, location, interval_range) |>
+    summarise(empirical_coverage = sum(interval_coverage) / n()) |>
+    pivot_wider(
+      names_from = interval_range,
+      values_from = empirical_coverage
     ) |>
-    # Filter to only 50% and 95% intervals
-    filter(interval_range %in% c(50, 95)) |>
+    mutate(`95` = `95` - `50`) |>
+    pivot_longer(
+      cols = c(`50`, `95`),
+      names_to = "interval_range",
+      values_to = "empirical_coverage"
+    ) |>
     mutate(
       interval_label = paste0(interval_range, "%"),
-      nominal_coverage = interval_range / 100
+      interval_range = factor(interval_range, levels = c("95", "50"))
     )
 
-  return(coverage_summary)
+  return(coverage_summarised)
 }
