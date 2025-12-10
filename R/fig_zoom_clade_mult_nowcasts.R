@@ -71,10 +71,6 @@ get_plot_model_preds_mult <- function(model_preds_mult_nowcasts,
       values = c(plot_comps$model_colors, "25A" = "#CAB2D6"),
       breaks = "25A"
     ) +
-    # scale_fill_manual(
-    #   name = "Model",
-    #   values = plot_comps$model_colors
-    # ) +
     xlab("") +
     ylab("Model predictions across nowcast dates") +
     guides(
@@ -94,8 +90,6 @@ get_plot_model_preds_mult <- function(model_preds_mult_nowcasts,
     theme(
       plot.margin = margin(5.5, 5.5, 5.5, 40, "pt") # Increase left margin
     )
-
-  # theme(axis.text.x = element_blank())
 
   return(p)
 }
@@ -169,8 +163,6 @@ get_plot_scores_by_date <- function(scores,
     theme(
       plot.margin = margin(5.5, 5.5, 5.5, 40, "pt") # Increase left margin
     )
-
-  # theme(axis.text.x = element_blank())
   return(p)
 }
 
@@ -276,7 +268,7 @@ get_plot_coverage_overall <- function(coverage,
     ) |>
     mutate(
       interval_label = paste0(interval_range, "%"),
-      interval_label = factor(interval_label, levels = c("95%", "50%")),
+      interval_label = factor(interval_label, levels = c("95%", "50%"))
     )
 
 
