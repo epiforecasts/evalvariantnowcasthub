@@ -125,23 +125,5 @@ compute_coverage_25A <- function(df_prepared, locs, nowcast_dates,
     interval_range %in% c(intervals)
   )
 
-  coverage_summarised <- coverage |>
-    group_by(model_id, location, interval_range) |>
-    summarise(empirical_coverage = sum(interval_coverage) / n()) |>
-    pivot_wider(
-      names_from = interval_range,
-      values_from = empirical_coverage
-    ) |>
-    mutate(`95` = `95` - `50`) |>
-    pivot_longer(
-      cols = c(`50`, `95`),
-      names_to = "interval_range",
-      values_to = "empirical_coverage"
-    ) |>
-    mutate(
-      interval_label = paste0(interval_range, "%"),
-      interval_range = factor(interval_range, levels = c("95", "50"))
-    )
-
-  return(coverage_summarised)
+  return(coverage)
 }

@@ -53,12 +53,8 @@ get_plot_model_preds_mult <- function(model_preds_mult_nowcasts,
     geom_point(
       data = daily_obs,
       aes(x = date, y = sequences / n_seq),
-      color = "#CAB2D6"
-    ) +
-    geom_line(
-      data = daily_obs,
-      aes(x = date, y = sequences / n_seq),
-      color = "#CAB2D6"
+      color = "#CAB2D6",
+      size = 0.8
     ) +
     facet_grid(vars(model_id), vars(location)) +
     get_plot_theme(dates = TRUE) +
@@ -153,13 +149,9 @@ get_plot_scores_by_date <- function(scores,
     ) +
     xlab("") +
     guides(
-      color = guide_legend(
-        title.position = "top",
-        title.hjust = 0.5,
-        nrow = 1
-      )
+      color = "none"
     ) +
-    ylab("Average energy score") +
+    ylab("Average\nenergy score") +
     scale_x_date(
       limits = date_range,
       date_breaks = "1 week",
@@ -238,56 +230,62 @@ get_plot_bias_by_date <- function(bias_data,
 #'
 #' @param coverage_data Data.frame of coverage scores with interval_range
 #' @param locs Vector of character strings of locations
-#' @param nowcast_dates Set of nowcast dates to include
 #' @param date_range Range of dates to plot (not used but kept for compatibility)
 #'
 #' @returns ggplot
 #' @autoglobal
-get_plot_coverage_by_date <- function(coverage_data,
-                                      locs,
-                                      nowcast_dates,
-                                      date_range) {
+get_plot_coverage_overall <- function(coverage,
+                                      locs) {
   # Filter and summarize coverage across nowcast dates
-  coverage_summary <- coverage_data |>
-    filter(
-      location %in% locs,
-      nowcast_date %in% nowcast_dates
+  coverage_summary <- coverage |>
+    group_by(model_id, location, interval_range) |>
+    summarise(empirical_coverage = sum(interval_coverage) / n()) |>
+    pivot_wider(
+      names_from = interval_range,
+      values_from = empirical_coverage
     ) |>
-    group_by(model, location, interval_range, interval_label, nominal_coverage) |>
-    summarise(
-      mean_coverage = mean(coverage, na.rm = TRUE),
-      .groups = "drop"
+    mutate(`95` = `95` - `50`) |>
+    pivot_longer(
+      cols = c(`50`, `95`),
+      names_to = "interval_range",
+      values_to = "empirical_coverage"
+    ) |>
+    mutate(
+      interval_label = paste0(interval_range, "%"),
+      interval_label = factor(interval_label, levels = c("95%", "50%")),
     )
+  
 
   plot_comps <- plot_components()
 
   p <- ggplot(coverage_summary) +
     # Add horizontal reference lines for nominal coverage
-    geom_hline(yintercept = 0.5, linetype = "dashed", color = "gray50", alpha = 0.7) +
-    geom_hline(yintercept = 0.95, linetype = "dotted", color = "gray50", alpha = 0.7) +
     # Create stacked bar chart
     geom_bar(
-      aes(x = model, y = mean_coverage, fill = interval_label),
+      aes(x = model_id, y = empirical_coverage, fill = model_id,
+          alpha = interval_label),
       stat = "identity",
-      position = "dodge",
+      position = "stack",
       width = 0.7
     ) +
+    geom_hline(yintercept = 0.5, linetype = "dashed") +
+    geom_hline(yintercept = 0.95, linetype = "dashed") +
     facet_wrap(~location, ncol = 3) +
     get_plot_theme(dates = FALSE) +
+    theme(axis.text.x = element_blank())+
     scale_fill_manual(
-      name = "Prediction interval",
-      values = c("50%" = "#CAB2D6", "95%" = "#A6CEE3"),
-      labels = c("50%" = "50%", "95%" = "95%")
+      name = "Model",
+      values = plot_comps$model_colors
+    ) +
+    scale_alpha_manual(
+      name = "Interval coverage",
+      values = plot_comps$pred_int_alpha
     ) +
     guides(
-      fill = guide_legend(
-        title.position = "top",
-        title.hjust = 0.5,
-        nrow = 1
-      )
+      fill = "none"
     ) +
     xlab("Model") +
-    ylab("Mean prediction interval coverage") +
+    ylab("Empirical\ncoverage") +
     scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2)) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
