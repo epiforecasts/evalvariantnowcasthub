@@ -67,7 +67,6 @@ fig_zoom_25A_targets <- list(
     command = get_fig_zoom_25A(
       grid = plot_model_preds_mult_nowcasts,
       scores = plot_score_underlay,
-      bias = plot_bias_by_date,
       coverage = plot_coverage_overall,
       plot_name = "fig_zoom_25A"
     )

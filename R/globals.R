@@ -58,10 +58,6 @@ utils::globalVariables(c(
   "location", # <compute_coverage_25A>
   "nowcast_date", # <compute_coverage_25A>
   "interval_range", # <compute_coverage_25A>
-  "model_id", # <compute_coverage_25A>
-  "empirical_coverage", # <compute_coverage_25A>
-  "95", # <compute_coverage_25A>
-  "50", # <compute_coverage_25A>
   "location", # <extract_nowcasts>
   "nowcast_date", # <extract_nowcasts>
   "location", # <get_oracle_output>
@@ -142,13 +138,12 @@ utils::globalVariables(c(
   "model", # <get_plot_bias_by_date>
   "bias", # <get_plot_bias_by_date>
   "avg_bias", # <get_plot_bias_by_date>
-  "location", # <get_plot_coverage_by_date>
-  "nowcast_date", # <get_plot_coverage_by_date>
-  "model", # <get_plot_coverage_by_date>
-  "interval_range", # <get_plot_coverage_by_date>
-  "interval_label", # <get_plot_coverage_by_date>
-  "nominal_coverage", # <get_plot_coverage_by_date>
-  "coverage", # <get_plot_coverage_by_date>
-  "mean_coverage", # <get_plot_coverage_by_date>
+  "model_id", # <get_plot_coverage_overall>
+  "location", # <get_plot_coverage_overall>
+  "interval_range", # <get_plot_coverage_overall>
+  "empirical_coverage", # <get_plot_coverage_overall>
+  "95", # <get_plot_coverage_overall>
+  "50", # <get_plot_coverage_overall>
+  "interval_label", # <get_plot_coverage_overall>
   NULL
 ))

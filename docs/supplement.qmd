@@ -27,7 +27,7 @@ output:
 
 ## Model nowcasts
 
-![Fig. S6 Model nowcasts compared for the CADPH-CATaLog model from February 19th, 2025.](../output/figs/nowcasts/supp/fig_model_nowcasts_CADPH.png)
+![Fig. S6 Model nowcasts for the CADPH-CATaLog model from February 19th, 2025.](../output/figs/nowcasts/supp/fig_model_nowcasts_CADPH.png)
 
 ## Submission metadata
 
@@ -37,4 +37,8 @@ output:
 
 ![Fig. S9 Evaluation sequence counts by location and nowcast date. Color indicates the total number of sequences available in the evaluation data (log scale) for each location and nowcast date combination. Gray tiles indicate nowcast date-location pairs with no sequences across all horizons.](../output/figs/metadata/supp/eval_sequence_counts_heatmap.png)
 
-![Fig. S10 Absolute Brier (top) and energy (bottom) in the U.S. excluding California (left) and California (right)](../output/figs/overall_scores/supp/absolute_scores_by_horizon.png)
+## Additional results
+
+![Fig. S10 Absolute Brier (top) and energy (bottom) in the U.S. excluding California (left) and California (right).](../output/figs/overall_scores/supp/absolute_scores_by_horizon.png)
+
+![Fig. S11 Bias over time for three example states in the US during the 25A emergence.](../output/figs/zoom_25A/supp/bias_over_time_25A.png)

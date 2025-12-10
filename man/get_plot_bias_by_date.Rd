@@ -4,7 +4,14 @@
 \alias{get_plot_bias_by_date}
 \title{Get a plot of bias by nowcast date for locations and models}
 \usage{
-get_plot_bias_by_date(bias_data, locs, nowcast_dates, date_range)
+get_plot_bias_by_date(
+  bias_data,
+  locs,
+  nowcast_dates,
+  date_range,
+  plot_name = "bias_over_time_25A",
+  output_fp = file.path("output", "figs", "zoom_25A", "supp")
+)
 }
 \arguments{
 \item{bias_data}{Data.frame of bias scores}
