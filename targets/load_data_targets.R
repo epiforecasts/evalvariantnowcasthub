@@ -108,9 +108,9 @@ load_data_targets <- list(
       bucket_name = nowcast_bucket_name
     )
   ),
-  # All model outputs for heatmap (all dates and locations)
+  # All model outputs
   tar_target(
-    name = all_model_outputs_for_heatmap,
+    name = all_model_outputs,
     command = extract_nowcasts(
       nowcast_dates = nowcast_dates,
       states = location_data$abbreviation,

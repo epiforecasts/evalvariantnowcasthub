@@ -43,6 +43,17 @@ clean_data_targets <- list(
     )
   ),
   tar_target(
+    name = clean_variant_data_for_eval_all_nowcasts,
+    command = get_clean_variant_data(
+      variant_data_eval_all,
+      clade_list,
+      location_data,
+      nowcast_dates,
+      seq_col_name = "oracle_value",
+      type = "evaluation"
+    )
+  ),
+  tar_target(
     name = clean_variant_data_eval_all,
     command = get_clean_variant_data(
       variant_data_eval_all,

@@ -3,7 +3,7 @@ fig_submission_heatmaps_targets <- list(
   tar_target(
     name = submission_presence_data,
     command = prepare_submission_data(
-      all_model_outputs_for_heatmap,
+      all_model_outputs,
       location_data,
       nowcast_dates
     )
