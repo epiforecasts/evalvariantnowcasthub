@@ -20,7 +20,7 @@ fig_zoom_25A_targets <- list(
     )
   ),
   tar_target(
-    name = bias_25A_prepared,
+    name = forecast_obj_25A_prepared,
     command = prepare_data_for_scoring_25A(
       df_mult_nowcasts = df_mult_nowcasts,
       clade = "25A",
@@ -30,7 +30,7 @@ fig_zoom_25A_targets <- list(
   tar_target(
     name = bias_25A_scores,
     command = compute_bias_25A(
-      df_prepared = bias_25A_prepared,
+      df_prepared = forecast_obj_25A_prepared,
       locs = states_for_vis,
       nowcast_dates = nowcast_date_range_to_zoom
     )
@@ -50,7 +50,7 @@ fig_zoom_25A_targets <- list(
   tar_target(
     name = coverage_25A_scores,
     command = compute_coverage_25A(
-      df_prepared = bias_25A_prepared,
+      df_prepared = forecast_obj_25A_prepared,
       locs = states_for_vis,
       nowcast_dates = nowcast_date_range_to_zoom
     )
