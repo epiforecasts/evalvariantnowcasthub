@@ -114,6 +114,10 @@ plot_components <- function() {
     "as of nowcast date" = "solid",
     "evaluation" = "dashed"
   )
+  pred_int_alpha = c(
+    "50%" = 1,
+    "95%" = 0.5
+  )
   # nolint end
 
   plot_comp_list <-
@@ -122,7 +126,8 @@ plot_components <- function() {
       clade_colors = clade_colors,
       percentile_colors = percentile_colors,
       data_availability_alpha = data_availability_alpha,
-      data_availability_linetype = data_availability_linetype
+      data_availability_linetype = data_availability_linetype,
+      pred_int_alpha = pred_int_alpha
     )
   return(plot_comp_list)
 }

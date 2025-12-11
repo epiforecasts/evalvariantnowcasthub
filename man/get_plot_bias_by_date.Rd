@@ -4,7 +4,14 @@
 \alias{get_plot_bias_by_date}
 \title{Get a plot of bias by nowcast date for locations and models}
 \usage{
-get_plot_bias_by_date(bias_data, locs, nowcast_dates, date_range)
+get_plot_bias_by_date(
+  bias_data,
+  locs,
+  nowcast_dates,
+  date_range,
+  plot_name = "bias_over_time_25A",
+  output_fp = file.path("output", "figs", "zoom_25A", "supp")
+)
 }
 \arguments{
 \item{bias_data}{Data.frame of bias scores}
@@ -14,6 +21,10 @@ get_plot_bias_by_date(bias_data, locs, nowcast_dates, date_range)
 \item{nowcast_dates}{Set of nowcast dates to include}
 
 \item{date_range}{Range of dates to plot}
+
+\item{plot_name}{name of plot}
+
+\item{output_fp}{filepath directory}
 }
 \value{
 ggplot

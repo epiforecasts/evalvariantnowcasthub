@@ -7,7 +7,7 @@
 get_fig_zoom_25A(
   grid,
   scores,
-  bias,
+  coverage,
   plot_name,
   output_fp = file.path("output", "figs", "zoom_25A", "final")
 )
@@ -17,7 +17,7 @@ get_fig_zoom_25A(
 
 \item{scores}{Energy scores plot}
 
-\item{bias}{Bias scores plot}
+\item{coverage}{Prediction interval coverage plot}
 
 \item{plot_name}{name of plot}
 

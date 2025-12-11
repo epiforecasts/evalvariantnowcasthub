@@ -16,12 +16,13 @@ get_plot_model_preds_mult <- function(model_preds_mult_nowcasts,
     mutate(horizon = as.integer(target_date - nowcast_date)) |>
     filter(horizon <= max(horizon_to_plot), horizon >= min(horizon_to_plot))
 
-  weekly_obs_data <- daily_to_weekly(final_eval_data) |>
+  # Use daily observations instead of weekly
+  daily_obs_data <- final_eval_data |>
     filter(location %in% unique(df_filt$location))
-  total_seq <- weekly_obs_data |>
+  total_seq <- daily_obs_data |>
     group_by(date, location) |>
     summarise(n_seq = sum(sequences))
-  weekly_obs <- left_join(weekly_obs_data, total_seq) |>
+  daily_obs <- left_join(daily_obs_data, total_seq) |>
     filter(clades_modeled == clade_to_zoom)
 
   plot_comps <- plot_components()
@@ -38,7 +39,8 @@ get_plot_model_preds_mult <- function(model_preds_mult_nowcasts,
         ymax = q_0.75, fill = model_id,
         group = nowcast_date
       ),
-      alpha = 0.2
+      alpha = 0.2,
+      show.legend = FALSE
     ) +
     geom_ribbon(
       aes(
@@ -47,33 +49,37 @@ get_plot_model_preds_mult <- function(model_preds_mult_nowcasts,
         ymax = q_0.975, fill = model_id,
         group = nowcast_date
       ),
-      alpha = 0.1
+      alpha = 0.1,
+      show.legend = FALSE
     ) +
     geom_point(
-      data = weekly_obs,
-      aes(x = date, y = sequences / n_seq),
-      color = "#CAB2D6"
-    ) +
-    geom_line(
-      data = weekly_obs,
-      aes(x = date, y = sequences / n_seq),
-      color = "#CAB2D6"
+      data = daily_obs,
+      aes(x = date, y = sequences / n_seq, fill = "25A"),
+      color = "#CAB2D6",
+      shape = 21,
+      size = 0.8
     ) +
     facet_grid(vars(model_id), vars(location)) +
+    coord_cartesian(ylim = c(0, 1)) +
     get_plot_theme(dates = TRUE) +
     scale_color_manual(
       name = "Model",
       values = plot_comps$model_colors
     ) +
     scale_fill_manual(
-      name = "Model",
-      values = plot_comps$model_colors
+      name = "Clade",
+      values = c(plot_comps$model_colors, "25A" = "#CAB2D6"),
+      breaks = "25A"
     ) +
     xlab("") +
     ylab("Model predictions across nowcast dates") +
     guides(
       color = "none",
-      fill = "none"
+      fill = guide_legend(
+        title.position = "top",
+        title.hjust = 0.5,
+        nrow = 1
+      )
     ) +
     scale_x_date(
       limits = c(min(df_filt$target_date), max(df_filt$target_date)),
@@ -81,7 +87,9 @@ get_plot_model_preds_mult <- function(model_preds_mult_nowcasts,
       date_labels = "%d %b %Y"
     ) +
     ggtitle("25A emergence") +
-    theme(axis.text.x = element_blank())
+    theme(
+      plot.margin = margin(5.5, 5.5, 5.5, 40, "pt") # Increase left margin
+    )
 
   return(p)
 }
@@ -136,7 +144,7 @@ get_plot_scores_by_date <- function(scores,
       aes(yintercept = energy_score, color = model),
       linetype = "dashed"
     ) +
-    facet_wrap(~location, scales = "free_y") +
+    facet_wrap(~location, ncol = 3, scales = "free_y") +
     get_plot_theme(dates = TRUE) +
     scale_color_manual(
       name = "Model",
@@ -144,19 +152,17 @@ get_plot_scores_by_date <- function(scores,
     ) +
     xlab("") +
     guides(
-      color = guide_legend(
-        title.position = "top",
-        title.hjust = 0.5,
-        nrow = 1
-      )
+      color = "none"
     ) +
-    ylab("Average energy score") +
+    ylab("Average\nenergy score") +
     scale_x_date(
       limits = date_range,
       date_breaks = "1 week",
       date_labels = "%d %b %Y"
     ) +
-    theme(axis.text.x = element_blank())
+    theme(
+      plot.margin = margin(5.5, 5.5, 5.5, 40, "pt") # Increase left margin
+    )
   return(p)
 }
 
@@ -166,13 +172,20 @@ get_plot_scores_by_date <- function(scores,
 #' @param locs Vector of character strings of locations
 #' @param nowcast_dates Set of nowcast dates to include
 #' @param date_range Range of dates to plot
+#' @param plot_name name of plot
+#' @param output_fp filepath directory
 #'
 #' @returns ggplot
 #' @autoglobal
 get_plot_bias_by_date <- function(bias_data,
                                   locs,
                                   nowcast_dates,
-                                  date_range) {
+                                  date_range,
+                                  plot_name = "bias_over_time_25A",
+                                  output_fp = file.path(
+                                    "output", "figs",
+                                    "zoom_25A", "supp"
+                                  )) {
   # Calculate average bias across all nowcast dates for reference lines
   bias_avg <- filter(
     bias_data,
@@ -207,7 +220,8 @@ get_plot_bias_by_date <- function(bias_data,
       x = nowcast_date, y = bias,
       color = model
     )) +
-    facet_wrap(~location) +
+    facet_wrap(~location, ncol = 3) +
+    coord_cartesian(ylim = c(-1, 1)) +
     get_plot_theme(dates = TRUE) +
     scale_color_manual(
       name = "Model",
@@ -221,6 +235,82 @@ get_plot_bias_by_date <- function(bias_data,
       date_breaks = "1 week",
       date_labels = "%d %b %Y"
     )
+  dir_create(output_fp, recurse = TRUE)
+  ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
+    plot = p,
+    width = 8,
+    height = 6
+  )
+
+  return(p)
+}
+
+#' Get a plot of prediction interval coverage summarized across nowcast dates
+#'
+#' @param coverage Data.frame of coverage scores with interval_range
+#' @param locs Vector of character strings of locations
+#'
+#' @returns ggplot
+#' @autoglobal
+get_plot_coverage_overall <- function(coverage,
+                                      locs) {
+  # Filter and summarize coverage across nowcast dates
+  coverage_summary <- coverage |>
+    group_by(model_id, location, interval_range) |>
+    summarise(empirical_coverage = sum(interval_coverage) / n()) |>
+    pivot_wider(
+      names_from = interval_range,
+      values_from = empirical_coverage
+    ) |>
+    mutate(`95` = `95` - `50`) |>
+    pivot_longer(
+      cols = c(`50`, `95`),
+      names_to = "interval_range",
+      values_to = "empirical_coverage"
+    ) |>
+    mutate(
+      interval_label = paste0(interval_range, "%"),
+      interval_label = factor(interval_label, levels = c("95%", "50%"))
+    )
+
+
+  plot_comps <- plot_components()
+
+  p <- ggplot(coverage_summary) +
+    # Add horizontal reference lines for nominal coverage
+    # Create stacked bar chart
+    geom_bar(
+      aes(
+        x = model_id, y = empirical_coverage, fill = model_id,
+        alpha = interval_label
+      ),
+      stat = "identity",
+      position = "stack",
+      width = 0.7
+    ) +
+    geom_hline(yintercept = 0.5, linetype = "dashed") +
+    geom_hline(yintercept = 0.95, linetype = "dashed") +
+    facet_wrap(~location, ncol = 3) +
+    get_plot_theme(dates = FALSE) +
+    theme(axis.text.x = element_blank()) +
+    scale_fill_manual(
+      name = "Model",
+      values = plot_comps$model_colors
+    ) +
+    scale_alpha_manual(
+      name = "Interval coverage",
+      values = plot_comps$pred_int_alpha
+    ) +
+    guides(
+      fill = guide_legend(
+        title.position = "top",
+        title.hjust = 0.5,
+        nrow = 3
+      )
+    ) +
+    xlab("Model") +
+    ylab("Empirical\ncoverage") +
+    scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2))
 
   return(p)
 }
@@ -229,7 +319,7 @@ get_plot_bias_by_date <- function(bias_data,
 #'
 #' @param grid Model predictions plot
 #' @param scores Energy scores plot
-#' @param bias Bias scores plot
+#' @param coverage Prediction interval coverage plot
 #' @param plot_name name of plot
 #' @param output_fp filepath directory
 #'
@@ -237,7 +327,7 @@ get_plot_bias_by_date <- function(bias_data,
 #' @autoglobal
 get_fig_zoom_25A <- function(grid,
                              scores,
-                             bias,
+                             coverage,
                              plot_name,
                              output_fp = file.path(
                                "output", "figs",
@@ -253,10 +343,10 @@ get_fig_zoom_25A <- function(grid,
 
   fig_zoom <- grid +
     scores +
-    bias +
+    coverage +
     plot_layout(
       design = fig_layout,
-      axes = "collect",
+      axes = "collect_x",
       guides = "collect"
     ) +
     plot_annotation(
