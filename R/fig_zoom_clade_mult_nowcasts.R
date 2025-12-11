@@ -308,10 +308,6 @@ get_plot_coverage_overall <- function(coverage,
         nrow = 3
       )
     ) +
-    scale_fill_manual(
-      name = "Model",
-      values = plot_comps$model_colors
-    ) +
     xlab("Model") +
     ylab("Empirical\ncoverage") +
     scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2))

@@ -12,6 +12,9 @@ compute_coverage(df_prepared, locs, nowcast_dates, intervals = c(50, 95))
 \item{locs}{Vector of location codes to include}
 
 \item{nowcast_dates}{Vector of nowcast dates to include}
+
+\item{intervals}{Numeric vector of interval ranges to include
+(default: c(50, 95)}
 }
 \value{
 Data frame with coverage for 50\% and 95\% intervals by model,

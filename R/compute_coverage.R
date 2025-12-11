@@ -3,6 +3,8 @@
 #' @param df_prepared Prepared data in long format
 #' @param locs Vector of location codes to include
 #' @param nowcast_dates Vector of nowcast dates to include
+#' @param intervals Numeric vector of interval ranges to include
+#'   (default: c(50, 95)
 #'
 #' @returns Data frame with coverage for 50% and 95% intervals by model,
 #'   location, and nowcast_date
