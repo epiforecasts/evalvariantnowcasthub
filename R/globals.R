@@ -58,6 +58,10 @@ utils::globalVariables(c(
   "location", # <compute_coverage>
   "nowcast_date", # <compute_coverage>
   "interval_range", # <compute_coverage>
+  "model_id", # <compute_coverage>
+  "clade", # <compute_coverage>
+  "interval_coverage", # <compute_coverage>
+  "target_date", # <compute_coverage>
   "location", # <extract_nowcasts>
   "nowcast_date", # <extract_nowcasts>
   "location", # <get_oracle_output>
