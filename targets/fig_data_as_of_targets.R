@@ -99,5 +99,69 @@ fig_data_as_of_targets <- list(
       eval_freq2 = plot_eval_freq_ex1,
       plot_name = "data_as_of"
     )
+  ),
+  # All US versions (no CA split)
+  tar_target(
+    name = plot_seq_counts_as_of_all_us,
+    command = get_bar_chart_seq_count(
+      obs_data = clean_variant_data_as_of_nowcast_date,
+      location = "US",
+      date_range = date_range_as_of,
+      temporal_granularity = "weeks",
+      plot_name = "bar_chart_seq_as_of_all_us",
+      log_scale = FALSE,
+      nowcast_date_line = TRUE,
+      remove_xticks = TRUE,
+      title = "US"
+    )
+  ),
+  tar_target(
+    name = plot_eval_seq_counts_all_us,
+    command = get_bar_chart_comparison(
+      obs_data = clean_variant_data_as_of_nowcast_date,
+      final_data = clean_variant_data_final_all_states,
+      location = "US",
+      temporal_granularity = "weeks",
+      date_range = date_range_as_of,
+      log_scale = FALSE
+    )
+  ),
+  tar_target(
+    name = plot_eval_freq_all_us,
+    command = get_plot_freq_as_of_vs_eval(
+      obs_data = clean_variant_data_as_of_nowcast_date,
+      final_data = clean_variant_data_final_all_states,
+      date_range = date_range_as_of,
+      location = "US",
+      temporal_granularity = "weeks",
+      clades_to_plot = clades_to_plot
+    )
+  ),
+  tar_target(
+    name = data_fig_all_us_vertical,
+    command = get_data_fig_all_us(
+      seq_counts_as_of = plot_seq_counts_as_of_all_us,
+      seq_counts_eval = plot_eval_seq_counts_all_us,
+      eval_freq = plot_eval_freq_all_us,
+      plot_name = "data_as_of_all_us_vertical"
+    )
+  ),
+  tar_target(
+    name = data_fig_all_us_horizontal,
+    command = get_data_fig_all_us_horizontal(
+      seq_counts_as_of = plot_seq_counts_as_of_all_us,
+      seq_counts_eval = plot_eval_seq_counts_all_us,
+      eval_freq = plot_eval_freq_all_us,
+      plot_name = "data_as_of_all_us_horizontal"
+    )
+  ),
+  tar_target(
+    name = data_fig_all_us_triangular,
+    command = get_data_fig_all_us_triangular(
+      seq_counts_as_of = plot_seq_counts_as_of_all_us,
+      seq_counts_eval = plot_eval_seq_counts_all_us,
+      eval_freq = plot_eval_freq_all_us,
+      plot_name = "data_as_of_all_us_triangular"
+    )
   )
 )
