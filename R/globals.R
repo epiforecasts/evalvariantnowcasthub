@@ -45,19 +45,19 @@ utils::globalVariables(c(
   "clades_modeled", # <get_clean_variant_data_ns>
   "location_code", # <get_clean_variant_data_ns>
   "sequences", # <get_clean_variant_data_ns>
-  "target_date", # <prepare_data_for_scoring_25A>
-  "nowcast_date", # <prepare_data_for_scoring_25A>
-  "horizon", # <prepare_data_for_scoring_25A>
-  "quantile_level", # <prepare_data_for_scoring_25A>
-  "sequences", # <prepare_data_for_scoring_25A>
-  "n_seq", # <prepare_data_for_scoring_25A>
-  "location", # <compute_bias_25A>
-  "nowcast_date", # <compute_bias_25A>
-  "model_id", # <compute_bias_25A>
-  "bias", # <compute_bias_25A>
-  "location", # <compute_coverage_25A>
-  "nowcast_date", # <compute_coverage_25A>
-  "interval_range", # <compute_coverage_25A>
+  "target_date", # <prepare_data_for_scoring>
+  "nowcast_date", # <prepare_data_for_scoring>
+  "horizon", # <prepare_data_for_scoring>
+  "quantile_level", # <prepare_data_for_scoring>
+  "sequences", # <prepare_data_for_scoring>
+  "n_seq", # <prepare_data_for_scoring>
+  "location", # <compute_bias>
+  "nowcast_date", # <compute_bias>
+  "model_id", # <compute_bias>
+  "bias", # <compute_bias>
+  "location", # <compute_coverage>
+  "nowcast_date", # <compute_coverage>
+  "interval_range", # <compute_coverage>
   "location", # <extract_nowcasts>
   "nowcast_date", # <extract_nowcasts>
   "location", # <get_oracle_output>
@@ -141,6 +141,7 @@ utils::globalVariables(c(
   "model_id", # <get_plot_coverage_overall>
   "location", # <get_plot_coverage_overall>
   "interval_range", # <get_plot_coverage_overall>
+  "interval_coverage", # <get_plot_coverage_overall>
   "empirical_coverage", # <get_plot_coverage_overall>
   "95", # <get_plot_coverage_overall>
   "50", # <get_plot_coverage_overall>

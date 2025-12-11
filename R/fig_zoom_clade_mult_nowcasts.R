@@ -172,6 +172,8 @@ get_plot_scores_by_date <- function(scores,
 #' @param locs Vector of character strings of locations
 #' @param nowcast_dates Set of nowcast dates to include
 #' @param date_range Range of dates to plot
+#' @param plot_name name of plot
+#' @param output_fp filepath directory
 #'
 #' @returns ggplot
 #' @autoglobal
@@ -245,7 +247,7 @@ get_plot_bias_by_date <- function(bias_data,
 
 #' Get a plot of prediction interval coverage summarized across nowcast dates
 #'
-#' @param coverage_data Data.frame of coverage scores with interval_range
+#' @param coverage Data.frame of coverage scores with interval_range
 #' @param locs Vector of character strings of locations
 #'
 #' @returns ggplot

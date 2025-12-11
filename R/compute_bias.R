@@ -8,9 +8,9 @@
 #' @importFrom dplyr filter mutate
 #' @importFrom tidyr pivot_longer
 #' @autoglobal
-prepare_data_for_scoring_25A <- function(df_mult_nowcasts,
-                                         clade = "25A",
-                                         horizon_range = c(-31, 10)) {
+prepare_data_for_scoring <- function(df_mult_nowcasts,
+                                     clade = "25A",
+                                     horizon_range = c(-31, 10)) {
   # Filter for specified clade and horizon range
   df_filtered <- df_mult_nowcasts |>
     filter(clade == !!clade) |>
@@ -45,7 +45,7 @@ prepare_data_for_scoring_25A <- function(df_mult_nowcasts,
 #' @importFrom dplyr filter group_by summarise
 #' @importFrom scoringutils as_forecast_quantile score bias_quantile
 #' @autoglobal
-compute_bias_25A <- function(df_prepared, locs, nowcast_dates) {
+compute_bias <- function(df_prepared, locs, nowcast_dates) {
   # Filter to specific locations and nowcast dates
   df_to_score <- filter(
     df_prepared,
@@ -80,50 +80,4 @@ compute_bias_25A <- function(df_prepared, locs, nowcast_dates) {
     )
 
   return(bias_summary)
-}
-
-#' Compute prediction interval coverage using scoringutils
-#'
-#' @param df_prepared Prepared data in long format
-#' @param locs Vector of location codes to include
-#' @param nowcast_dates Vector of nowcast dates to include
-#'
-#' @returns Data frame with coverage for 50% and 95% intervals by model,
-#'   location, and nowcast_date
-#' @importFrom dplyr filter group_by summarise mutate
-#' @importFrom scoringutils as_forecast_quantile score interval_coverage
-#' @autoglobal
-compute_coverage_25A <- function(df_prepared, locs, nowcast_dates,
-                                 intervals = c(50, 95)) {
-  # Filter to specific locations and nowcast dates
-  df_to_score <- filter(
-    df_prepared,
-    location %in% locs,
-    nowcast_date %in% nowcast_dates
-  )
-
-  # Convert to scoringutils forecast object
-  forecast_obj <- scoringutils::as_forecast_quantile(
-    df_to_score,
-    forecast_unit = c(
-      "model_id", "location", "nowcast_date",
-      "target_date", "clade"
-    ),
-    observed = "observed",
-    predicted = "predicted",
-    quantile_level = "quantile_level"
-  )
-  all_coverage <- scoringutils::get_coverage(
-    forecast_obj,
-    by = c(
-      "location", "nowcast_date", "target_date",
-      "model_id", "clade"
-    )
-  )
-  coverage <- filter(
-    all_coverage,
-    interval_range %in% c(intervals)
-  )
-
-  return(coverage)
 }

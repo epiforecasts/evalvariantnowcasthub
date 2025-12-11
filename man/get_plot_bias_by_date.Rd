@@ -21,6 +21,10 @@ get_plot_bias_by_date(
 \item{nowcast_dates}{Set of nowcast dates to include}
 
 \item{date_range}{Range of dates to plot}
+
+\item{plot_name}{name of plot}
+
+\item{output_fp}{filepath directory}
 }
 \value{
 ggplot

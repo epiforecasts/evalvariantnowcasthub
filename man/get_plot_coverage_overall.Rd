@@ -7,9 +7,9 @@
 get_plot_coverage_overall(coverage, locs)
 }
 \arguments{
-\item{locs}{Vector of character strings of locations}
+\item{coverage}{Data.frame of coverage scores with interval_range}
 
-\item{coverage_data}{Data.frame of coverage scores with interval_range}
+\item{locs}{Vector of character strings of locations}
 }
 \value{
 ggplot
