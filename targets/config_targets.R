@@ -34,10 +34,14 @@ config_targets <- list(
     name = location_fp,
     command = "https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/refs/heads/main/auxiliary-data/locations.csv" # nolint
   ),
-  # To be updated
   tar_target(
     name = scores_fp,
     command = "https://raw.githubusercontent.com/reichlab/variant-nowcast-hub/refs/heads/main/auxiliary-data/scores/scores.tsv" # nolint
+  ),
+  # Will be updated when merged to main
+  tar_target(
+    name = coverage_fp,
+    command = "https://github.com/reichlab/variant-nowcast-hub/raw/refs/heads/883-add-coverage/auxiliary-data/coverage/coverage.parquet" # nolint
   ),
   # Url to load in the raw data on number of sequences by clade for all clades
   tar_target(
