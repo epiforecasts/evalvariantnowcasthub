@@ -49,6 +49,15 @@ fig_zoom_25A_targets <- list(
   ),
   tar_target(
     name = coverage_25A_scores,
+    command = coverage |>
+      filter(
+        location %in% states_for_vis,
+        nowcast_date %in% nowcast_date_range_to_zoom,
+        clade == "25A"
+      )
+  ),
+  tar_target(
+    name = coverage_25A_scores,
     command = compute_coverage(
       df_prepared = forecast_obj_25A_prepared,
       locs = states_for_vis,
