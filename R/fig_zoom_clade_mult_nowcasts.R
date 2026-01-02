@@ -246,31 +246,34 @@ get_plot_bias_by_date <- function(bias_data,
 }
 
 #' Get a plot of prediction interval coverage summarized across nowcast dates
+#'   for each location
 #'
 #' @param coverage Data.frame of coverage scores with interval_range
-#' @param locs Vector of character strings of locations
 #'
 #' @returns ggplot
 #' @autoglobal
-get_plot_coverage_overall <- function(coverage,
-                                      locs) {
+get_plot_coverage_by_loc <- function(coverage) {
   # Filter and summarize coverage across nowcast dates
   coverage_summary <- coverage |>
     group_by(model_id, location, interval_range) |>
-    summarise(empirical_coverage = sum(interval_coverage) / n()) |>
+    summarise(
+      empirical_coverage =
+        sum(interval_coverage * n_final_seq) / sum(n_final_seq)
+    ) |>
+    # summarise(empirical_coverage = sum(interval_coverage) / n()) |>
     pivot_wider(
       names_from = interval_range,
       values_from = empirical_coverage
     ) |>
-    mutate(`95` = `95` - `50`) |>
+    mutate(`90` = `90` - `50`) |>
     pivot_longer(
-      cols = c(`50`, `95`),
+      cols = c(`50`, `90`),
       names_to = "interval_range",
       values_to = "empirical_coverage"
     ) |>
     mutate(
       interval_label = paste0(interval_range, "%"),
-      interval_label = factor(interval_label, levels = c("95%", "50%"))
+      interval_label = factor(interval_label, levels = c("90%", "50%"))
     )
 
 
