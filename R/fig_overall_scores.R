@@ -284,7 +284,7 @@ get_plot_coverage_overall <- function(coverage) {
     group_by(model_id, interval_range) |>
     summarise(
       empirical_coverage =
-        sum(interval_coverage * n_final_seq) / sum(n_final_seq)
+        sum(interval_coverage) / n()
     ) |>
     pivot_wider(
       names_from = interval_range,

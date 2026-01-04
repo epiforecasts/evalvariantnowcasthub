@@ -154,7 +154,7 @@ get_plot_scores_by_date <- function(scores,
     guides(
       color = "none"
     ) +
-    ylab("Average\nenergy score") +
+    ylab("Average energy\nscore across clades") +
     scale_x_date(
       limits = date_range,
       date_breaks = "1 week",
@@ -258,9 +258,8 @@ get_plot_coverage_by_loc <- function(coverage) {
     group_by(model_id, location, interval_range) |>
     summarise(
       empirical_coverage =
-        sum(interval_coverage * n_final_seq) / sum(n_final_seq)
+        sum(interval_coverage) / n()
     ) |>
-    # summarise(empirical_coverage = sum(interval_coverage) / n()) |>
     pivot_wider(
       names_from = interval_range,
       values_from = empirical_coverage
@@ -345,8 +344,8 @@ get_fig_zoom_25A <- function(grid,
   "
 
   fig_zoom <- grid +
-    scores +
     coverage +
+    scores +
     plot_layout(
       design = fig_layout,
       axes = "collect_x",
