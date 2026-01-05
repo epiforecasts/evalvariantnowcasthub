@@ -27,7 +27,7 @@ abbreviations}
 \item{output_fp}{File path to save plot}
 
 \item{data_fp}{Filepath to NSSP data at the state and national level.
-Originally obtained from: https://github.com/CDCgov/covid19-forecast-hub/blob/main/auxiliary-data/nssp-raw-data/latest.parquet #nolint}
+Originally obtained from: https://data.cdc.gov/Public-Health-Surveillance/NSSP-Emergency-Department-Visit-Trajectories-by-St/rdmq-nq56/about_data #nolint}
 
 \item{location}{Location to plot (abbreviation)}
 }
