@@ -226,7 +226,7 @@ get_plot_hosp_admissions <- function(location_to_plot,
   nssp_cdcgov <- read_csv(data_fp)
   raw_data <- nssp_cdcgov |>
     left_join(location_data,
-      by = c("geography" = "location_name")
+      by = c("geography" = "location_name") # nolint
     ) |>
     rename(date = week_end) |>
     filter(
