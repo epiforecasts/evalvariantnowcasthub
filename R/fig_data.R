@@ -198,7 +198,7 @@ get_bar_chart_seq_count <- function(obs_data,
   return(p)
 }
 
-#' Hospital admissions over time
+#' Percent of ED visits due to covid over time
 #'
 #' @param location Location to plot (abbreviation)
 #' @param date_range Vector of date range to plot, will use min and max
@@ -206,8 +206,9 @@ get_bar_chart_seq_count <- function(obs_data,
 #' @param location_data Data.frame of location metadata to translate codes to
 #'   abbreviations
 #' @param plot_name Name of plot
-#' @param output_fp File.path to save plot
-#' @param url URL for hospital admissions
+#' @param output_fp File path to save plot
+#' @param data_fp Filepath to NSSP data at the state and national level.
+#'  Originally obtained from: https://data.cdc.gov/Public-Health-Surveillance/NSSP-Emergency-Department-Visit-Trajectories-by-St/rdmq-nq56/about_data #nolint
 #'
 #' @returns ggplot object
 #' @autoglobal
@@ -220,37 +221,28 @@ get_plot_hosp_admissions <- function(location_to_plot,
                                        "output", "figs",
                                        "data_figs"
                                      ),
-                                     url = "https://raw.githubusercontent.com/CDCgov/covid19-forecast-hub/refs/heads/main/target-data/covid-hospital-admissions.csv") { # nolint
-  if (location_to_plot != "US minus CA") {
-    raw_data <- read_csv(url) |>
-      left_join(location_data, by = "location") |>
-      filter(
-        abbreviation == !!location_to_plot,
-        date >= min(date_range),
-        date <= max(date_range)
-      )
-  } else {
-    raw_data <- read_csv(url) |>
-      left_join(location_data, by = "location") |>
-      filter(
-        !abbreviation %in% c("US", "CA"),
-        date >= min(date_range),
-        date <= max(date_range)
-      ) |>
-      group_by(date) |>
-      summarise(value = sum(value, na.rm = TRUE))
-  }
+                                     data_fp = file.path("input", "nssp_states_and_national.csv")) { # nolint
 
-
+  nssp_cdcgov <- read_csv(data_fp)
+  raw_data <- nssp_cdcgov |>
+    left_join(location_data,
+      by = c("geography" = "location_name") # nolint
+    ) |>
+    rename(date = week_end) |>
+    filter(
+      abbreviation == !!location_to_plot,
+      date >= min(date_range),
+      date <= max(date_range)
+    )
 
   p <- ggplot(raw_data) +
-    geom_bar(aes(x = date, y = value),
+    geom_line(aes(x = date, y = percent_visits_covid),
       fill = "black",
       stat = "identity", position = "dodge"
     ) +
     get_plot_theme() +
     xlab("") +
-    ylab("Hospital admissions") +
+    ylab("Percent of ED visits\ndue to COVID") +
     # scale_y_continuous(transform = "log10")+
     scale_x_date(
       limits = c(min(date_range), max(date_range)),
@@ -263,7 +255,8 @@ get_plot_hosp_admissions <- function(location_to_plot,
         size = 10
       ),
       legend.position = "bottom"
-    )
+    ) +
+    ggtitle(glue::glue("{location_to_plot}"))
   dir_create(output_fp, recurse = TRUE)
   ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
     plot = p,

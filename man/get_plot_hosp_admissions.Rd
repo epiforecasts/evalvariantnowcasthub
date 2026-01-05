@@ -2,7 +2,7 @@
 % Please edit documentation in R/fig_data.R
 \name{get_plot_hosp_admissions}
 \alias{get_plot_hosp_admissions}
-\title{Hospital admissions over time}
+\title{Percent of ED visits due to covid over time}
 \usage{
 get_plot_hosp_admissions(
   location_to_plot,
@@ -11,8 +11,7 @@ get_plot_hosp_admissions(
   location_data,
   plot_name,
   output_fp = file.path("output", "figs", "data_figs"),
-  url =
-    "https://raw.githubusercontent.com/CDCgov/covid19-forecast-hub/refs/heads/main/target-data/covid-hospital-admissions.csv"
+  data_fp = file.path("input", "nssp_states_and_national.csv")
 )
 }
 \arguments{
@@ -25,9 +24,10 @@ abbreviations}
 
 \item{plot_name}{Name of plot}
 
-\item{output_fp}{File.path to save plot}
+\item{output_fp}{File path to save plot}
 
-\item{url}{URL for hospital admissions}
+\item{data_fp}{Filepath to NSSP data at the state and national level.
+Originally obtained from: https://data.cdc.gov/Public-Health-Surveillance/NSSP-Emergency-Department-Visit-Trajectories-by-St/rdmq-nq56/about_data #nolint}
 
 \item{location}{Location to plot (abbreviation)}
 }
@@ -35,5 +35,5 @@ abbreviations}
 ggplot object
 }
 \description{
-Hospital admissions over time
+Percent of ED visits due to covid over time
 }

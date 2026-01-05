@@ -69,8 +69,9 @@ utils::globalVariables(c(
   "obs_freq", # <get_plot_obs_clade_freq>
   "clades_modeled", # <get_bar_chart_seq_count>
   "sequences", # <get_bar_chart_seq_count>
+  "week_end", # <get_plot_hosp_admissions>
   "abbreviation", # <get_plot_hosp_admissions>
-  "value", # <get_plot_hosp_admissions>
+  "percent_visits_covid", # <get_plot_hosp_admissions>
   "location", # <get_plot_seq_counts_by_loc>
   "sequences", # <get_plot_seq_counts_by_loc>
   "population", # <get_plot_seq_counts_by_loc>
@@ -105,6 +106,13 @@ utils::globalVariables(c(
   "location", # <get_plot_by_location>
   "model", # <get_plot_by_nowcast_date>
   "nowcast_date", # <get_plot_by_nowcast_date>
+  "model_id", # <get_plot_coverage_overall>
+  "interval_range", # <get_plot_coverage_overall>
+  "interval_coverage", # <get_plot_coverage_overall>
+  "empirical_coverage", # <get_plot_coverage_overall>
+  "90", # <get_plot_coverage_overall>
+  "50", # <get_plot_coverage_overall>
+  "interval_label", # <get_plot_coverage_overall>
   "model", # <get_plot_overall>
   "target_date", # <get_plot_horizon>
   "nowcast_date", # <get_plot_horizon>
@@ -138,13 +146,13 @@ utils::globalVariables(c(
   "model", # <get_plot_bias_by_date>
   "bias", # <get_plot_bias_by_date>
   "avg_bias", # <get_plot_bias_by_date>
-  "model_id", # <get_plot_coverage_overall>
-  "location", # <get_plot_coverage_overall>
-  "interval_range", # <get_plot_coverage_overall>
-  "interval_coverage", # <get_plot_coverage_overall>
-  "empirical_coverage", # <get_plot_coverage_overall>
-  "95", # <get_plot_coverage_overall>
-  "50", # <get_plot_coverage_overall>
-  "interval_label", # <get_plot_coverage_overall>
+  "model_id", # <get_plot_coverage_by_loc>
+  "location", # <get_plot_coverage_by_loc>
+  "interval_range", # <get_plot_coverage_by_loc>
+  "interval_coverage", # <get_plot_coverage_by_loc>
+  "empirical_coverage", # <get_plot_coverage_by_loc>
+  "90", # <get_plot_coverage_by_loc>
+  "50", # <get_plot_coverage_by_loc>
+  "interval_label", # <get_plot_coverage_by_loc>
   NULL
 ))
