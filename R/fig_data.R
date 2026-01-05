@@ -198,7 +198,7 @@ get_bar_chart_seq_count <- function(obs_data,
   return(p)
 }
 
-#' Percent of hospital admissions due to covid over time
+#' Percent of ED visits due to covid over time
 #'
 #' @param location Location to plot (abbreviation)
 #' @param date_range Vector of date range to plot, will use min and max

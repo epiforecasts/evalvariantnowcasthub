@@ -2,7 +2,7 @@
 % Please edit documentation in R/fig_data.R
 \name{get_plot_hosp_admissions}
 \alias{get_plot_hosp_admissions}
-\title{Percent of hospital admissions due to covid over time}
+\title{Percent of ED visits due to covid over time}
 \usage{
 get_plot_hosp_admissions(
   location_to_plot,
@@ -35,5 +35,5 @@ Originally obtained from: https://data.cdc.gov/Public-Health-Surveillance/NSSP-E
 ggplot object
 }
 \description{
-Percent of hospital admissions due to covid over time
+Percent of ED visits due to covid over time
 }
