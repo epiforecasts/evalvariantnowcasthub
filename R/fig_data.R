@@ -207,7 +207,7 @@ get_bar_chart_seq_count <- function(obs_data,
 #'   abbreviations
 #' @param plot_name Name of plot
 #' @param output_fp File path to save plot
-#' @param data_fp Filepath to NSSP data at the state and national level. 
+#' @param data_fp Filepath to NSSP data at the state and national level.
 #'  Originally obtained from: https://github.com/CDCgov/covid19-forecast-hub/blob/main/auxiliary-data/nssp-raw-data/latest.parquet #nolint
 #'
 #' @returns ggplot object
