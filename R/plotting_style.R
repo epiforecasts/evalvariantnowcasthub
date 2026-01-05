@@ -114,9 +114,9 @@ plot_components <- function() {
     "as of nowcast date" = "solid",
     "evaluation" = "dashed"
   )
-  pred_int_alpha = c(
+  pred_int_alpha <- c(
     "50%" = 1,
-    "95%" = 0.5
+    "90%" = 0.5
   )
   # nolint end
 

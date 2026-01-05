@@ -90,5 +90,22 @@ clean_data_targets <- list(
     name = su_scores_all,
     command = su_scores_excl_partial |>
       dplyr::filter(!is.na(brier_score))
+  ),
+  tar_target(
+    name = coverage,
+    command = coverage_raw |>
+      left_join(final_seq_counts, by = c("target_date" = "date", "location"))
+  ),
+  tar_target(
+    name = coverage_summarised,
+    command = coverage_raw |>
+      left_join(final_seq_counts, by = c("target_date" = "date", "location")) |>
+      group_by(model_id, location, target_date, nowcast_date, interval_range) |>
+      summarise(
+        interval_coverage =
+          sum(interval_coverage) / n()
+      ) |>
+      left_join(final_seq_counts, by = c("target_date" = "date", "location")) |>
+      filter(!is.na(n_final_seq))
   )
 )

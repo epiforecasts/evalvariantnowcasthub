@@ -125,5 +125,14 @@ load_data_targets <- list(
         nowcast_date >= min(nowcast_dates),
         nowcast_date <= max(nowcast_dates)
       )
+  ),
+  # Coverage corresponding to the nowcast dates we will evaluate
+  tar_target(
+    name = coverage_raw,
+    command = arrow::read_parquet(coverage_fp) |>
+      filter(
+        nowcast_date >= min(nowcast_dates),
+        nowcast_date <= max(nowcast_dates)
+      )
   )
 )

@@ -271,6 +271,77 @@ get_plot_by_nowcast_date <- function(scores_obj,
   return(p)
 }
 
+#' Get a plot of prediction interval coverage summarized across nowcast dates
+#'   and locations
+#'
+#' @param coverage Data.frame of coverage scores with interval_range
+#'
+#' @returns ggplot
+#' @autoglobal
+get_plot_coverage_overall <- function(coverage) {
+  # Filter and summarize coverage across nowcast dates
+  coverage_summary <- coverage |>
+    group_by(model_id, interval_range) |>
+    summarise(
+      empirical_coverage =
+        sum(interval_coverage) / n()
+    ) |>
+    pivot_wider(
+      names_from = interval_range,
+      values_from = empirical_coverage
+    ) |>
+    mutate(`90` = `90` - `50`) |>
+    pivot_longer(
+      cols = c(`50`, `90`),
+      names_to = "interval_range",
+      values_to = "empirical_coverage"
+    ) |>
+    mutate(
+      interval_label = paste0(interval_range, "%"),
+      interval_label = factor(interval_label, levels = c("95%", "50%"))
+    )
+
+
+  plot_comps <- plot_components()
+
+  p <- ggplot(coverage_summary) +
+    # Add horizontal reference lines for nominal coverage
+    # Create stacked bar chart
+    geom_bar(
+      aes(
+        x = model_id, y = empirical_coverage, fill = model_id,
+        alpha = interval_label
+      ),
+      stat = "identity",
+      position = "stack",
+      width = 0.7
+    ) +
+    geom_hline(yintercept = 0.5, linetype = "dashed") +
+    geom_hline(yintercept = 0.95, linetype = "dashed") +
+    get_plot_theme(dates = FALSE) +
+    theme(axis.text.x = element_blank()) +
+    scale_fill_manual(
+      name = "Model",
+      values = plot_comps$model_colors
+    ) +
+    scale_alpha_manual(
+      name = "Interval coverage",
+      values = plot_comps$pred_int_alpha
+    ) +
+    guides(
+      fill = guide_legend(
+        title.position = "top",
+        title.hjust = 0.5,
+        nrow = 3
+      )
+    ) +
+    xlab("Model") +
+    ylab("Empirical\ncoverage") +
+    scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2))
+
+  return(p)
+}
+
 
 #' Brier/Energy Relative/Overall by model
 #'

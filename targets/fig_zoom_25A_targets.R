@@ -49,17 +49,25 @@ fig_zoom_25A_targets <- list(
   ),
   tar_target(
     name = coverage_25A_scores,
-    command = compute_coverage(
-      df_prepared = forecast_obj_25A_prepared,
-      locs = states_for_vis,
-      nowcast_dates = nowcast_date_range_to_zoom
-    )
+    command = coverage |>
+      filter(
+        location %in% states_for_vis,
+        nowcast_date %in% nowcast_date_range_to_zoom,
+        clade == "25A"
+      )
   ),
+  # tar_target(
+  #   name = coverage_25A_scores,
+  #   command = compute_coverage(
+  #     df_prepared = forecast_obj_25A_prepared,
+  #     locs = states_for_vis,
+  #     nowcast_dates = nowcast_date_range_to_zoom
+  #   )
+  # ),
   tar_target(
-    name = plot_coverage_overall,
-    command = get_plot_coverage_overall(
-      coverage = coverage_25A_scores,
-      locs = states_for_vis
+    name = plot_coverage_by_loc,
+    command = get_plot_coverage_by_loc(
+      coverage = coverage_25A_scores
     )
   ),
   tar_target(
@@ -67,7 +75,7 @@ fig_zoom_25A_targets <- list(
     command = get_fig_zoom_25A(
       grid = plot_model_preds_mult_nowcasts,
       scores = plot_score_underlay,
-      coverage = plot_coverage_overall,
+      coverage = plot_coverage_by_loc,
       plot_name = "fig_zoom_25A"
     )
   )

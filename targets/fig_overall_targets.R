@@ -10,6 +10,16 @@ fig_overall_targets <- list(
     command = su_scores_all |>
       filter(location != "CA")
   ),
+  tar_target(
+    name = coverage_summarised_ca,
+    command = coverage_summarised |>
+      filter(location == "CA")
+  ),
+  tar_target(
+    name = coverage_summarised_ep,
+    command = coverage_summarised |>
+      filter(location != "CA")
+  ),
   # Overall score figures----------------------------------------------
   # Energy/Brier score on relative/absolute scores overall
   ## US----------------------------
@@ -45,6 +55,10 @@ fig_overall_targets <- list(
       rel_skill_plot = TRUE,
       score_type = "energy_score"
     )
+  ),
+  tar_target(
+    name = bar_chart_coverage,
+    command = get_plot_coverage_overall(coverage_summarised_ep)
   ),
   # Energy/Brier score by horizon
   tar_target(
@@ -114,6 +128,10 @@ fig_overall_targets <- list(
       rel_skill_plot = TRUE,
       score_type = "energy_score"
     )
+  ),
+  tar_target(
+    name = bar_chart_coverage_ca,
+    command = get_plot_coverage_overall(coverage_summarised_ca)
   ),
   # Energy/Brier score by horizon
   tar_target(
