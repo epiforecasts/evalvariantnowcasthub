@@ -50,4 +50,5 @@ hub_path: https://raw.githubusercontent.com/reichlab/variant-nowcast-hub/refs/he
 clades_by_nowcast_date_dir: https://raw.githubusercontent.com/reichlab/variant-nowcast-hub/refs/heads/main/auxiliary-data/modeled-clades/
 location_fp: https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/refs/heads/main/auxiliary-data/locations.csv
 scores_fp: https://raw.githubusercontent.com/reichlab/variant-nowcast-hub/refs/heads/main/auxiliary-data/scores/scores.tsv
+coverage_fp: https://github.com/reichlab/variant-nowcast-hub/raw/refs/heads/883-add-coverage/auxiliary-data/coverage/coverage.parquet
 raw_variant_data_ns_url: https://data.nextstrain.org/files/workflows/forecasts-ncov/open/nextstrain_clades/usa.tsv.gz

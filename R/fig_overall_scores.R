@@ -298,7 +298,7 @@ get_plot_coverage_overall <- function(coverage) {
     ) |>
     mutate(
       interval_label = paste0(interval_range, "%"),
-      interval_label = factor(interval_label, levels = c("90%", "50%"))
+      interval_label = factor(interval_label, levels = c("95%", "50%"))
     )
 
 

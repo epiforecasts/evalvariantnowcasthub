@@ -65,7 +65,7 @@ fig_zoom_25A_targets <- list(
   #   )
   # ),
   tar_target(
-    name = plot_coverage_overall,
+    name = plot_coverage_by_loc,
     command = get_plot_coverage_by_loc(
       coverage = coverage_25A_scores
     )
@@ -75,7 +75,7 @@ fig_zoom_25A_targets <- list(
     command = get_fig_zoom_25A(
       grid = plot_model_preds_mult_nowcasts,
       scores = plot_score_underlay,
-      coverage = plot_coverage_overall,
+      coverage = plot_coverage_by_loc,
       plot_name = "fig_zoom_25A"
     )
   )

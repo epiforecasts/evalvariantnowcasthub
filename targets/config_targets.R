@@ -85,6 +85,7 @@ config_targets <- list(
       clades_by_nowcast_date_dir = clades_by_nowcast_date_dir,
       location_fp = location_fp,
       scores_fp = scores_fp,
+      coverage_fp = coverage_fp,
       raw_variant_data_ns_url = raw_variant_data_ns_url
     )
   ),
