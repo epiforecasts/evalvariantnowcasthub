@@ -76,7 +76,7 @@ fig_data_targets <- list(
   tar_target(
     name = plot_hosp_admissions_usminca,
     command = get_plot_hosp_admissions(
-      location_to_plot = "US minus CA",
+      location_to_plot = "US",
       temporal_granularity = "weeks",
       date_range = date_range_to_plot,
       location_data = location_data,
