@@ -57,6 +57,14 @@ plot_components <- function() {
     "UGA-multicast" = pal_models[4],
     "UMass-HMLR" = pal_models[5]
   )
+  model_shapes <- c(
+    "Hub-baseline" = 16,
+    "CADPH-CATaLog" = 8,
+    "CADPH-CATaMaran" = 4,
+    "LANL-CovTransformer" = 18,
+    "UGA-multicast" = 17,
+    "UMass-HMLR" = 15
+  )
   clade_colors <- c(
     "24A" = pal_clades[1],
     "24B" = pal_clades[2],
@@ -123,6 +131,7 @@ plot_components <- function() {
   plot_comp_list <-
     list(
       model_colors = model_colors,
+      model_shapes = model_shapes,
       clade_colors = clade_colors,
       percentile_colors = percentile_colors,
       data_availability_alpha = data_availability_alpha,

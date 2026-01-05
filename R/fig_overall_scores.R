@@ -78,20 +78,37 @@ get_plot_by_location <- function(scores_obj,
           y = !!sym(glue::glue(
             "{score_type}_scaled_relative_skill"
           )),
-          color = model
+          color = model,
+          shape = model
         ),
         size = 4
       ) +
       geom_hline(yintercept = 1, linetype = "dashed", color = "gray50") +
-      scale_color_manual(values = plot_components_list$model_colors) +
+      scale_color_manual(
+        name = "Model",
+        values = plot_components_list$model_colors
+      ) +
+      scale_shape_manual(
+        name = "Model",
+        values = plot_components_list$model_shapes
+      ) +
       get_plot_theme() +
       labs(
-        x = "Location",
-        y = glue::glue("Relative scaled skill\n({label})"),
-        color = "Model"
+        x = "",
+        y = glue::glue("Relative scaled skill\n({label})")
       ) +
       scale_y_continuous(trans = "log10") +
-      coord_cartesian(ylim = c(1 / 4.5, 4.5))
+      coord_cartesian(ylim = c(1 / 4.5, 4.5)) +
+      guides(
+        color = guide_legend(
+          title.position = "top",
+          nrow = 3
+        ),
+        shape = guide_legend(
+          title.position = "top",
+          nrow = 3
+        )
+      )
   } else {
     scores_sum <- scores_obj |>
       ungroup() |>
@@ -122,7 +139,7 @@ get_plot_by_location <- function(scores_obj,
       guides(
         fill = guide_legend(
           title.position = "top",
-          nrow = 1
+          nrow = 3
         )
       )
   }
@@ -130,7 +147,8 @@ get_plot_by_location <- function(scores_obj,
   if (isTRUE(remove_legend)) {
     p <- p + guides(
       color = "none",
-      fill = "none"
+      fill = "none",
+      shape = "none"
     )
   }
   return(p)
@@ -183,7 +201,8 @@ get_plot_by_nowcast_date <- function(scores_obj,
           y = !!sym(glue::glue(
             "{score_type}_scaled_relative_skill"
           )),
-          color = model
+          color = model,
+          shape = model
         ),
         alpha = 0.5
       ) +
@@ -197,7 +216,14 @@ get_plot_by_nowcast_date <- function(scores_obj,
         )
       ) +
       geom_hline(yintercept = 1, linetype = "dashed", color = "gray50") +
-      scale_color_manual(values = plot_components_list$model_colors) +
+      scale_color_manual(
+        name = "Model",
+        values = plot_components_list$model_colors
+      ) +
+      scale_shape_manual(
+        name = "Model",
+        values = plot_components_list$model_shapes
+      ) +
       get_plot_theme(dates = TRUE) +
       scale_x_date(
         limits = date_breaks,
@@ -206,8 +232,7 @@ get_plot_by_nowcast_date <- function(scores_obj,
       ) +
       labs(
         x = "",
-        y = glue::glue("Relative scaled\nskill ({label})"),
-        color = "Model"
+        y = glue::glue("Relative scaled\nskill ({label})")
       ) +
       scale_y_continuous(trans = "log10") +
       coord_cartesian(ylim = c(1 / 2.4, 2.4)) +
@@ -226,7 +251,8 @@ get_plot_by_nowcast_date <- function(scores_obj,
           y = !!sym(glue::glue(
             "{score_type}"
           )),
-          color = model
+          color = model,
+          shape = model
         ),
         size = 1.5
       ) +
@@ -239,7 +265,14 @@ get_plot_by_nowcast_date <- function(scores_obj,
           color = model
         )
       ) +
-      scale_color_manual(values = plot_components_list$model_colors) +
+      scale_color_manual(
+        name = "Model",
+        values = plot_components_list$model_colors
+      ) +
+      scale_shape_manual(
+        name = "Model",
+        values = plot_components_list$model_shapes
+      ) +
       get_plot_theme(dates = TRUE) +
       scale_x_date(
         limits = date_breaks,
@@ -248,11 +281,14 @@ get_plot_by_nowcast_date <- function(scores_obj,
       ) +
       labs(
         x = "",
-        y = label,
-        color = "Model"
+        y = label
       ) +
       guides(
         color = guide_legend(
+          title.position = "top",
+          nrow = 1
+        ),
+        shape = guide_legend(
           title.position = "top",
           nrow = 1
         )
@@ -262,7 +298,8 @@ get_plot_by_nowcast_date <- function(scores_obj,
   if (isTRUE(remove_legend)) {
     p <- p + guides(
       color = "none",
-      fill = "none"
+      fill = "none",
+      shape = "none"
     )
   }
   if (!is.null(title)) {
@@ -350,6 +387,8 @@ get_plot_coverage_overall <- function(coverage) {
 #' @param score_type Character string indicating which score metric to use
 #' @param remove_legend Boolean indicating whether to keep legend, default
 #'   is TRUE.
+#' @param add_shape Boolean indicating whether to add the shape legend,
+#'  default is FALSE.
 #' @param title Character string indicating title, default is NULL.
 #' @importFrom scoringutils summarise_scores
 #' @importFrom ggplot2 ggplot geom_bar aes geom_hline coord_flip
@@ -360,6 +399,7 @@ get_plot_overall <- function(scores_obj,
                              score_type = c("brier_score", "energy_score"),
                              rel_skill_plot = TRUE,
                              remove_legend = TRUE,
+                             add_shape = FALSE,
                              title = NULL) {
   score_type <- rlang::arg_match(score_type)
   plot_components_list <- plot_components()
@@ -386,24 +426,41 @@ get_plot_overall <- function(scores_obj,
           y = !!sym(glue::glue(
             "{score_type}_scaled_relative_skill"
           )),
-          color = model
+          color = model,
+          shape = model
         ),
         size = 6
       ) +
       geom_hline(yintercept = 1, linetype = "dashed", color = "gray50") +
-      scale_color_manual(values = plot_components_list$model_colors) +
+      scale_color_manual(
+        name = "Model",
+        values = plot_components_list$model_colors
+      ) +
+      scale_shape_manual(
+        name = "Model",
+        values = plot_components_list$model_shapes
+      ) +
       get_plot_theme() +
       labs(
         x = "",
-        y = glue::glue("Relative scaled skill\n({label})"),
-        color = "Model"
+        y = glue::glue("Relative scaled skill\n({label})")
       ) +
       scale_y_continuous(trans = "log10") +
       theme(
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank()
       ) +
-      coord_cartesian(ylim = c(1 / 1.3, 1.3))
+      coord_cartesian(ylim = c(1 / 1.3, 1.3)) +
+      guides(
+        color = guide_legend(
+          title.position = "top",
+          nrow = 1
+        ),
+        shape = guide_legend(
+          title.position = "top",
+          nrow = 1
+        )
+      )
   } else {
     scores_sum <- scores_obj |>
       filter(!is.na(score_type)) |>
@@ -443,7 +500,17 @@ get_plot_overall <- function(scores_obj,
   if (isTRUE(remove_legend)) {
     p <- p + guides(
       fill = "none",
-      color = "none"
+      color = "none",
+      shape = "none"
+    )
+  }
+
+  if (isTRUE(add_shape)) {
+    p <- p + guides(
+      shape = guide_legend(
+        title.position = "top",
+        nrow = 1
+      )
     )
   }
 
@@ -507,19 +574,24 @@ get_plot_horizon <- function(scores_obj,
           y = !!sym(glue::glue(
             "{score_type}_scaled_relative_skill"
           )),
-          color = model
+          color = model,
+          shape = model
         )
       ) +
       geom_hline(yintercept = 1, linetype = "dashed", color = "gray50") +
       geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
       scale_color_manual(values = plot_components_list$model_colors) +
+      scale_shape_manual(values = plot_components_list$model_shapes) +
       get_plot_theme() +
       labs(
         x = "Horizon (days)",
         y = glue::glue("Relative scaled skill\n({label})"),
         color = "Model"
       ) +
-      guides(color = "none") +
+      guides(
+        color = "none",
+        shape = "none"
+      ) +
       scale_y_continuous(trans = "log10") +
       coord_cartesian(ylim = c(1 / 1.4, 1.4))
   } else {
@@ -545,7 +617,8 @@ get_plot_horizon <- function(scores_obj,
           y = !!sym(glue::glue(
             "{score_type}"
           )),
-          color = model
+          color = model,
+          shape = model
         )
       ) +
       scale_color_manual(values = plot_components_list$model_colors) +
@@ -554,16 +627,25 @@ get_plot_horizon <- function(scores_obj,
       labs(
         x = "Horizon (days)",
         y = label,
-        color = "Model"
+        color = "Model",
+        shape = "Model"
       ) +
-      guides(color = "none")
+      guides(
+        color = "none",
+        shape = "none"
+      )
   }
   if (isTRUE(show_legend)) {
     p <- p + guides(
       color = guide_legend(
         title.position = "top",
         position = "right",
-        nrow = 6
+        nrow = 1
+      ),
+      shape = guide_legend(
+        title.position = "top",
+        position = "right",
+        nrow = 1
       )
     )
   }
@@ -589,7 +671,8 @@ get_plot_seq_counts_loc <- function(seq_counts_by_loc) {
   p <- ggplot(seq_counts) +
     geom_bar(aes(x = location, y = total_seq),
       stat = "identity",
-      position = "dodge"
+      position = "dodge",
+      fill = "black"
     ) +
     get_plot_theme() +
     scale_fill_manual(
@@ -614,7 +697,8 @@ get_plot_seq_counts_loc <- function(seq_counts_by_loc) {
 get_plot_seq_counts_date <- function(seq_counts_by_date) {
   p <- ggplot(seq_counts_by_date) +
     geom_bar(aes(x = nowcast_date, y = total_sequences),
-      stat = "identity", position = "dodge"
+      stat = "identity", position = "dodge",
+      fill = "black"
     ) +
     get_plot_theme(dates = TRUE) +
     xlab("") +
@@ -641,7 +725,8 @@ get_plot_seq_counts_date <- function(seq_counts_by_date) {
 get_plot_seq_eval_date <- function(seq_counts_by_eval_date) {
   p <- ggplot(seq_counts_by_eval_date) +
     geom_bar(aes(x = nowcast_date, y = total_sequences),
-      stat = "identity", position = "dodge"
+      stat = "identity", position = "dodge",
+      fill = "black"
     ) +
     get_plot_theme(dates = TRUE) +
     xlab("") +
