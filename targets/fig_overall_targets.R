@@ -102,7 +102,7 @@ fig_overall_targets <- list(
       rel_skill_plot = FALSE,
       score_type = "brier_score",
       title = "CA",
-      remove_legend = FALSE
+      remove_legend = TRUE
     )
   ),
   tar_target(
@@ -110,7 +110,8 @@ fig_overall_targets <- list(
     command = get_plot_overall(
       scores_obj = su_scores_ca,
       rel_skill_plot = TRUE,
-      score_type = "brier_score"
+      score_type = "brier_score",
+      remove_legend = FALSE
     )
   ),
   tar_target(
@@ -118,7 +119,8 @@ fig_overall_targets <- list(
     command = get_plot_overall(
       scores_obj = su_scores_ca,
       rel_skill_plot = FALSE,
-      score_type = "energy_score"
+      score_type = "energy_score",
+      remove_legend = TRUE
     )
   ),
   tar_target(
@@ -217,7 +219,8 @@ fig_overall_targets <- list(
       scores_obj = su_scores_all,
       seq_counts_by_loc = seq_counts_by_loc,
       score_type = "brier_score",
-      rel_skill_plot = TRUE
+      rel_skill_plot = TRUE,
+      remove_legend = FALSE
     )
   ),
   tar_target(
