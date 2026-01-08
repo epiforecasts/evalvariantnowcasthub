@@ -37,8 +37,19 @@ output:
 
 ![Fig. S9 Evaluation sequence counts by location and nowcast date. Color indicates the total number of sequences available in the evaluation data (log scale) for each location and nowcast date combination. Gray tiles indicate nowcast date-location pairs with no sequences across all horizons.](../output/figs/metadata/supp/eval_sequence_counts_heatmap.png)
 
-## Additional results
+# Additional results
 
 ![Fig. S10 Absolute Brier (top) and energy (bottom) in the U.S. excluding California (left) and California (right).](../output/figs/overall_scores/supp/absolute_scores_by_horizon.png)
 
 ![Fig. S11 Bias over time for three example states in the US during the 25A emergence.](../output/figs/zoom_25A/supp/bias_over_time_25A.png)
+
+# Additional models not evaluated in this work
+
+The following models began submissions following the initial assessment period (October 9th, 2024 to June 4th, 2025).
+
+| Model name | Description | Citation | Data Sources | Locations | Output Type | Ensemble? |
+|----|----|----|----|----|----|----|
+| open_hier_mlr | A Bayesian hierarchical multinomial logistic regression (MLR) model for nowcasting COVID variants using variant counts based on GISAID sequences. Regression coefficients are modeled hierarchically across locations. | Abousamra E, Figgins M, Bedford T (2024) Fitness models provide accurate short-term forecasts of SARS-CoV-2 variant frequency. PLOS Computational Biology 20(9): e1012443. https://doi.org/10.1371/journal.pcbi.1012443 | GISAID | All | Point and probabilistic | No |
+| gisaid_hier_mlr | A Bayesian hierarchical multinomial logistic regression (MLR) model for nowcasting COVID variants using variant counts based on INSDC sequences. Regression coefficients are modeled hierarchically across locations. | Abousamra E, Figgins M, Bedford T (2024) Fitness models provide accurate short-term forecasts of SARS-CoV-2 variant frequency. PLOS Computational Biology 20(9): e1012443. https://doi.org/10.1371/journal.pcbi.1012443 | INSDC | All | Point and probabilistic | No |
+| ensemble | An ensemble of the hub forecasts, created by taking an equally weighted sample of all forecasts that submit samples for a given week, using the function linear_pool from the hubEnsembles package. | https://github.com/hubverse-org/hubEnsembles/tree/main | Other model submission files | All | Point and probabilistic | No |
+| PyHMLR | A Bayesian hierarchical multinomial logistic regression model with Dirichlet-Multinomial observation process. The model uses hierarchical hyperpriors to enable partial pooling across locations and clades. Location-specific concentration parameters allow the model to adaptively learn appropriate uncertainty levels for each location. Linear trends are modeled in logit space with standardized time variables. | https://github.com/trobacker/pymc_modeling | COVID Variant Nowcast Hub S3 target data | All | Point and probabilistic | No |
