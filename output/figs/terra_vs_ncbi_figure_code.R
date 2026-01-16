@@ -1,5 +1,14 @@
 
+library(tidyr)
+library(data.table)
+library(dplyr)
+library(ggplot2)
+library(MetBrewer)
+
 clade_comp_weekly <- data.table::fread("terra_vs_ncbi_clade_proportions.csv")
+
+ncolors <- length(unique(clade_comp_weekly$clade))
+cladepal <- MetBrewer::met.brewer(name="Hiroshige", n=ncolors, type="continuous")
 
 clade_comp_weekly %>% 
   ggplot() +
