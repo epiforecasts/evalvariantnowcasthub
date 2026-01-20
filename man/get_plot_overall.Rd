@@ -9,6 +9,7 @@ get_plot_overall(
   score_type = c("brier_score", "energy_score"),
   rel_skill_plot = TRUE,
   remove_legend = TRUE,
+  add_shape = FALSE,
   title = NULL
 )
 }
@@ -21,6 +22,9 @@ get_plot_overall(
 
 \item{remove_legend}{Boolean indicating whether to keep legend, default
 is TRUE.}
+
+\item{add_shape}{Boolean indicating whether to add the shape legend,
+default is FALSE.}
 
 \item{title}{Character string indicating title, default is NULL.}
 }

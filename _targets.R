@@ -84,7 +84,8 @@ plot_targets <- list(
   fig_pred_plus_data_targets,
   fig_overall_targets,
   fig_zoom_25A_targets,
-  fig_submission_heatmaps_targets
+  fig_submission_heatmaps_targets,
+  supp_figs_targets
 )
 
 

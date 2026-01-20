@@ -50,7 +50,7 @@ The following models began submissions following the initial assessment period (
 
 ## Additional results
 
-![Fig. S10 Comparison of the observed clade proportions by sequence collection week across nowcast dates (columns) in the NCBI GenBank data used by the Hub (top row) and the California specific data source for sequencing called terra (bottom row). Colors indicate clade, dashed line indicates the nowcast date. In most weeks, the California specifc dataset terra has observed clade proportions for a more recent week than the NCBI GenBank dataset for California.](../output/figs/supp/CA_source_seq_props.png)
+![Fig. S10 Comparison of the observed clade proportions by sequence collection week across nowcast dates (columns) in the California specific data source for sequencing called California COVIDNet (top row) and the NCBI GenBank data provided by the Hub and used by most other models (bottom row) and t). Colors indicate clade, dashed line indicates the nowcast date. In most weeks, the California specifc dataset, California COVIDNet, has observed clade proportions for a more recent week than the NCBI GenBank dataset does for California.](../output/figs/supp/CA_source_seq_props.png)
 
 ![Fig. S11 Ratio of the number of sequences available in the NCBI GenBank dataset for Californi compared to the California-specific dataset across collection dates for a subset of nowcast dates (colums). Patterns indicate that even further back in time, the GenBank dataset at most makes up between 50% and 90% of the California specific data volume, with a particular drop off closer to the nowcast date.](../output/figs/supp/CA_source_seq_level_comparison.png)
 

@@ -48,6 +48,14 @@ config_targets <- list(
     name = raw_variant_data_ns_url,
     command = "https://data.nextstrain.org/files/workflows/forecasts-ncov/open/nextstrain_clades/usa.tsv.gz" # nolint
   ),
+  tar_target(
+    name = fp_ca_clades,
+    command = file.path("output", "data", "covidnet_vs_ncbi_clade_proportions.csv")
+  ),
+  tar_target(
+    name = fp_ca_volume,
+    command = file.path("output", "data", "covidnet_vs_ncbi_sequence_volume.csv")
+  ),
 
   # Specify which states and nowcast dates we want to focus on in the example
   # outputs figures
