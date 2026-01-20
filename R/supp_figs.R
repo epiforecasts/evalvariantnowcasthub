@@ -56,8 +56,9 @@ get_volume_prop_comp_weekly <- function(volume_comp_weekly,
                                           "figs",
                                           "supp"
                                         )) {
-  weekly_ratio <- volume_comp_weekly |>
-    mutate(ratio = ncbi / covidnet)
+  weekly_ratio <- mutate(volume_comp_weekly,
+    ratio = ncbi / covidnet
+  )
   plot_comps <- plot_components()
   p <- ggplot(weekly_ratio) +
     geom_line(aes(x = week, y = ratio)) +

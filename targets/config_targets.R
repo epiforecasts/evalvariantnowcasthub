@@ -50,11 +50,11 @@ config_targets <- list(
   ),
   tar_target(
     name = fp_ca_clades,
-    command = file.path("output", "figs", "covidnet_vs_ncbi_clade_proportions.csv")
+    command = file.path("output", "data", "covidnet_vs_ncbi_clade_proportions.csv")
   ),
   tar_target(
     name = fp_ca_volume,
-    command = file.path("output", "figs", "covidnet_vs_ncbi_sequence_volume.csv")
+    command = file.path("output", "data", "covidnet_vs_ncbi_sequence_volume.csv")
   ),
 
   # Specify which states and nowcast dates we want to focus on in the example
