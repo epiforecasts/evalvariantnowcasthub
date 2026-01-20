@@ -833,7 +833,7 @@ get_panel_horizon <- function(a, b, c, d,
       tag_levels = "A",
       tag_suffix = "",
       theme = theme(
-        legend.position = "right",
+        legend.position = "top",
         legend.box = "horizontal",
         legend.title = element_text(hjust = 0.5),
         plot.tag = element_text(size = 14, face = "bold")
@@ -847,7 +847,7 @@ get_panel_horizon <- function(a, b, c, d,
   ggsave(
     file.path(output_fp, glue::glue("{plot_name}.png")),
     plot = combined_fig,
-    width = 12,
+    width = 14,
     height = 8,
     dpi = 300
   )
