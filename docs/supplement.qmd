@@ -16,7 +16,7 @@ output:
 The following models began submissions following the initial assessment period (October 9th, 2024 to June 4th, 2025).
 
 | Model name | Description | Citation | Data Sources | Locations | Output Type | Ensemble? |
-|-----------|-----------|-----------|-----------|-----------|-----------|-----------|
+|----|----|----|----|----|----|----|
 | `open_hier_mlr` | A Bayesian hierarchical multinomial logistic regression (MLR) model for nowcasting COVID variants using variant counts based on GISAID sequences. Regression coefficients are modeled hierarchically across locations. | Abousamra E, Figgins M, Bedford T (2024) Fitness models provide accurate short-term forecasts of SARS-CoV-2 variant frequency. PLOS Computational Biology 20(9): e1012443. https://doi.org/10.1371/journal.pcbi.1012443 | GISAID | All | Point and probabilistic | No |
 | `gisaid_hier_mlr` | A Bayesian hierarchical multinomial logistic regression (MLR) model for nowcasting COVID variants using variant counts based on INSDC sequences. Regression coefficients are modeled hierarchically across locations. | Abousamra E, Figgins M, Bedford T (2024) Fitness models provide accurate short-term forecasts of SARS-CoV-2 variant frequency. PLOS Computational Biology 20(9): e1012443. https://doi.org/10.1371/journal.pcbi.1012443 | INSDC | All | Point and probabilistic | No |
 | `ensemble` | An ensemble of the hub forecasts, created by taking an equally weighted sample of all forecasts that submit samples for a given week, using the function linear_pool from the hubEnsembles package. | https://github.com/hubverse-org/hubEnsembles/tree/main | Other model submission files | All | Point and probabilistic | No |
@@ -50,12 +50,14 @@ The following models began submissions following the initial assessment period (
 
 ![Fig. S10 Proportion of evaluated days that contained no partial observations as of the nowcast date by nowcast horizon, summarised across all locations and nowcast dates. Days which had partial observations as of the nowcast date are excluded from the main text evaluation analyses, consistent with our stated evaluation plan and in order to prevent incentivising modelers from predicting the already observed clade frequency.](../output/figs/supp/prop_no_partial_obs_overall.png)
 
+![Fig. S11 Proportion of evaluated dats that contain partial observations as of the nowcast date by nowcast horizon for each location across all nowcast dates. Days which had partial observations as of the nowcast date are excluded from the main text evaluation anlyses.](../output/figs/supp/prop_no_partial_obs_loc.png)
+
 ## Additional results
 
-![Fig. S10 Comparison of the observed clade proportions by sequence collection week across nowcast dates (columns) in the California specific data source for sequencing called California COVIDNet (top row) and the NCBI GenBank data provided by the Hub and used by most other models (bottom row) and t). Colors indicate clade, dashed line indicates the nowcast date. In most weeks, the California specifc dataset, California COVIDNet, has observed clade proportions for a more recent week than the NCBI GenBank dataset does for California.](../output/figs/supp/CA_source_seq_props.png)
+![Fig. S12 Comparison of the observed clade proportions by sequence collection week across nowcast dates (columns) in the California specific data source for sequencing called California COVIDNet (top row) and the NCBI GenBank data provided by the Hub and used by most other models (bottom row) and t). Colors indicate clade, dashed line indicates the nowcast date. In most weeks, the California specifc dataset, California COVIDNet, has observed clade proportions for a more recent week than the NCBI GenBank dataset does for California.](../output/figs/supp/CA_source_seq_props.png)
 
-![Fig. S11 Ratio of the number of sequences available in the NCBI GenBank dataset for Californi compared to the California-specific dataset across collection dates for a subset of nowcast dates (colums). Patterns indicate that even further back in time, the GenBank dataset at most makes up between 50% and 90% of the California specific data volume, with a particular drop off closer to the nowcast date.](../output/figs/supp/CA_source_seq_level_comparison.png)
+![Fig. S13 Ratio of the number of sequences available in the NCBI GenBank dataset for Californi compared to the California-specific dataset across collection dates for a subset of nowcast dates (colums). Patterns indicate that even further back in time, the GenBank dataset at most makes up between 50% and 90% of the California specific data volume, with a particular drop off closer to the nowcast date.](../output/figs/supp/CA_source_seq_level_comparison.png)
 
-![Fig. S12 Absolute Brier (top) and energy (bottom) in the U.S. excluding California (left) and California (right).](../output/figs/overall_scores/supp/absolute_scores_by_horizon.png)
+![Fig. S14 Absolute Brier (top) and energy (bottom) in the U.S. excluding California (left) and California (right).](../output/figs/overall_scores/supp/absolute_scores_by_horizon.png)
 
-![Fig. S13 Bias over time for three example states in the US during the 25A emergence.](../output/figs/zoom_25A/supp/bias_over_time_25A.png)
+![Fig. S15 Bias over time for three example states in the US during the 25A emergence.](../output/figs/zoom_25A/supp/bias_over_time_25A.png)
