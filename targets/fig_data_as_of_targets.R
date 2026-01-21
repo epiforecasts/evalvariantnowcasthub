@@ -75,6 +75,21 @@ fig_data_as_of_targets <- list(
       log_scale = FALSE
     )
   ),
+  # plot indicating the days that were evaluated
+  tar_target(
+    name = plot_eval_days_us,
+    command = get_plot_eval_days(su_scores |> filter(location != "CA"),
+      nowcast_date = nowcast_date_for_vis,
+      date_range = date_range_as_of
+    )
+  ),
+  tar_target(
+    name = plot_eval_days_ca,
+    command = get_plot_eval_days(su_scores |> filter(location == "CA"),
+      nowcast_date = nowcast_date_for_vis,
+      date_range = date_range_as_of
+    )
+  ),
   tar_target(
     name = plot_eval_freq_usminca,
     command = get_plot_freq_as_of_vs_eval(
@@ -97,6 +112,8 @@ fig_data_as_of_targets <- list(
       seq_counts_as_of2 = plot_seq_counts_as_of_ex1,
       seq_counts_eval2 = plot_eval_seq_counts_ex1,
       eval_freq2 = plot_eval_freq_ex1,
+      prop_eval_days_1 = plot_eval_days_us,
+      prop_eval_days_2 = plot_eval_days_ca,
       plot_name = "data_as_of"
     )
   ),

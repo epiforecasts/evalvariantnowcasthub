@@ -276,6 +276,8 @@ get_second_data_fig <- function(seq_counts_as_of1,
                                 seq_counts_eval2,
                                 eval_freq1,
                                 eval_freq2,
+                                prop_eval_days_1,
+                                prop_eval_days_2,
                                 plot_name,
                                 output_fp = file.path(
                                   "output", "figs",
@@ -283,8 +285,12 @@ get_second_data_fig <- function(seq_counts_as_of1,
                                 )) {
   fig_layout <- "
   AAABBB
+  AAABBB
   CCCDDD
-  EEEFFF"
+  CCCDDD
+  EEEFFF
+  GGGHHH
+  GGGHHH"
 
   fig_eval <- (seq_counts_as_of1 +
     ylab("Sequence counts as of\nthe nowcast date")) +
@@ -294,6 +300,8 @@ get_second_data_fig <- function(seq_counts_as_of1,
       theme(plot.tag.position = c(-0.01, 1.05))) +
     (seq_counts_eval2 + ylab("Sequence counts\nfor evaluation") +
       theme(plot.tag.position = c(-0.01, 1.05))) +
+    prop_eval_days_1 +
+    prop_eval_days_2 +
     eval_freq1 +
     eval_freq2 +
     plot_layout(
@@ -486,4 +494,43 @@ get_data_fig_all_us_triangular <- function(seq_counts_as_of,
     height = 8
   )
   return(fig_eval)
+}
+
+#' Get a plot of the proportion of days evaluated
+#'
+#' @param su_scores full scoringutils object
+#' @param nowcast_date Nowcast date to filter
+#' @param date_range Dates to plot
+#'
+#' @returns ggplot plot
+get_plot_eval_days <- function(su_scores,
+                               nowcast_date,
+                               date_range) {
+  scores_filtered <- su_scores |>
+    filter(nowcast_date == !!nowcast_date) |>
+    group_by(target_date) |>
+    summarise(
+      n_days = n(),
+      prop_days = sum(scored) / n_days
+    )
+
+  p <- ggplot(scores_filtered) +
+    geom_point(aes(x = target_date, y = prop_days)) +
+    get_plot_theme(dates = TRUE) +
+    geom_vline(aes(xintercept = ymd(nowcast_date)), linetype = "dashed") +
+    scale_x_date(
+      limits = date_range,
+      date_breaks = "2 weeks",
+      date_labels = "%d %b %Y"
+    ) +
+    xlab("") +
+    theme(
+      legend.position = "bottom",
+      axis.text.x = element_blank(),
+      axis.title.y = element_text(size = 8)
+    ) +
+    coord_cartesian(ylim = c(0, 1)) +
+    ylab("Proportion\nof all days\nevaluated")
+
+  return(p)
 }

@@ -11,6 +11,8 @@ get_second_data_fig(
   seq_counts_eval2,
   eval_freq1,
   eval_freq2,
+  prop_eval_days_1,
+  prop_eval_days_2,
   plot_name,
   output_fp = file.path("output", "figs", "as_of_data_figs", "final")
 )
