@@ -20,7 +20,10 @@ supp_figs_targets <- list(
   tar_target(
     name = prop_excluded,
     command = su_scores |>
-      filter(model == "Hub-baseline") |>
+      filter(
+        model == "Hub-baseline",
+        !is.na(scored)
+      ) |>
       mutate(
         n_total = sum(!is.na(scored))
       ) |>

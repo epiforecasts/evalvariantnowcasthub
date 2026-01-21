@@ -96,7 +96,10 @@ get_plot_overall_prop_excl <- function(su_scores,
                                          "supp"
                                        )) {
   su_scores_by_horizon <- su_scores |>
-    filter(model == "Hub-baseline") |>
+    filter(
+      model == "Hub-baseline",
+      !is.na(scored)
+    ) |>
     mutate(horizon = target_date - nowcast_date) |>
     filter(!is.na(scored)) |>
     group_by(horizon) |>
@@ -136,7 +139,10 @@ get_plot_prop_excl_loc <- function(su_scores,
                                      "supp"
                                    )) {
   su_scores_by_horizon <- su_scores |>
-    filter(model == "Hub-baseline") |>
+    filter(
+      model == "Hub-baseline",
+      !is.na(scored)
+    ) |>
     mutate(horizon = target_date - nowcast_date) |>
     filter(!is.na(scored)) |>
     group_by(horizon, location) |>
