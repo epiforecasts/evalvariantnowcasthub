@@ -89,12 +89,12 @@ get_volume_prop_comp_weekly <- function(volume_comp_weekly,
 #' @param fig_fp Character string indicating filepath of figure
 #'
 #' @returns ggplot of prop of predictions scored by horizons
-get_plot_overall_prop_excl_by_horizon <- function(su_scores,
-                                                  fig_fp = file.path(
-                                                    "output",
-                                                    "figs",
-                                                    "supp"
-                                                  )) {
+get_plot_overall_prop_excl <- function(su_scores,
+                                       fig_fp = file.path(
+                                         "output",
+                                         "figs",
+                                         "supp"
+                                       )) {
   su_scores_by_horizon <- su_scores |>
     filter(model == "Hub-baseline") |>
     mutate(horizon = target_date - nowcast_date) |>
@@ -103,7 +103,7 @@ get_plot_overall_prop_excl_by_horizon <- function(su_scores,
     mutate(n_scored_horizon = n()) |>
     group_by(horizon, scored) |>
     summarise(prop_scored = n() / max(n_scored_horizon)) |>
-    filter(scored == TRUE)
+    filter(scored)
 
   p <- ggplot(su_scores_by_horizon) +
     geom_line(aes(x = horizon, y = prop_scored)) +
@@ -129,12 +129,12 @@ get_plot_overall_prop_excl_by_horizon <- function(su_scores,
 #' @param fig_fp Character string indicating filepath of figure
 #'
 #' @returns ggplot of prop of predictions scored by horizons for each location
-get_plot_prop_excl_by_horizon_loc <- function(su_scores,
-                                              fig_fp = file.path(
-                                                "output",
-                                                "figs",
-                                                "supp"
-                                              )) {
+get_plot_prop_excl_loc <- function(su_scores,
+                                   fig_fp = file.path(
+                                     "output",
+                                     "figs",
+                                     "supp"
+                                   )) {
   su_scores_by_horizon <- su_scores |>
     filter(model == "Hub-baseline") |>
     mutate(horizon = target_date - nowcast_date) |>
@@ -143,7 +143,7 @@ get_plot_prop_excl_by_horizon_loc <- function(su_scores,
     mutate(n_scored_horizon = n()) |>
     group_by(horizon, scored, location) |>
     summarise(prop_scored = n() / max(n_scored_horizon)) |>
-    filter(scored == TRUE)
+    filter(scored)
 
   p <- ggplot(su_scores_by_horizon) +
     geom_line(aes(x = horizon, y = prop_scored)) +

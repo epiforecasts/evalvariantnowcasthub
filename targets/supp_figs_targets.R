@@ -34,10 +34,10 @@ supp_figs_targets <- list(
   ),
   tar_target(
     name = plot_overall_prop_excl_by_horizon,
-    command = get_plot_overall_prop_excl_by_horizon(su_scores)
+    command = get_plot_overall_prop_excl(su_scores)
   ),
   tar_target(
     name = plot_prop_excl_by_horizon_loc,
-    command = get_plot_prop_excl_by_horizon_loc(su_scores)
+    command = get_plot_prop_excl_loc(su_scores)
   )
 )
