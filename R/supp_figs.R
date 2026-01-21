@@ -81,3 +81,90 @@ get_volume_prop_comp_weekly <- function(volume_comp_weekly,
     height = 4
   )
 }
+
+#' Get a plot of the proportion of days with which partial observations
+#'  existed, by horizon, across all locations and nowcast dates.
+#' @param su_scores Scoringutils score object with additional column of metadata
+#'   indicating whether or not to score the prediction.
+#' @param fig_fp Character string indicating filepath of figure
+#'
+#' @returns ggplot of prop of predictions scored by horizons
+get_plot_overall_prop_excl <- function(su_scores,
+                                       fig_fp = file.path(
+                                         "output",
+                                         "figs",
+                                         "supp"
+                                       )) {
+  su_scores_by_horizon <- su_scores |>
+    filter(
+      model == "Hub-baseline",
+      !is.na(scored)
+    ) |>
+    mutate(horizon = target_date - nowcast_date) |>
+    filter(!is.na(scored)) |>
+    group_by(horizon) |>
+    mutate(n_scored_horizon = n()) |>
+    group_by(horizon, scored) |>
+    summarise(prop_scored = n() / max(n_scored_horizon)) |>
+    filter(scored)
+
+  p <- ggplot(su_scores_by_horizon) +
+    geom_line(aes(x = horizon, y = prop_scored)) +
+    geom_vline(aes(xintercept = 0), linetype = "dashed") +
+    xlab("Nowcast horizon") +
+    ylab("Proportion of days that contained \n no partial observations as of nowcast date") + # nolint
+    get_plot_theme() +
+    coord_cartesian(ylim = c(0, 1))
+
+  dir_create(fig_fp, recurse = TRUE)
+  ggsave(file.path(fig_fp, glue::glue("prop_no_partial_obs_overall.png")),
+    plot = p,
+    width = 6,
+    height = 5
+  )
+  return(p)
+}
+
+#' Get a plot of the proportion of days with which partial observations
+#'  existed, by horizon, for each location
+#' @param su_scores Scoringutils score object with additional column of metadata
+#'   indicating whether or not to score the prediction.
+#' @param fig_fp Character string indicating filepath of figure
+#'
+#' @returns ggplot of prop of predictions scored by horizons for each location
+get_plot_prop_excl_loc <- function(su_scores,
+                                   fig_fp = file.path(
+                                     "output",
+                                     "figs",
+                                     "supp"
+                                   )) {
+  su_scores_by_horizon <- su_scores |>
+    filter(
+      model == "Hub-baseline",
+      !is.na(scored)
+    ) |>
+    mutate(horizon = target_date - nowcast_date) |>
+    filter(!is.na(scored)) |>
+    group_by(horizon, location) |>
+    mutate(n_scored_horizon = n()) |>
+    group_by(horizon, scored, location) |>
+    summarise(prop_scored = n() / max(n_scored_horizon)) |>
+    filter(scored)
+
+  p <- ggplot(su_scores_by_horizon) +
+    geom_line(aes(x = horizon, y = prop_scored)) +
+    facet_wrap(~location) +
+    geom_vline(aes(xintercept = 0), linetype = "dashed") +
+    xlab("Nowcast horizon") +
+    ylab("Proportion of days that contained \n no partial observations as of nowcast date") + # nolint
+    get_plot_theme() +
+    coord_cartesian(ylim = c(0, 1))
+
+  dir_create(fig_fp, recurse = TRUE)
+  ggsave(file.path(fig_fp, glue::glue("prop_no_partial_obs_loc.png")),
+    plot = p,
+    width = 8,
+    height = 10
+  )
+  return(p)
+}
