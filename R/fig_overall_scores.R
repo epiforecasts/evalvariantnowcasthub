@@ -1234,7 +1234,7 @@ get_plot_avg_rel_skill_overall <- function(scores_obj,
       axis.text.x = element_blank(),
       axis.ticks.x = element_blank()
     ) +
-    coord_cartesian(ylim = c(1 / 1.3, 1.3)) +
+    coord_cartesian(ylim = c(1 / 1.8, 1.8)) +
     guides(
       color = guide_legend(
         title.position = "top",
