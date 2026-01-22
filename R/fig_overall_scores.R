@@ -1121,9 +1121,7 @@ get_plot_avg_rel_skill_by_t <- function(scores_obj,
     geom_line(
       aes(
         x = nowcast_date,
-        y = !!sym(glue::glue(
-          "{score_type}_scaled_relative_skill"
-        )),
+        y = scaled_rel_skill,
         color = model
       )
     ) +
