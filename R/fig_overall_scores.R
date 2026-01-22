@@ -993,7 +993,10 @@ get_scores_by_nowcast_date <- function(a, b, c, d, e, f, g, h, i, j, k, l,
 #' @autoglobal
 get_plot_avg_rel_skill_by_loc <- function(scores_obj,
                                           seq_counts_by_loc,
-                                          score_type = c("brier_score", "energy_score"),
+                                          score_type = c(
+                                            "brier_score",
+                                            "energy_score"
+                                          ),
                                           remove_legend = FALSE) {
   score_type <- rlang::arg_match(score_type)
   plot_components_list <- plot_components()
@@ -1179,7 +1182,10 @@ get_plot_avg_rel_skill_by_t <- function(scores_obj,
 #' @returns ggplot object
 #' @autoglobal
 get_plot_avg_rel_skill_overall <- function(scores_obj,
-                                           score_type = c("brier_score", "energy_score"),
+                                           score_type = c(
+                                             "brier_score",
+                                             "energy_score"
+                                           ),
                                            remove_legend = TRUE,
                                            add_shape = FALSE,
                                            title = NULL) {
