@@ -367,6 +367,21 @@ fig_overall_targets <- list(
   # Supplemental figures that are related---------------------------------
   ## US minus CA ---------------------------------------------------------
   tar_target(
+    name = plot_avg_overall_rel_skill_brier,
+    command = get_plot_avg_rel_skill_overall(
+      scores_obj = su_scores_ep,
+      score_type = "brier_score",
+      title = "US minus CA"
+    )
+  ),
+  tar_target(
+    name = plot_avg_overall_rel_skill_energy,
+    command = get_plot_avg_rel_skill_overall(
+      scores_obj = su_scores_ep,
+      score_type = "energy_score"
+    )
+  ),
+  tar_target(
     name = plot_avg_rel_skill_brier_by_loc,
     command = get_plot_avg_rel_skill_by_loc(
       scores = su_scores_ep,
@@ -397,6 +412,21 @@ fig_overall_targets <- list(
     )
   ),
   ## CA ---------------------------------------------------------
+  tar_target(
+    name = plot_avg_overall_rel_skill_brier_ca,
+    command = get_plot_avg_rel_skill_overall(
+      scores_obj = su_scores_ca,
+      score_type = "brier_score",
+      title = "US minus CA"
+    )
+  ),
+  tar_target(
+    name = plot_avg_overall_rel_skill_energy_ca,
+    command = get_plot_avg_rel_skill_overall(
+      scores_obj = su_scores_ca,
+      score_type = "energy_score"
+    )
+  ),
   tar_target(
     name = plot_avg_rel_skill_brier_by_loc_ca,
     command = get_plot_avg_rel_skill_by_loc(

@@ -131,6 +131,9 @@ utils::globalVariables(c(
   "model", # <get_plot_avg_rel_skill_by_t>
   "nowcast_date", # <get_plot_avg_rel_skill_by_t>
   "scaled_rel_skill", # <get_plot_avg_rel_skill_by_t>
+  "model", # <get_plot_avg_rel_skill_overall>
+  "nowcast_date", # <get_plot_avg_rel_skill_overall>
+  "scaled_rel_skill", # <get_plot_avg_rel_skill_overall>
   "model_id", # <prepare_submission_data>
   "location", # <prepare_submission_data>
   "nowcast_date", # <prepare_submission_data>

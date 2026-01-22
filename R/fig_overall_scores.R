@@ -1142,10 +1142,10 @@ get_plot_avg_rel_skill_by_t <- function(scores_obj,
     ) +
     labs(
       x = "",
-      y = glue::glue("Relative scaled\nskill ({label})")
+      y = glue::glue("Average relative scaled\nskill ({label})")
     ) +
     scale_y_continuous(trans = "log10") +
-    coord_cartesian(ylim = c(1 / 2.4, 2.4)) +
+    coord_cartesian(ylim = c(1 / 3, 3)) +
     theme(
       axis.text.x = element_blank(),
       axis.title.x = element_text(size = 12)
@@ -1158,6 +1158,111 @@ get_plot_avg_rel_skill_by_t <- function(scores_obj,
       shape = "none"
     )
   }
+  if (!is.null(title)) {
+    p <- p + ggtitle(glue::glue("{title}"))
+  }
+  return(p)
+}
+
+#' Brier/Energy Relative skill averaged by model
+#'
+#' @param scores_obj Scoringutils scores object
+#' @param score_type Character string indicating which score metric to use
+#' @param remove_legend Boolean indicating whether to keep legend, default
+#'   is TRUE.
+#' @param add_shape Boolean indicating whether to add the shape legend,
+#'  default is FALSE.
+#' @param title Character string indicating title, default is NULL.
+#' @importFrom scoringutils summarise_scores
+#' @importFrom ggplot2 ggplot geom_bar aes geom_hline coord_flip
+#' @importFrom rlang sym
+#' @returns ggplot object
+#' @autoglobal
+get_plot_avg_rel_skill_overall <- function(scores_obj,
+                                           score_type = c("brier_score", "energy_score"),
+                                           remove_legend = TRUE,
+                                           add_shape = FALSE,
+                                           title = NULL) {
+  score_type <- rlang::arg_match(score_type)
+  plot_components_list <- plot_components()
+  if (score_type == "brier_score") {
+    label <- "Brier score"
+  } else {
+    label <- "Energy score"
+  }
+
+  rel_skill <- scores_obj |>
+    ungroup() |>
+    filter(!is.na(!!sym(score_type))) |>
+    scoringutils::get_pairwise_comparisons(
+      baseline = "Hub-baseline",
+      metric = score_type,
+      by = c("nowcast_date", "target_date", "location")
+    ) |>
+    filter(model != "Hub-baseline") |>
+    group_by(model) |>
+    summarise(scaled_rel_skill = mean(!!sym(glue::glue(
+      "{score_type}_scaled_relative_skill"
+    )), na.rm = TRUE))
+
+  p <- ggplot(rel_skill) +
+    geom_point(
+      aes(
+        x = model,
+        y = scaled_rel_skill,
+        color = model,
+        shape = model
+      ),
+      size = 6
+    ) +
+    geom_hline(yintercept = 1, linetype = "dashed", color = "gray50") +
+    scale_color_manual(
+      name = "Model",
+      values = plot_components_list$model_colors
+    ) +
+    scale_shape_manual(
+      name = "Model",
+      values = plot_components_list$model_shapes
+    ) +
+    get_plot_theme() +
+    labs(
+      x = "",
+      y = glue::glue("Average relative scaled skill\n({label})")
+    ) +
+    scale_y_continuous(trans = "log10") +
+    theme(
+      axis.text.x = element_blank(),
+      axis.ticks.x = element_blank()
+    ) +
+    coord_cartesian(ylim = c(1 / 1.3, 1.3)) +
+    guides(
+      color = guide_legend(
+        title.position = "top",
+        nrow = 1
+      ),
+      shape = guide_legend(
+        title.position = "top",
+        nrow = 1
+      )
+    )
+
+  if (isTRUE(remove_legend)) {
+    p <- p + guides(
+      fill = "none",
+      color = "none",
+      shape = "none"
+    )
+  }
+
+  if (isTRUE(add_shape)) {
+    p <- p + guides(
+      shape = guide_legend(
+        title.position = "top",
+        nrow = 1
+      )
+    )
+  }
+
   if (!is.null(title)) {
     p <- p + ggtitle(glue::glue("{title}"))
   }
