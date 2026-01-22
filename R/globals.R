@@ -124,6 +124,13 @@ utils::globalVariables(c(
   "total_sequences", # <get_plot_seq_counts_date>
   "nowcast_date", # <get_plot_seq_eval_date>
   "total_sequences", # <get_plot_seq_eval_date>
+  "model", # <get_plot_avg_rel_skill_by_loc>
+  "location", # <get_plot_avg_rel_skill_by_loc>
+  "total_seq", # <get_plot_avg_rel_skill_by_loc>
+  "scaled_rel_skill", # <get_plot_avg_rel_skill_by_loc>
+  "model", # <get_plot_by_avg_rel_skil_by_t>
+  "nowcast_date", # <get_plot_by_avg_rel_skil_by_t>
+  "scaled_rel_skill", # <get_plot_by_avg_rel_skil_by_t>
   "model_id", # <prepare_submission_data>
   "location", # <prepare_submission_data>
   "nowcast_date", # <prepare_submission_data>
