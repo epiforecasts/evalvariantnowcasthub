@@ -362,5 +362,16 @@ fig_overall_targets <- list(
       l = plot_seq_by_eval_date_ca,
       plot_name = "by_nowcast_date"
     )
+  ),
+
+  # Supplemental figures that are related-------------------------
+  # US minus CA
+  tar_target(
+    name = plot_avg_rel_skill_by_loc,
+    command = get_plot_avg_rel_skill_by_loc(
+      scores = su_scores_ep,
+      seq_counts_by_loc = seq_counts_by_loc, 
+      score_type = "brier"
+    )
   )
 )
