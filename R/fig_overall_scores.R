@@ -1079,14 +1079,14 @@ get_plot_avg_rel_skill_by_loc <- function(scores_obj,
 #' @importFrom rlang sym
 #' @returns ggplot object
 #' @autoglobal
-get_plot_by_avg_rel_skil_by_t <- function(scores_obj,
-                                          score_type = c(
-                                            "brier_score",
-                                            "energy_score"
-                                          ),
-                                          rel_skill_plot = TRUE,
-                                          remove_legend = TRUE,
-                                          title = NULL) {
+get_plot_avg_rel_skill_by_t <- function(scores_obj,
+                                        score_type = c(
+                                          "brier_score",
+                                          "energy_score"
+                                        ),
+                                        rel_skill_plot = TRUE,
+                                        remove_legend = TRUE,
+                                        title = NULL) {
   score_type <- rlang::arg_match(score_type)
   plot_components_list <- plot_components()
   if (score_type == "brier_score") {

@@ -378,7 +378,6 @@ fig_overall_targets <- list(
     name = plot_avg_rel_skill_brier_by_t,
     command = get_plot_avg_rel_skill_by_t(
       scores = su_scores_ep,
-      seq_counts_by_loc = seq_counts_by_loc,
       score_type = "brier_score"
     )
   ),
@@ -394,7 +393,6 @@ fig_overall_targets <- list(
     name = plot_avg_rel_skill_energy_by_t,
     command = get_plot_avg_rel_skill_by_t(
       scores = su_scores_ep,
-      seq_counts_by_loc = seq_counts_by_loc,
       score_type = "energy_score"
     )
   ),
@@ -411,7 +409,6 @@ fig_overall_targets <- list(
     name = plot_avg_rel_skill_brier_by_t_ca,
     command = get_plot_avg_rel_skill_by_t(
       scores = su_scores_ca,
-      seq_counts_by_loc = seq_counts_by_loc,
       score_type = "brier_score"
     )
   ),
@@ -427,7 +424,6 @@ fig_overall_targets <- list(
     name = plot_avg_rel_skill_energy_by_t_ca,
     command = get_plot_avg_rel_skill_by_t(
       scores = su_scores_ca,
-      seq_counts_by_loc = seq_counts_by_loc,
       score_type = "energy_score"
     )
   )
