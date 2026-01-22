@@ -371,7 +371,7 @@ fig_overall_targets <- list(
     command = get_plot_avg_rel_skill_by_loc(
       scores = su_scores_ep,
       seq_counts_by_loc = seq_counts_by_loc,
-      score_type = "brier"
+      score_type = "brier_score"
     )
   ),
   tar_target(
@@ -379,7 +379,7 @@ fig_overall_targets <- list(
     command = get_plot_avg_rel_skill_by_t(
       scores = su_scores_ep,
       seq_counts_by_loc = seq_counts_by_loc,
-      score_type = "brier"
+      score_type = "brier_score"
     )
   ),
   tar_target(
@@ -387,7 +387,7 @@ fig_overall_targets <- list(
     command = get_plot_avg_rel_skill_by_loc(
       scores = su_scores_ep,
       seq_counts_by_loc = seq_counts_by_loc,
-      score_type = "energy"
+      score_type = "energy_score"
     )
   ),
   tar_target(
@@ -395,7 +395,7 @@ fig_overall_targets <- list(
     command = get_plot_avg_rel_skill_by_t(
       scores = su_scores_ep,
       seq_counts_by_loc = seq_counts_by_loc,
-      score_type = "energy"
+      score_type = "energy_score"
     )
   ),
   ## CA ---------------------------------------------------------
@@ -404,7 +404,7 @@ fig_overall_targets <- list(
     command = get_plot_avg_rel_skill_by_loc(
       scores = su_scores_ca,
       seq_counts_by_loc = seq_counts_by_loc,
-      score_type = "brier"
+      score_type = "brier_score"
     )
   ),
   tar_target(
@@ -412,7 +412,7 @@ fig_overall_targets <- list(
     command = get_plot_avg_rel_skill_by_t(
       scores = su_scores_ca,
       seq_counts_by_loc = seq_counts_by_loc,
-      score_type = "brier"
+      score_type = "brier_score"
     )
   ),
   tar_target(
@@ -420,7 +420,7 @@ fig_overall_targets <- list(
     command = get_plot_avg_rel_skill_by_loc(
       scores = su_scores_ca,
       seq_counts_by_loc = seq_counts_by_loc,
-      score_type = "energy"
+      score_type = "energy_score"
     )
   ),
   tar_target(
@@ -428,7 +428,7 @@ fig_overall_targets <- list(
     command = get_plot_avg_rel_skill_by_t(
       scores = su_scores_ca,
       seq_counts_by_loc = seq_counts_by_loc,
-      score_type = "energy"
+      score_type = "energy_score"
     )
-  ),
+  )
 )
