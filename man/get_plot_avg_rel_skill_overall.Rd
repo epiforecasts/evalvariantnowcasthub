@@ -17,6 +17,8 @@ get_plot_avg_rel_skill_overall(
 \arguments{
 \item{scores_obj}{Scoringutils scores object}
 
+\item{plot_name}{Name of plot}
+
 \item{output_fp}{directory to save figures}
 
 \item{score_type}{Character string indicating which score metric to use}
@@ -28,8 +30,6 @@ is TRUE.}
 default is FALSE.}
 
 \item{title}{Character string indicating title, default is NULL.}
-
-\item{name_of_plot}{Name of plot}
 }
 \value{
 ggplot object

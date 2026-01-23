@@ -387,7 +387,7 @@ fig_overall_targets <- list(
   tar_target(
     name = plot_avg_rel_skill_brier_by_loc,
     command = get_plot_avg_rel_skill_by_loc(
-      scores = su_scores_ep,
+      scores_obj = su_scores_ep,
       seq_counts_by_loc = seq_counts_by_loc,
       score_type = "brier_score",
       plot_name = "avg_rel_skill_brier_loc"
@@ -396,7 +396,7 @@ fig_overall_targets <- list(
   tar_target(
     name = plot_avg_rel_skill_brier_by_t,
     command = get_plot_avg_rel_skill_by_t(
-      scores = su_scores_ep,
+      scores_obj = su_scores_ep,
       score_type = "brier_score",
       plot_name = "avg_rel_skill_brier_t"
     )
@@ -404,7 +404,7 @@ fig_overall_targets <- list(
   tar_target(
     name = plot_avg_rel_skill_energy_by_loc,
     command = get_plot_avg_rel_skill_by_loc(
-      scores = su_scores_ep,
+      scores_obj = su_scores_ep,
       seq_counts_by_loc = seq_counts_by_loc,
       score_type = "energy_score",
       plot_name = "avg_rel_skill_energy_loc"
@@ -413,7 +413,7 @@ fig_overall_targets <- list(
   tar_target(
     name = plot_avg_rel_skill_energy_by_t,
     command = get_plot_avg_rel_skill_by_t(
-      scores = su_scores_ep,
+      scores_obj = su_scores_ep,
       score_type = "energy_score",
       plot_name = "avg_rel_skill_energy_t"
     )
@@ -440,7 +440,7 @@ fig_overall_targets <- list(
   tar_target(
     name = plot_avg_rel_skill_brier_by_loc_ca,
     command = get_plot_avg_rel_skill_by_loc(
-      scores = su_scores_ca,
+      scores_obj = su_scores_ca,
       seq_counts_by_loc = seq_counts_by_loc,
       score_type = "brier_score",
       plot_name = "avg_rel_skill_brier_loc_ca"
@@ -449,7 +449,7 @@ fig_overall_targets <- list(
   tar_target(
     name = plot_avg_rel_skill_brier_by_t_ca,
     command = get_plot_avg_rel_skill_by_t(
-      scores = su_scores_ca,
+      scores_obj = su_scores_ca,
       score_type = "brier_score",
       plot_name = "avg_rel_skill_brier_t_ca"
     )
@@ -457,7 +457,7 @@ fig_overall_targets <- list(
   tar_target(
     name = plot_avg_rel_skill_energy_by_loc_ca,
     command = get_plot_avg_rel_skill_by_loc(
-      scores = su_scores_ca,
+      scores_obj = su_scores_ca,
       seq_counts_by_loc = seq_counts_by_loc,
       score_type = "energy_score",
       plot_name = "avg_rel_skill_energy_loc_ca"
@@ -466,7 +466,7 @@ fig_overall_targets <- list(
   tar_target(
     name = plot_avg_rel_skill_energy_by_t_ca,
     command = get_plot_avg_rel_skill_by_t(
-      scores = su_scores_ca,
+      scores_obj = su_scores_ca,
       score_type = "energy_score",
       plot_name = "avg_rel_skill_energy_t_ca"
     )

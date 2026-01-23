@@ -983,7 +983,7 @@ get_scores_by_nowcast_date <- function(a, b, c, d, e, f, g, h, i, j, k, l,
 #'
 #' @param scores_obj Scoringutils scores object
 #' @param seq_counts_by_loc Total sequences for each location
-#' @param name_of_plot Name of plot
+#' @param plot_name Name of plot
 #' @param output_fp directory to save figures
 #' @param score_type Character string indicating which score metric to use
 #' @param remove_legend Boolean indicating whether to keep legend, default
@@ -1088,7 +1088,7 @@ get_plot_avg_rel_skill_by_loc <- function(scores_obj,
 #'
 #' @param scores_obj Scoringutils scores object
 #' @param score_type Character string indicating which score metric to use
-#' #' @param name_of_plot Name of plot
+#' @param name_of_plot Name of plot
 #' @param output_fp directory to save figures
 #' @param remove_legend Boolean indicating whether to keep legend, default
 #'   is TRUE.
@@ -1198,7 +1198,7 @@ get_plot_avg_rel_skill_by_t <- function(scores_obj,
 #'
 #' @param scores_obj Scoringutils scores object
 #' @param score_type Character string indicating which score metric to use
-#' @param name_of_plot Name of plot
+#' @param plot_name Name of plot
 #' @param output_fp directory to save figures
 #' @param remove_legend Boolean indicating whether to keep legend, default
 #'   is TRUE.

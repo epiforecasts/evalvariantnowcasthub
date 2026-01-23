@@ -18,14 +18,14 @@ get_plot_avg_rel_skill_by_loc(
 
 \item{seq_counts_by_loc}{Total sequences for each location}
 
+\item{plot_name}{Name of plot}
+
 \item{output_fp}{directory to save figures}
 
 \item{score_type}{Character string indicating which score metric to use}
 
 \item{remove_legend}{Boolean indicating whether to keep legend, default
 is TRUE.}
-
-\item{name_of_plot}{Name of plot}
 }
 \value{
 ggplot object
