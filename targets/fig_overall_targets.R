@@ -362,5 +362,113 @@ fig_overall_targets <- list(
       l = plot_seq_by_eval_date_ca,
       plot_name = "by_nowcast_date"
     )
+  ),
+
+  # Supplemental figures that are related---------------------------------
+  ## US minus CA ---------------------------------------------------------
+  tar_target(
+    name = plot_avg_overall_rel_skill_brier,
+    command = get_plot_avg_rel_skill_overall(
+      scores_obj = su_scores_ep,
+      score_type = "brier_score",
+      title = "US excluding CA",
+      plot_name = "avg_rel_skill_brier"
+    )
+  ),
+  tar_target(
+    name = plot_avg_overall_rel_skill_energy,
+    command = get_plot_avg_rel_skill_overall(
+      scores_obj = su_scores_ep,
+      score_type = "energy_score",
+      title = "US excluding CA",
+      plot_name = "avg_rel_skill_energy"
+    )
+  ),
+  tar_target(
+    name = plot_avg_rel_skill_brier_by_loc,
+    command = get_plot_avg_rel_skill_by_loc(
+      scores_obj = su_scores_ep,
+      seq_counts_by_loc = seq_counts_by_loc,
+      score_type = "brier_score",
+      plot_name = "avg_rel_skill_brier_loc"
+    )
+  ),
+  tar_target(
+    name = plot_avg_rel_skill_brier_by_t,
+    command = get_plot_avg_rel_skill_by_t(
+      scores_obj = su_scores_ep,
+      score_type = "brier_score",
+      plot_name = "avg_rel_skill_brier_t"
+    )
+  ),
+  tar_target(
+    name = plot_avg_rel_skill_energy_by_loc,
+    command = get_plot_avg_rel_skill_by_loc(
+      scores_obj = su_scores_ep,
+      seq_counts_by_loc = seq_counts_by_loc,
+      score_type = "energy_score",
+      plot_name = "avg_rel_skill_energy_loc"
+    )
+  ),
+  tar_target(
+    name = plot_avg_rel_skill_energy_by_t,
+    command = get_plot_avg_rel_skill_by_t(
+      scores_obj = su_scores_ep,
+      score_type = "energy_score",
+      plot_name = "avg_rel_skill_energy_t"
+    )
+  ),
+  ## CA ---------------------------------------------------------
+  tar_target(
+    name = plot_avg_overall_rel_skill_brier_ca,
+    command = get_plot_avg_rel_skill_overall(
+      scores_obj = su_scores_ca,
+      score_type = "brier_score",
+      title = "CA",
+      plot_name = "avg_rel_skill_brier_ca"
+    )
+  ),
+  tar_target(
+    name = plot_avg_overall_rel_skill_energy_ca,
+    command = get_plot_avg_rel_skill_overall(
+      scores_obj = su_scores_ca,
+      score_type = "energy_score",
+      title = "CA",
+      plot_name = "avg_rel_skill_energy_ca"
+    )
+  ),
+  tar_target(
+    name = plot_avg_rel_skill_brier_by_loc_ca,
+    command = get_plot_avg_rel_skill_by_loc(
+      scores_obj = su_scores_ca,
+      seq_counts_by_loc = seq_counts_by_loc,
+      score_type = "brier_score",
+      plot_name = "avg_rel_skill_brier_loc_ca"
+    )
+  ),
+  tar_target(
+    name = plot_avg_rel_skill_brier_by_t_ca,
+    command = get_plot_avg_rel_skill_by_t(
+      scores_obj = su_scores_ca,
+      score_type = "brier_score",
+      plot_name = "avg_rel_skill_brier_t_ca"
+    )
+  ),
+  tar_target(
+    name = plot_avg_rel_skill_energy_by_loc_ca,
+    command = get_plot_avg_rel_skill_by_loc(
+      scores_obj = su_scores_ca,
+      seq_counts_by_loc = seq_counts_by_loc,
+      score_type = "energy_score",
+      plot_name = "avg_rel_skill_energy_loc_ca"
+    )
+  ),
+  tar_target(
+    name = plot_avg_rel_skill_energy_by_t_ca,
+    command = get_plot_avg_rel_skill_by_t(
+      scores_obj = su_scores_ca,
+      score_type = "energy_score",
+      plot_name = "avg_rel_skill_energy_t_ca"
+    )
   )
 )
