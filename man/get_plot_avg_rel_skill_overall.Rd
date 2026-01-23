@@ -6,14 +6,18 @@
 \usage{
 get_plot_avg_rel_skill_overall(
   scores_obj,
+  plot_name,
+  output_fp = file.path("output", "figs", "supp"),
   score_type = c("brier_score", "energy_score"),
-  remove_legend = TRUE,
+  remove_legend = FALSE,
   add_shape = FALSE,
   title = NULL
 )
 }
 \arguments{
 \item{scores_obj}{Scoringutils scores object}
+
+\item{output_fp}{directory to save figures}
 
 \item{score_type}{Character string indicating which score metric to use}
 
@@ -24,6 +28,8 @@ is TRUE.}
 default is FALSE.}
 
 \item{title}{Character string indicating title, default is NULL.}
+
+\item{name_of_plot}{Name of plot}
 }
 \value{
 ggplot object

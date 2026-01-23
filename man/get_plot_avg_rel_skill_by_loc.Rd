@@ -7,6 +7,8 @@
 get_plot_avg_rel_skill_by_loc(
   scores_obj,
   seq_counts_by_loc,
+  plot_name,
+  output_fp = file.path("output", "figs", "supp"),
   score_type = c("brier_score", "energy_score"),
   remove_legend = FALSE
 )
@@ -16,10 +18,14 @@ get_plot_avg_rel_skill_by_loc(
 
 \item{seq_counts_by_loc}{Total sequences for each location}
 
+\item{output_fp}{directory to save figures}
+
 \item{score_type}{Character string indicating which score metric to use}
 
 \item{remove_legend}{Boolean indicating whether to keep legend, default
 is TRUE.}
+
+\item{name_of_plot}{Name of plot}
 }
 \value{
 ggplot object

@@ -983,6 +983,8 @@ get_scores_by_nowcast_date <- function(a, b, c, d, e, f, g, h, i, j, k, l,
 #'
 #' @param scores_obj Scoringutils scores object
 #' @param seq_counts_by_loc Total sequences for each location
+#' @param name_of_plot Name of plot
+#' @param output_fp directory to save figures
 #' @param score_type Character string indicating which score metric to use
 #' @param remove_legend Boolean indicating whether to keep legend, default
 #'   is TRUE.
@@ -993,6 +995,10 @@ get_scores_by_nowcast_date <- function(a, b, c, d, e, f, g, h, i, j, k, l,
 #' @autoglobal
 get_plot_avg_rel_skill_by_loc <- function(scores_obj,
                                           seq_counts_by_loc,
+                                          plot_name,
+                                          output_fp = file.path(
+                                            "output", "figs", "supp"
+                                          ),
                                           score_type = c(
                                             "brier_score",
                                             "energy_score"
@@ -1067,6 +1073,14 @@ get_plot_avg_rel_skill_by_loc <- function(scores_obj,
       shape = "none"
     )
   }
+  ggsave(
+    file.path(output_fp, glue::glue("{plot_name}.png")),
+    plot = p,
+    width = 10,
+    height = 6,
+    dpi = 300
+  )
+
   return(p)
 }
 
@@ -1074,6 +1088,8 @@ get_plot_avg_rel_skill_by_loc <- function(scores_obj,
 #'
 #' @param scores_obj Scoringutils scores object
 #' @param score_type Character string indicating which score metric to use
+#' #' @param name_of_plot Name of plot
+#' @param output_fp directory to save figures
 #' @param remove_legend Boolean indicating whether to keep legend, default
 #'   is TRUE.
 #' @param title Character string indicating title, default is NULL.
@@ -1083,12 +1099,16 @@ get_plot_avg_rel_skill_by_loc <- function(scores_obj,
 #' @returns ggplot object
 #' @autoglobal
 get_plot_avg_rel_skill_by_t <- function(scores_obj,
+                                        plot_name,
+                                        output_fp = file.path(
+                                          "output", "figs", "supp"
+                                        ),
                                         score_type = c(
                                           "brier_score",
                                           "energy_score"
                                         ),
                                         rel_skill_plot = TRUE,
-                                        remove_legend = TRUE,
+                                        remove_legend = FALSE,
                                         title = NULL) {
   score_type <- rlang::arg_match(score_type)
   plot_components_list <- plot_components()
@@ -1150,7 +1170,6 @@ get_plot_avg_rel_skill_by_t <- function(scores_obj,
     scale_y_continuous(trans = "log10") +
     coord_cartesian(ylim = c(1 / 3, 3)) +
     theme(
-      axis.text.x = element_blank(),
       axis.title.x = element_text(size = 12)
     )
 
@@ -1164,6 +1183,14 @@ get_plot_avg_rel_skill_by_t <- function(scores_obj,
   if (!is.null(title)) {
     p <- p + ggtitle(glue::glue("{title}"))
   }
+
+  ggsave(
+    file.path(output_fp, glue::glue("{plot_name}.png")),
+    plot = p,
+    width = 10,
+    height = 6,
+    dpi = 300
+  )
   return(p)
 }
 
@@ -1171,6 +1198,8 @@ get_plot_avg_rel_skill_by_t <- function(scores_obj,
 #'
 #' @param scores_obj Scoringutils scores object
 #' @param score_type Character string indicating which score metric to use
+#' @param name_of_plot Name of plot
+#' @param output_fp directory to save figures
 #' @param remove_legend Boolean indicating whether to keep legend, default
 #'   is TRUE.
 #' @param add_shape Boolean indicating whether to add the shape legend,
@@ -1182,11 +1211,15 @@ get_plot_avg_rel_skill_by_t <- function(scores_obj,
 #' @returns ggplot object
 #' @autoglobal
 get_plot_avg_rel_skill_overall <- function(scores_obj,
+                                           plot_name,
+                                           output_fp = file.path(
+                                             "output", "figs", "supp"
+                                           ),
                                            score_type = c(
                                              "brier_score",
                                              "energy_score"
                                            ),
-                                           remove_legend = TRUE,
+                                           remove_legend = FALSE,
                                            add_shape = FALSE,
                                            title = NULL) {
   score_type <- rlang::arg_match(score_type)
@@ -1243,12 +1276,14 @@ get_plot_avg_rel_skill_overall <- function(scores_obj,
     coord_cartesian(ylim = c(1 / 1.8, 1.8)) +
     guides(
       color = guide_legend(
+        position = "top",
         title.position = "top",
-        nrow = 1
+        nrow = 3
       ),
       shape = guide_legend(
+        position = "top",
         title.position = "top",
-        nrow = 1
+        nrow = 3
       )
     )
 
@@ -1272,5 +1307,13 @@ get_plot_avg_rel_skill_overall <- function(scores_obj,
   if (!is.null(title)) {
     p <- p + ggtitle(glue::glue("{title}"))
   }
+
+  ggsave(
+    file.path(output_fp, glue::glue("{plot_name}.png")),
+    plot = p,
+    width = 8,
+    height = 10,
+    dpi = 300
+  )
   return(p)
 }

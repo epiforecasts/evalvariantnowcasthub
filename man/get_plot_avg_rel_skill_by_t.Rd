@@ -6,16 +6,21 @@
 \usage{
 get_plot_avg_rel_skill_by_t(
   scores_obj,
+  plot_name,
+  output_fp = file.path("output", "figs", "supp"),
   score_type = c("brier_score", "energy_score"),
   rel_skill_plot = TRUE,
-  remove_legend = TRUE,
+  remove_legend = FALSE,
   title = NULL
 )
 }
 \arguments{
 \item{scores_obj}{Scoringutils scores object}
 
-\item{score_type}{Character string indicating which score metric to use}
+\item{output_fp}{directory to save figures}
+
+\item{score_type}{Character string indicating which score metric to use
+#' @param name_of_plot Name of plot}
 
 \item{remove_legend}{Boolean indicating whether to keep legend, default
 is TRUE.}
