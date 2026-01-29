@@ -600,7 +600,7 @@ get_plot_horizon <- function(scores_obj,
         shape = "none"
       ) +
       scale_y_continuous(trans = "log10",
-                         breaks = c(0.8, 1.0, 1.2, 1.4) ) +
+                         breaks = c(0.8, 1.0, 1.2, 1.4)) +
       coord_cartesian(ylim = c(1 / 1.4, 1.4))
   } else {
     scores_sum <- scores_obj |>
@@ -640,8 +640,7 @@ get_plot_horizon <- function(scores_obj,
       ) +
       guides(
         color = "none",
-        shape = "none"
-      ) 
+        shape = "none") 
     if (score_type == "brier_score") {
       p <- p + coord_cartesian(ylim = c(0, 0.6))
     }
