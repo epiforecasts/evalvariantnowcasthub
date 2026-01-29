@@ -640,7 +640,7 @@ get_plot_horizon <- function(scores_obj,
       ) +
       guides(
         color = "none",
-        shape = "none") 
+        shape = "none") #nolint
     if (score_type == "brier_score") {
       p <- p + coord_cartesian(ylim = c(0, 0.6))
     }
