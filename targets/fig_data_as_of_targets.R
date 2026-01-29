@@ -56,7 +56,7 @@ fig_data_as_of_targets <- list(
       plot_name = "bar_chart_seq_as_of_ex",
       log_scale = FALSE,
       nowcast_date_line = TRUE,
-      title = "US minus CA",
+      title = "US excluding CA",
       remove_xticks = TRUE
     )
   ),

@@ -227,14 +227,21 @@ get_plot_bias_by_date <- function(bias_data,
       name = "Model",
       values = plot_comps$model_colors
     ) +
-    guides(color = "none") +
     xlab("") +
     ylab("Bias") +
     scale_x_date(
       limits = date_range,
       date_breaks = "1 week",
       date_labels = "%d %b %Y"
-    )
+    ) +
+    guides(
+      color = guide_legend(
+        title.position = "top",
+        title.hjust = 0.5,
+        nrow = 1
+      )
+    )  +
+    theme(legend.position = "top")
   dir_create(output_fp, recurse = TRUE)
   ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
     plot = p,

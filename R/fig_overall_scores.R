@@ -294,6 +294,10 @@ get_plot_by_nowcast_date <- function(scores_obj,
         )
       ) +
       theme(axis.text.x = element_blank())
+    
+    if(score_type == "brier_score") {
+      p <- p + coord_cartesian(ylim = c(0, 0.6))
+    }
   }
   if (isTRUE(remove_legend)) {
     p <- p + guides(
@@ -495,6 +499,10 @@ get_plot_overall <- function(scores_obj,
           nrow = 1
         )
       )
+    
+    if(score_type == "brier_score") {
+      p <- p + coord_cartesian(ylim = c(0, 0.6))
+    }
   }
 
   if (isTRUE(remove_legend)) {
@@ -633,7 +641,11 @@ get_plot_horizon <- function(scores_obj,
       guides(
         color = "none",
         shape = "none"
-      )
+      ) 
+    
+    if(score_type == "brier_score") {
+      p <- p + coord_cartesian(ylim = c(0, 0.6))
+    }
   }
   if (isTRUE(show_legend)) {
     p <- p + guides(
