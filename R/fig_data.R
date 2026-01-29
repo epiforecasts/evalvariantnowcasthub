@@ -256,6 +256,7 @@ get_plot_hosp_admissions <- function(location_to_plot,
       ),
       legend.position = "bottom"
     ) +
+    coord_cartesian(ylim = c(0, 2.5)) +
     ggtitle(glue::glue("{location_to_plot}"))
   dir_create(output_fp, recurse = TRUE)
   ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),

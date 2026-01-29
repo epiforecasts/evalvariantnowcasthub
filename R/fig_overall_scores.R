@@ -294,6 +294,9 @@ get_plot_by_nowcast_date <- function(scores_obj,
         )
       ) +
       theme(axis.text.x = element_blank())
+    if (score_type == "brier_score") {
+      p <- p + coord_cartesian(ylim = c(0, 0.6))
+    }
   }
   if (isTRUE(remove_legend)) {
     p <- p + guides(
@@ -445,7 +448,8 @@ get_plot_overall <- function(scores_obj,
         x = "",
         y = glue::glue("Relative scaled skill\n({label})")
       ) +
-      scale_y_continuous(trans = "log10") +
+      scale_y_continuous(trans = "log10",
+                         breaks = c(0.8, 1.0, 1.2, 1.4)) +
       theme(
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank()
@@ -495,6 +499,9 @@ get_plot_overall <- function(scores_obj,
           nrow = 1
         )
       )
+    if (score_type == "brier_score") {
+      p <- p + coord_cartesian(ylim = c(0, 0.6))
+    }
   }
 
   if (isTRUE(remove_legend)) {
@@ -592,7 +599,8 @@ get_plot_horizon <- function(scores_obj,
         color = "none",
         shape = "none"
       ) +
-      scale_y_continuous(trans = "log10") +
+      scale_y_continuous(trans = "log10",
+                         breaks = c(0.8, 1.0, 1.2, 1.4)) +
       coord_cartesian(ylim = c(1 / 1.4, 1.4))
   } else {
     scores_sum <- scores_obj |>
@@ -632,8 +640,10 @@ get_plot_horizon <- function(scores_obj,
       ) +
       guides(
         color = "none",
-        shape = "none"
-      )
+        shape = "none") #nolint
+    if (score_type == "brier_score") {
+      p <- p + coord_cartesian(ylim = c(0, 0.6))
+    }
   }
   if (isTRUE(show_legend)) {
     p <- p + guides(

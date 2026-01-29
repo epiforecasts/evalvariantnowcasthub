@@ -60,7 +60,7 @@ fig_data_targets <- list(
       temporal_granularity = "weeks",
       date_range = date_range_to_plot,
       plot_name = "final_obs_freq_US_min_ca",
-      title = "US minus CA"
+      title = "US excluding CA"
     )
   ),
   tar_target(

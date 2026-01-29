@@ -29,7 +29,7 @@ fig_overall_targets <- list(
       scores_obj = su_scores_ep,
       rel_skill_plot = FALSE,
       score_type = "brier_score",
-      title = "US minus CA"
+      title = "US excluding CA"
     )
   ),
   tar_target(
@@ -67,7 +67,7 @@ fig_overall_targets <- list(
       scores_obj = su_scores_ep,
       rel_skill_plot = FALSE,
       score_type = "brier_score",
-      title = "US minus CA"
+      title = "US excluding CA"
     )
   ),
   tar_target(
@@ -266,7 +266,7 @@ fig_overall_targets <- list(
       scores_obj = su_scores_ep,
       score_type = "brier_score",
       rel_skill_plot = FALSE,
-      title = "US minus CA"
+      title = "US excluding CA"
     )
   ),
   tar_target(
@@ -365,7 +365,7 @@ fig_overall_targets <- list(
   ),
 
   # Supplemental figures that are related---------------------------------
-  ## US minus CA ---------------------------------------------------------
+  ## US excluding CA ---------------------------------------------------------
   tar_target(
     name = plot_avg_overall_rel_skill_brier,
     command = get_plot_avg_rel_skill_overall(
