@@ -65,7 +65,8 @@ get_plot_by_location <- function(scores_obj,
         metric = score_type,
         by = "location"
       ) |>
-      filter(model != "Hub-baseline") |>
+      filter(model != "Hub-baseline",
+             compare_against == "Hub-baseline") |>
       left_join(seq_counts_by_loc) |>
       arrange(desc(total_seq)) |>
       mutate(location = factor(location, levels = unique(location))) |>
@@ -192,7 +193,8 @@ get_plot_by_nowcast_date <- function(scores_obj,
         metric = score_type,
         by = "nowcast_date"
       ) |>
-      filter(model != "Hub-baseline")
+      filter(model != "Hub-baseline",
+             compare_against == "Hub-baseline")
 
     p <- ggplot(rel_skill) +
       geom_point(
@@ -420,7 +422,8 @@ get_plot_overall <- function(scores_obj,
         baseline = "Hub-baseline",
         metric = score_type
       ) |>
-      filter(model != "Hub-baseline")
+      filter(model != "Hub-baseline",
+             compare_against == "Hub-baseline")
 
     p <- ggplot(rel_skill) +
       geom_point(
@@ -1022,7 +1025,7 @@ get_plot_avg_rel_skill_by_loc <- function(scores_obj,
     label <- "Energy score"
   }
 
-  rel_skill <- scores_obj |>
+  rel_skill_avg <- scores_obj |>
     ungroup() |>
     filter(!is.na(!!sym(score_type))) |>
     scoringutils::get_pairwise_comparisons(
@@ -1030,14 +1033,37 @@ get_plot_avg_rel_skill_by_loc <- function(scores_obj,
       metric = score_type,
       by = c("location", "nowcast_date", "target_date")
     ) |>
-    filter(model != "Hub-baseline") |>
+    filter(model != "Hub-baseline",
+           compare_against == "Hub-baseline") |>
     group_by(location, model) |>
-    summarise(scaled_rel_skill = mean(!!sym(glue::glue(
+    summarise(scaled_rel_skill = exp(mean(log(!!sym(glue::glue(
       "{score_type}_scaled_relative_skill"
-    )), na.rm = TRUE)) |>
+    ))), na.rm = TRUE))) |>
     left_join(seq_counts_by_loc) |>
     arrange(desc(total_seq)) |>
-    mutate(location = factor(location, levels = unique(location)))
+    mutate(location = factor(location, levels = unique(location)),
+           type_rel_skill = "Average across individual days")
+  
+  rel_skill_loc <- scores_obj |>
+    ungroup() |>
+    filter(!is.na(!!sym(score_type))) |>
+    scoringutils::get_pairwise_comparisons(
+      baseline = "Hub-baseline",
+      metric = score_type,
+      by = "location"
+    ) |>
+    filter(model != "Hub-baseline",
+           compare_against == "Hub-baseline") |>
+    left_join(seq_counts_by_loc) |>
+    arrange(desc(total_seq)) |>
+    mutate(location = factor(location, levels = unique(location)),
+           type_rel_skill = "By overlapping set") |>
+    filter(model != "Hub-baseline") |>
+    rename(scaled_rel_skill = !!sym(glue::glue(
+      "{score_type}_scaled_relative_skill"
+    ))) |> select(colnames(rel_skill_avg))
+  
+  rel_skill <- bind_rows(rel_skill_avg, rel_skill_loc)
 
   p <- ggplot(rel_skill) +
     geom_point(
@@ -1045,7 +1071,7 @@ get_plot_avg_rel_skill_by_loc <- function(scores_obj,
         x = location,
         y = scaled_rel_skill,
         color = model,
-        shape = model
+        shape = type_rel_skill
       ),
       size = 4
     ) +
@@ -1055,8 +1081,8 @@ get_plot_avg_rel_skill_by_loc <- function(scores_obj,
       values = plot_components_list$model_colors
     ) +
     scale_shape_manual(
-      name = "Model",
-      values = plot_components_list$model_shapes
+      name = "How relative skill computed",
+      values = plot_components_list$type_rel_skill_shapes
     ) +
     get_plot_theme() +
     labs(
@@ -1064,7 +1090,7 @@ get_plot_avg_rel_skill_by_loc <- function(scores_obj,
       y = glue::glue("Average relative scaled skill\n({label})")
     ) +
     scale_y_continuous(trans = "log10") +
-    coord_cartesian(ylim = c(1 / 4.5, 4.5)) +
+    coord_cartesian(ylim = c(1 / 6, 6)) +
     guides(
       color = guide_legend(
         title.position = "top",
@@ -1127,7 +1153,7 @@ get_plot_avg_rel_skill_by_t <- function(scores_obj,
   } else {
     label <- "Energy score"
   }
-  rel_skill <- scores_obj |>
+  rel_skill_avg <- scores_obj |>
     ungroup() |>
     filter(!is.na(!!sym(score_type))) |>
     scoringutils::get_pairwise_comparisons(
@@ -1135,11 +1161,29 @@ get_plot_avg_rel_skill_by_t <- function(scores_obj,
       metric = score_type,
       by = c("nowcast_date", "location", "target_date")
     ) |>
-    filter(model != "Hub-baseline") |>
+    filter(model != "Hub-baseline",
+           compare_against == "Hub-baseline") |>
     group_by(nowcast_date, model) |>
-    summarise(scaled_rel_skill = mean(!!sym(glue::glue(
+    summarise(scaled_rel_skill = exp(mean(log(!!sym(glue::glue(
       "{score_type}_scaled_relative_skill"
-    )), na.rm = TRUE))
+    ))), na.rm = TRUE))) |>
+    mutate(type_rel_skill = "Average across individual days")
+  rel_skill_t <-  rel_skill <- scores_obj |>
+    ungroup() |>
+    filter(!is.na(!!sym(score_type))) |>
+    scoringutils::get_pairwise_comparisons(
+      baseline = "Hub-baseline",
+      metric = score_type,
+      by = "nowcast_date"
+    ) |>
+    filter(model != "Hub-baseline",
+           compare_against == "Hub-baseline") |>
+    mutate(type_rel_skill = "By overlapping set") |>
+    rename(scaled_rel_skill = !!sym(glue::glue(
+      "{score_type}_scaled_relative_skill"
+    ))) |> select(colnames(rel_skill_avg))
+  
+  rel_skill <- bind_rows(rel_skill_avg, rel_skill_t)
 
   p <- ggplot(rel_skill) +
     geom_point(
@@ -1147,7 +1191,7 @@ get_plot_avg_rel_skill_by_t <- function(scores_obj,
         x = nowcast_date,
         y = scaled_rel_skill,
         color = model,
-        shape = model
+        shape = type_rel_skill
       ),
       alpha = 0.5
     ) +
@@ -1164,8 +1208,8 @@ get_plot_avg_rel_skill_by_t <- function(scores_obj,
       values = plot_components_list$model_colors
     ) +
     scale_shape_manual(
-      name = "Model",
-      values = plot_components_list$model_shapes
+      name = "How relative skill computed",
+      values = plot_components_list$type_rel_skill_shapes
     ) +
     get_plot_theme(dates = TRUE) +
     scale_x_date(
@@ -1240,7 +1284,7 @@ get_plot_avg_rel_skill_overall <- function(scores_obj,
     label <- "Energy score"
   }
 
-  rel_skill <- scores_obj |>
+  rel_skill_avg <- scores_obj |>
     ungroup() |>
     filter(!is.na(!!sym(score_type))) |>
     scoringutils::get_pairwise_comparisons(
@@ -1248,11 +1292,31 @@ get_plot_avg_rel_skill_overall <- function(scores_obj,
       metric = score_type,
       by = c("nowcast_date", "target_date", "location")
     ) |>
-    filter(model != "Hub-baseline") |>
+    filter(model != "Hub-baseline",
+           compare_against == "Hub-baseline") |>
     group_by(model) |>
-    summarise(scaled_rel_skill = mean(!!sym(glue::glue(
+    summarise(scaled_rel_skill = exp(mean(log(!!sym(glue::glue(
       "{score_type}_scaled_relative_skill"
-    )), na.rm = TRUE))
+    ))), na.rm = TRUE))) |>
+    mutate(type_rel_skill = "Average across individual days")
+  
+  rel_skill_overall <- scores_obj |>
+    ungroup() |>
+    filter(!is.na(!!sym(score_type))) |>
+    scoringutils::get_pairwise_comparisons(
+      baseline = "Hub-baseline",
+      metric = score_type
+    ) |>
+    filter(model != "Hub-baseline",
+           compare_against == "Hub-baseline") |>
+    mutate(type_rel_skill = "By overlapping set") |>
+    rename(scaled_rel_skill = !!sym(glue::glue(
+      "{score_type}_scaled_relative_skill"
+    ))) |> select(colnames(rel_skill_avg))
+  
+  rel_skill <- bind_rows(rel_skill_avg, 
+                         rel_skill_overall)
+  
 
   p <- ggplot(rel_skill) +
     geom_point(
@@ -1260,7 +1324,7 @@ get_plot_avg_rel_skill_overall <- function(scores_obj,
         x = model,
         y = scaled_rel_skill,
         color = model,
-        shape = model
+        shape = type_rel_skill
       ),
       size = 6
     ) +
@@ -1270,8 +1334,8 @@ get_plot_avg_rel_skill_overall <- function(scores_obj,
       values = plot_components_list$model_colors
     ) +
     scale_shape_manual(
-      name = "Model",
-      values = plot_components_list$model_shapes
+      name = "How relative skill computed",
+      values = plot_components_list$type_rel_skill_shapes
     ) +
     get_plot_theme() +
     labs(
