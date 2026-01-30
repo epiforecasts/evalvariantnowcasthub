@@ -240,7 +240,7 @@ fig_overall_targets_no_exclusions <- list(
       c = bar_chart_energy_location_ne,
       d = rel_skill_energy_location_ne,
       e = plot_seq_counts_by_loc,
-      plot_name = "by_location"
+      plot_name = "by_location_ne"
     )
   ),
 
