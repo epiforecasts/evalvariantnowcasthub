@@ -1038,7 +1038,7 @@ get_plot_avg_rel_skill_by_loc <- function(scores_obj,
     group_by(location, model) |>
     summarise(scaled_rel_skill = exp(mean(log(!!sym(glue::glue(
       "{score_type}_scaled_relative_skill"
-    ))), na.rm = TRUE))) |>
+    )) + 1e-8), na.rm = TRUE))) |>
     left_join(seq_counts_by_loc) |>
     arrange(desc(total_seq)) |>
     mutate(location = factor(location, levels = unique(location)),
@@ -1166,7 +1166,7 @@ get_plot_avg_rel_skill_by_t <- function(scores_obj,
     group_by(nowcast_date, model) |>
     summarise(scaled_rel_skill = exp(mean(log(!!sym(glue::glue(
       "{score_type}_scaled_relative_skill"
-    ))), na.rm = TRUE))) |>
+    ))+ 1e-8), na.rm = TRUE))) |>
     mutate(type_rel_skill = "Average across individual days")
   rel_skill_t <-  rel_skill <- scores_obj |>
     ungroup() |>
@@ -1297,7 +1297,7 @@ get_plot_avg_rel_skill_overall <- function(scores_obj,
     group_by(model) |>
     summarise(scaled_rel_skill = exp(mean(log(!!sym(glue::glue(
       "{score_type}_scaled_relative_skill"
-    ))), na.rm = TRUE))) |>
+    )) + 1e-8), na.rm = TRUE))) |>
     mutate(type_rel_skill = "Average across individual days")
   
   rel_skill_overall <- scores_obj |>
@@ -1347,7 +1347,7 @@ get_plot_avg_rel_skill_overall <- function(scores_obj,
       axis.text.x = element_blank(),
       axis.ticks.x = element_blank()
     ) +
-    coord_cartesian(ylim = c(1 / 1.8, 1.8)) +
+    # coord_cartesian(ylim = c(1 / 3.5, 3.5)) +
     guides(
       color = guide_legend(
         position = "top",
