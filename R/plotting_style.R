@@ -65,6 +65,11 @@ plot_components <- function() {
     "UGA-multicast" = 17,
     "UMass-HMLR" = 15
   )
+  
+  type_rel_skill_shapes <- c(
+    "By overlapping set" = 21,
+    "Average across individual days" = 25
+  )
   clade_colors <- c(
     "24A" = pal_clades[1],
     "24B" = pal_clades[2],
@@ -136,7 +141,8 @@ plot_components <- function() {
       percentile_colors = percentile_colors,
       data_availability_alpha = data_availability_alpha,
       data_availability_linetype = data_availability_linetype,
-      pred_int_alpha = pred_int_alpha
+      pred_int_alpha = pred_int_alpha,
+      type_rel_skill_shapes = type_rel_skill_shapes
     )
   return(plot_comp_list)
 }
