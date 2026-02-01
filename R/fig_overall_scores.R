@@ -1376,12 +1376,11 @@ get_heatmap_rel_skill_by_model <- function(scores_obj,
     )
   ))) +
     geom_tile(color = "white", linewidth = 0.5) +
-    scale_fill_viridis_c(
-      option = "viridis",
-      trans = "log10", # Log scale
-      na.value = "gray90", # Gray for missing/zero sequences
-      name = "Scaled relative skill",
-      labels = scales::comma
+    scale_fill_gradient2(
+      high = "red", mid = "white", low = "blue",
+      transform = "log2",
+      midpoint = 1,
+      guide = "colourbar", aesthetics = "fill"
     ) +
     facet_wrap(~model) + 
     scale_x_date(
@@ -1452,10 +1451,20 @@ get_distrib_rel_skill_by_model <- function(scores_obj,
            compare_against == "Hub-baseline") 
   
   p <- ggplot(rel_skill) +
-    geom_histogram(aes(
-    x =  !!sym(glue::glue(
-      "{score_type}_scaled_relative_skill"
-    )), fill = model)) +
+    tidybayes::stat_dotsinterval(
+      aes(
+        y = !!sym(glue::glue(
+          "{score_type}_scaled_relative_skill"
+        )), fill = model),
+      alpha = 0.5,
+      position = position_dodge(width = 0.75),
+      show.legend = FALSE,
+      fill = "darkblue"
+    ) +
+    geom_hline(aes(yintercept = 1), linetype = "dashed") +
+    get_plot_theme() +
+    scale_y_continuous(trans = "log10") +
+    coord_cartesian(ylim = c(1 / 3.5, 3.5))
     facet_wrap(~model) + 
     scale_fill_manual(
       name = "Model",
@@ -1463,16 +1472,12 @@ get_distrib_rel_skill_by_model <- function(scores_obj,
     ) +
     labs(
       title = glue::glue("Scaled relative ({label})"),
-      x = "Nowcast Date",
-      y = "Location"
+      x = "Count",
+      y = "Scaled relative skill"
     ) +
     get_plot_theme() +
-    theme(
-      axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
-      axis.text.y = element_text(size = 6)
-    ) +
     guides(
-      color = guide_legend(
+      fill = guide_legend(
         title.position = "top",
         nrow = 3
       )

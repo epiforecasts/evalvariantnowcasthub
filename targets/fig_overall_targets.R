@@ -486,7 +486,7 @@ tar_target(
   command = get_heatmap_rel_skill_by_model(
     scores_obj = su_scores,
     score_type = "brier_score",
-    plot_name = "heatmap_rel_skill_energy"
+    plot_name = "heatmap_rel_skill_brier"
   )
 ),
 tar_target(
@@ -498,11 +498,11 @@ tar_target(
   )
 ),
 tar_target(
-  name = distrib_rel_skill_energy_score,
+  name = distrib_rel_skill_brier_score,
   command = get_distrib_rel_skill_by_model(
     scores_obj = su_scores,
     score_type = "brier_score",
     plot_name = "distrib_rel_skill_brier"
   )
-),
+)
 )
