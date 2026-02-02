@@ -1455,23 +1455,27 @@ get_distrib_rel_skill_by_model <- function(scores_obj,
       aes(
         y = !!sym(glue::glue(
           "{score_type}_scaled_relative_skill"
-        )), fill = model),
+        )) + 1e-10, color = model,
+        fill = model),
       alpha = 0.5,
       position = position_dodge(width = 0.75),
-      show.legend = FALSE,
-      fill = "darkblue"
+      show.legend = FALSE
     ) +
     geom_hline(aes(yintercept = 1), linetype = "dashed") +
     get_plot_theme() +
-    scale_y_continuous(trans = "log10") +
-    coord_cartesian(ylim = c(1 / 3.5, 3.5))
+     scale_y_continuous(trans = "log10") +
+     coord_cartesian(ylim = c(1 / 9, 9)) + 
     facet_wrap(~model) + 
+    scale_color_manual(
+      name = "Model",
+      values = plot_components_list$model_colors
+    ) +
     scale_fill_manual(
       name = "Model",
       values = plot_components_list$model_colors
     ) +
     labs(
-      title = glue::glue("Scaled relative ({label})"),
+      title = glue::glue("Scaled relative skill ({label})"),
       x = "Count",
       y = "Scaled relative skill"
     ) +
