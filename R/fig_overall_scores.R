@@ -1352,8 +1352,11 @@ get_heatmap_rel_skill_by_model <- function(scores_obj,
                                           )) {
   score_type <- rlang::arg_match(score_type)
   plot_components_list <- plot_components()
+
   if (score_type == "brier_score") {
     label <- "Brier score"
+    scores_obj <- scores_obj |> 
+      filter(!model %in% c("CADPH-CATaLog", "CADPH-CATaMaran")) 
   } else {
     label <- "Energy score"
   }
@@ -1367,7 +1370,13 @@ get_heatmap_rel_skill_by_model <- function(scores_obj,
       by = c("location", "nowcast_date")
     ) |>
     filter(model != "Hub-baseline",
-           compare_against == "Hub-baseline") 
+           compare_against == "Hub-baseline",
+           # Remove the perfect scores, will eventually fix 
+           # to filter out n>1
+           !!sym(glue::glue(
+             "{score_type}_scaled_relative_skill"
+           )) >=1e-5 )
+    
 
   p <- ggplot(rel_skill, aes(
     x = nowcast_date, y = location,
