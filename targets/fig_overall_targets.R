@@ -370,6 +370,7 @@ fig_overall_targets <- list(
     name = plot_avg_overall_rel_skill_brier,
     command = get_plot_avg_rel_skill_overall(
       scores_obj = su_scores_ep,
+      seq_counts_by_date_loc = seq_counts_by_date_loc,
       score_type = "brier_score",
       title = "US excluding CA",
       plot_name = "avg_rel_skill_brier"

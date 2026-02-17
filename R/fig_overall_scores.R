@@ -96,7 +96,7 @@ get_plot_by_location <- function(scores_obj,
       get_plot_theme() +
       labs(
         x = "",
-        y = glue::glue("Relative scaled skill\n({label})")
+        y = glue::glue("Scaled relative skill\n({label})")
       ) +
       scale_y_continuous(trans = "log10") +
       coord_cartesian(ylim = c(1 / 4.5, 4.5)) +
@@ -234,7 +234,7 @@ get_plot_by_nowcast_date <- function(scores_obj,
       ) +
       labs(
         x = "",
-        y = glue::glue("Relative scaled\nskill ({label})")
+        y = glue::glue("Scaled relative\nskill ({label})")
       ) +
       scale_y_continuous(trans = "log10") +
       coord_cartesian(ylim = c(1 / 2.4, 2.4)) +
@@ -449,7 +449,7 @@ get_plot_overall <- function(scores_obj,
       get_plot_theme() +
       labs(
         x = "",
-        y = glue::glue("Relative scaled skill\n({label})")
+        y = glue::glue("Scaled relative skill\n({label})")
       ) +
       scale_y_continuous(trans = "log10",
                          breaks = c(0.8, 1.0, 1.2, 1.4)) +
@@ -1038,7 +1038,7 @@ get_plot_avg_rel_skill_by_loc <- function(scores_obj,
     group_by(location, model) |>
     summarise(scaled_rel_skill = exp(mean(log(!!sym(glue::glue(
       "{score_type}_scaled_relative_skill"
-    )) + 1e-8), na.rm = TRUE))) |>
+    ))), na.rm = TRUE))) |>
     left_join(seq_counts_by_loc) |>
     arrange(desc(total_seq)) |>
     mutate(location = factor(location, levels = unique(location)),
@@ -1085,9 +1085,10 @@ get_plot_avg_rel_skill_by_loc <- function(scores_obj,
       values = plot_components_list$type_rel_skill_shapes
     ) +
     get_plot_theme() +
+    theme(legend.position = "top") +
     labs(
       x = "",
-      y = glue::glue("Average relative scaled skill\n({label})")
+      y = glue::glue("Average scaled relative skill\n({label})")
     ) +
     scale_y_continuous(trans = "log10") +
     coord_cartesian(ylim = c(1 / 6, 6)) +
@@ -1166,7 +1167,7 @@ get_plot_avg_rel_skill_by_t <- function(scores_obj,
     group_by(nowcast_date, model) |>
     summarise(scaled_rel_skill = exp(mean(log(!!sym(glue::glue(
       "{score_type}_scaled_relative_skill"
-    ))+ 1e-8), na.rm = TRUE))) |>
+    ))), na.rm = TRUE))) |>
     mutate(type_rel_skill = "Average across individual days")
   rel_skill_t <-  rel_skill <- scores_obj |>
     ungroup() |>
@@ -1199,7 +1200,8 @@ get_plot_avg_rel_skill_by_t <- function(scores_obj,
       aes(
         x = nowcast_date,
         y = scaled_rel_skill,
-        color = model
+        color = model,
+        group = type_rel_skill
       )
     ) +
     geom_hline(yintercept = 1, linetype = "dashed", color = "gray50") +
@@ -1219,7 +1221,7 @@ get_plot_avg_rel_skill_by_t <- function(scores_obj,
     ) +
     labs(
       x = "",
-      y = glue::glue("Average relative scaled\nskill ({label})")
+      y = glue::glue("Average scaled relative\nskill ({label})")
     ) +
     scale_y_continuous(trans = "log10") +
     coord_cartesian(ylim = c(1 / 3, 3)) +
@@ -1251,6 +1253,8 @@ get_plot_avg_rel_skill_by_t <- function(scores_obj,
 #' Brier/Energy Relative skill averaged by model
 #'
 #' @param scores_obj Scoringutils scores object
+#' @param seq_counts_by_date_loc Number of sequences for evaluation for each
+#'   nowcast date, collection date, and location 
 #' @param score_type Character string indicating which score metric to use
 #' @param plot_name Name of plot
 #' @param output_fp directory to save figures
@@ -1265,6 +1269,7 @@ get_plot_avg_rel_skill_by_t <- function(scores_obj,
 #' @returns ggplot object
 #' @autoglobal
 get_plot_avg_rel_skill_overall <- function(scores_obj,
+                                           seq_counts_by_date_loc,
                                            plot_name,
                                            output_fp = file.path(
                                              "output", "figs", "supp"
@@ -1287,6 +1292,10 @@ get_plot_avg_rel_skill_overall <- function(scores_obj,
   rel_skill_avg <- scores_obj |>
     ungroup() |>
     filter(!is.na(!!sym(score_type))) |>
+    left_join(seq_counts_by_date_loc,
+              by = c("nowcast_date", "target_date" = "date", 
+                     "location") ) |>
+    filter(n_seq > 1) |>
     scoringutils::get_pairwise_comparisons(
       baseline = "Hub-baseline",
       metric = score_type,
@@ -1297,7 +1306,7 @@ get_plot_avg_rel_skill_overall <- function(scores_obj,
     group_by(model) |>
     summarise(scaled_rel_skill = exp(mean(log(!!sym(glue::glue(
       "{score_type}_scaled_relative_skill"
-    )) + 1e-8), na.rm = TRUE))) |>
+    ))), na.rm = TRUE))) |>
     mutate(type_rel_skill = "Average across individual days")
   
   rel_skill_overall <- scores_obj |>
@@ -1340,7 +1349,7 @@ get_plot_avg_rel_skill_overall <- function(scores_obj,
     get_plot_theme() +
     labs(
       x = "",
-      y = glue::glue("Average relative scaled skill\n({label})")
+      y = glue::glue("Average scaled relative skill\n({label})")
     ) +
     scale_y_continuous(trans = "log10") +
     theme(
