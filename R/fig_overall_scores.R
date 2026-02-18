@@ -997,6 +997,12 @@ get_scores_by_nowcast_date <- function(a, b, c, d, e, f, g, h, i, j, k, l,
 #' @param scores_obj Scoringutils scores object
 #' @param seq_counts_by_loc Total sequences for each location
 #' @param plot_name Name of plot
+#' @param threshold_n_seq Minimum number of sequences for a particular nowcast
+#'   date and location for the scaled relative skill to be included in the 
+#'   average
+#' @param threshold_n_seq Minimum number of sequences for a particular nowcast
+#'   date and location for the scaled relative skill to be included in the 
+#'   average
 #' @param output_fp directory to save figures
 #' @param score_type Character string indicating which score metric to use
 #' @param remove_legend Boolean indicating whether to keep legend, default
@@ -1009,6 +1015,7 @@ get_scores_by_nowcast_date <- function(a, b, c, d, e, f, g, h, i, j, k, l,
 get_plot_avg_rel_skill_by_loc <- function(scores_obj,
                                           seq_counts_by_loc,
                                           plot_name,
+                                          threshold_n_seq = 5,
                                           output_fp = file.path(
                                             "output", "figs", "supp"
                                           ),
@@ -1040,10 +1047,10 @@ get_plot_avg_rel_skill_by_loc <- function(scores_obj,
       "{score_type}_scaled_relative_skill"
     ))), na.rm = TRUE))) |>
     left_join(seq_counts_by_loc) |>
+    filter(total_seq > threshold_n_seq) |>
     arrange(desc(total_seq)) |>
     mutate(location = factor(location, levels = unique(location)),
            type_rel_skill = "Average across individual days")
-  
   rel_skill_loc <- scores_obj |>
     ungroup() |>
     filter(!is.na(!!sym(score_type))) |>
@@ -1060,9 +1067,8 @@ get_plot_avg_rel_skill_by_loc <- function(scores_obj,
            type_rel_skill = "By overlapping set") |>
     filter(model != "Hub-baseline") |>
     rename(scaled_rel_skill = !!sym(glue::glue(
-      "{score_type}_scaled_relative_skill"
-    ))) |> select(colnames(rel_skill_avg))
-  
+      "{score_type}_scaled_relative_skill"))) |> 
+    select(colnames(rel_skill_avg))
   rel_skill <- bind_rows(rel_skill_avg, rel_skill_loc)
 
   p <- ggplot(rel_skill) +
@@ -1181,8 +1187,8 @@ get_plot_avg_rel_skill_by_t <- function(scores_obj,
            compare_against == "Hub-baseline") |>
     mutate(type_rel_skill = "By overlapping set") |>
     rename(scaled_rel_skill = !!sym(glue::glue(
-      "{score_type}_scaled_relative_skill"
-    ))) |> select(colnames(rel_skill_avg))
+      "{score_type}_scaled_relative_skill"))) |>
+    select(colnames(rel_skill_avg))
   
   rel_skill <- bind_rows(rel_skill_avg, rel_skill_t)
 
@@ -1271,6 +1277,7 @@ get_plot_avg_rel_skill_by_t <- function(scores_obj,
 get_plot_avg_rel_skill_overall <- function(scores_obj,
                                            seq_counts_by_date_loc,
                                            plot_name,
+                                           threshold_n_seq = 5,
                                            output_fp = file.path(
                                              "output", "figs", "supp"
                                            ),
@@ -1292,10 +1299,6 @@ get_plot_avg_rel_skill_overall <- function(scores_obj,
   rel_skill_avg <- scores_obj |>
     ungroup() |>
     filter(!is.na(!!sym(score_type))) |>
-    left_join(seq_counts_by_date_loc,
-              by = c("nowcast_date", "target_date" = "date", 
-                     "location") ) |>
-    filter(n_seq > 1) |>
     scoringutils::get_pairwise_comparisons(
       baseline = "Hub-baseline",
       metric = score_type,
@@ -1303,6 +1306,10 @@ get_plot_avg_rel_skill_overall <- function(scores_obj,
     ) |>
     filter(model != "Hub-baseline",
            compare_against == "Hub-baseline") |>
+    left_join(seq_counts_by_date_loc,
+              by = c("nowcast_date", "target_date" = "date", 
+                     "location") ) |>
+    filter(n_seq > threshold_n_seq) |>
     group_by(model) |>
     summarise(scaled_rel_skill = exp(mean(log(!!sym(glue::glue(
       "{score_type}_scaled_relative_skill"
