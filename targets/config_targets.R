@@ -12,7 +12,7 @@ config_targets <- list(
   ),
   tar_target(
     name = clades_to_plot,
-    command = c("24E", "24F", "25A")
+    command = c("24E (KP.3.1.1)", "24F (XEC)", "25A (LP.8.1)")
   ),
   # Url to load in the oracle output, which contains the data available as of the nowcast date
   tar_target(
@@ -41,7 +41,7 @@ config_targets <- list(
   # Will be updated when merged to main
   tar_target(
     name = coverage_fp,
-    command = "https://github.com/reichlab/variant-nowcast-hub/raw/refs/heads/883-add-coverage/auxiliary-data/coverage/coverage.parquet" # nolint
+    command = "https://github.com/reichlab/variant-nowcast-hub/raw/refs/heads/main/auxiliary-data/scores/coverage.parquet" # nolint
   ),
   # Url to load in the raw data on number of sequences by clade for all clades
   tar_target(

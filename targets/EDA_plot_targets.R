@@ -17,7 +17,7 @@ eda_plot_targets <- list(
     name = plot_25A_by_loc,
     command = get_plot_clade_by_loc(
       data = clean_variant_data_final_all_states,
-      clade = "25A",
+      clade = "25A (LP.8.1)",
       date_of_interest = nowcast_date_for_vis,
       plot_name = "plot_25A_emergence"
     )

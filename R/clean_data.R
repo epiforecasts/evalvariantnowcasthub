@@ -3,6 +3,7 @@
 #' @param raw_variant_data Data.frame of latest data extracted directly from
 #'    next strain
 #' @param clade_list Vector of character strings of the clade names
+#' @param clades_w_display_name Tibble with clade and clade + pango lineage
 #' @param location_data Data.frame of location information
 #' @param nowcast_date Character string indicate the date of the nowcast.
 #' @param seq_col_name Character string indicating the name of the column for
@@ -17,6 +18,7 @@
 #' @autoglobal
 get_clean_variant_data <- function(raw_variant_data,
                                    clade_list,
+                                   clades_w_display_name,
                                    location_data,
                                    nowcast_date,
                                    seq_col_name,
@@ -25,6 +27,7 @@ get_clean_variant_data <- function(raw_variant_data,
     location_code = location,
     location = abbreviation
   )
+
   clean_latest_data <- raw_variant_data |>
     mutate(
       clades_modeled = ifelse(clade %in% clade_list, clade, "other")
@@ -46,7 +49,15 @@ get_clean_variant_data <- function(raw_variant_data,
       type, date, nowcast_date
     ) |>
     summarise(sequences = sum(sequences)) |>
-    ungroup()
+    ungroup() |>
+    left_join(clades_w_display_name,
+      by = c("clades_modeled" = "clade")
+    ) |>
+    mutate(clades_modeled = ifelse(!is.na(display_name),
+      display_name,
+      clades_modeled
+    )) |>
+    select(-display_name)
   return(clean_latest_data)
 }
 #' Get clean variant data from raw data
@@ -54,6 +65,7 @@ get_clean_variant_data <- function(raw_variant_data,
 #' @param raw_variant_data Data.frame of latest data extracted directly from
 #'    next strain
 #' @param clade_list Vector of character strings of the clade names
+#' @param clades_w_display_name Tibble with clade + clade and pango lineage
 #' @param location_data Data.frame of location information
 #' @param nowcast_dates Vector of character strings indicate the date range of
 #'    the data.
@@ -69,6 +81,7 @@ get_clean_variant_data <- function(raw_variant_data,
 #' @autoglobal
 get_clean_variant_data_ns <- function(raw_variant_data,
                                       clade_list,
+                                      clades_w_display_name,
                                       location_data,
                                       nowcast_dates,
                                       type,
@@ -149,7 +162,15 @@ get_clean_variant_data_ns <- function(raw_variant_data,
       type, date
     ) |>
     summarise(sequences = sum(sequences)) |>
-    ungroup()
+    ungroup() |>
+    left_join(clades_w_display_name,
+      by = c("clades_modeled" = "clade")
+    ) |>
+    mutate(clades_modeled = ifelse(!is.na(display_name),
+      display_name,
+      clades_modeled
+    )) |>
+    select(-display_name)
   return(clean_latest_data)
 }
 

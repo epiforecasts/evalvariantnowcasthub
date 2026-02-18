@@ -9,7 +9,7 @@
 #' @returns ggplot object
 get_plot_model_preds_mult <- function(model_preds_mult_nowcasts,
                                       final_eval_data,
-                                      clade_to_zoom = "25A",
+                                      clade_to_zoom = "25A (LP.8.1)",
                                       horizon_to_plot = c(-6, 0)) {
   df_filt <- model_preds_mult_nowcasts |>
     filter(clade == clade_to_zoom) |>
@@ -54,7 +54,7 @@ get_plot_model_preds_mult <- function(model_preds_mult_nowcasts,
     ) +
     geom_point(
       data = daily_obs,
-      aes(x = date, y = sequences / n_seq, fill = "25A"),
+      aes(x = date, y = sequences / n_seq, fill = "25A (LP.8.1)"),
       color = "#CAB2D6",
       shape = 21,
       size = 0.8
@@ -68,8 +68,8 @@ get_plot_model_preds_mult <- function(model_preds_mult_nowcasts,
     ) +
     scale_fill_manual(
       name = "Clade",
-      values = c(plot_comps$model_colors, "25A" = "#CAB2D6"),
-      breaks = "25A"
+      values = c(plot_comps$model_colors, "25A (LP.8.1)" = "#CAB2D6"),
+      breaks = "25A (LP.8.1)"
     ) +
     xlab("") +
     ylab("Model predictions across nowcast dates") +
@@ -240,7 +240,7 @@ get_plot_bias_by_date <- function(bias_data,
         title.hjust = 0.5,
         nrow = 1
       )
-    )  +
+    ) +
     theme(legend.position = "top")
   dir_create(output_fp, recurse = TRUE)
   ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),

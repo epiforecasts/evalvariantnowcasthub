@@ -35,8 +35,6 @@ get_plot_obs_clade_freq <- function(obs_data,
   }
 
 
-
-
   seq_data <- obs_data |>
     group_by(date, location) |>
     summarise(n_seq = sum(sequences))
@@ -159,7 +157,7 @@ get_bar_chart_seq_count <- function(obs_data,
       fill = guide_legend(
         title.position = "left",
         title.hjust = 0.5,
-        nrow = 2
+        nrow = 3
       )
     ) +
     scale_x_date(

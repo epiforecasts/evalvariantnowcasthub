@@ -4,7 +4,7 @@ fig_pred_plus_data_targets <- list(
     command = get_plot_model_pred_obs(
       model_pred_obs_df = df_summary,
       eval_seq = clean_variant_data_for_eval,
-      clades_to_plot = "25A"
+      clades_to_plot = "25A (LP.8.1)"
     )
   ),
   tar_target(
@@ -12,7 +12,7 @@ fig_pred_plus_data_targets <- list(
     command = get_plot_model_pred_obs(
       model_pred_obs_df = df_summary,
       eval_seq = clean_variant_data_for_eval,
-      clades_to_plot = "24F"
+      clades_to_plot = "24F (XEC)"
     )
   ),
   tar_target(

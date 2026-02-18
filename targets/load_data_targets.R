@@ -85,6 +85,10 @@ load_data_targets <- list(
       clades_by_nowcast_date_dir
     )
   ),
+  tar_target(
+    name = clades_w_display_name,
+    command = get_clade_display_name()
+  ),
   # Location table
   tar_target(
     name = location_data,
@@ -96,7 +100,8 @@ load_data_targets <- list(
     command = extract_nowcasts(
       nowcast_dates = nowcast_date_for_vis,
       states = states_for_vis,
-      bucket_name = nowcast_bucket_name
+      bucket_name = nowcast_bucket_name,
+      clades_w_display_name = clades_w_display_name
     )
   ),
   # Model outputs for the selected dates
@@ -105,7 +110,8 @@ load_data_targets <- list(
     command = extract_nowcasts(
       nowcast_dates = nowcast_date_range_to_zoom,
       states = states_for_vis,
-      bucket_name = nowcast_bucket_name
+      bucket_name = nowcast_bucket_name,
+      clades_w_display_name = clades_w_display_name
     )
   ),
   # All model outputs for heatmap (all dates and locations)
@@ -114,7 +120,8 @@ load_data_targets <- list(
     command = extract_nowcasts(
       nowcast_dates = nowcast_dates,
       states = location_data$abbreviation,
-      bucket_name = nowcast_bucket_name
+      bucket_name = nowcast_bucket_name,
+      clades_w_display_name = clades_w_display_name
     )
   ),
   # Scores corresponding to the nowcast dates we will evaluate
@@ -133,6 +140,12 @@ load_data_targets <- list(
       filter(
         nowcast_date >= min(nowcast_dates),
         nowcast_date <= max(nowcast_dates)
-      )
+      ) |>
+      left_join(clades_w_display_name) |>
+      mutate(clade = ifelse(!is.na(display_name),
+        display_name,
+        clade
+      )) |>
+      select(-display_name)
   )
 )

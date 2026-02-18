@@ -20,6 +20,27 @@ get_clade_list <- function(nowcast_dates,
   return(clades)
 }
 
+#' Get clade display name
+#'
+#' @param url URL to yaml mapping clade to pangolineage clade name
+#'
+#' @returns Tibble with clade and clade with pangolineage name next to it
+#' @autoglobal
+get_clade_display_name <- function(url = "https://raw.githubusercontent.com/nextstrain/ncov/refs/heads/master/defaults/clade_display_names.yml") { # nolint
+  clades_w_pango <- suppressWarnings(yaml::read_yaml(url))
+  nextstrain_clades <- tibble(
+    clade = names(clades_w_pango),
+    display_name = unlist(clades_w_pango)
+  ) |>
+    mutate(
+      variant = stringr::str_extract(display_name, "(?<=\\().*(?=\\))"),
+      display_name_short = stringr::str_remove(display_name, " \\(.*\\)")
+    ) |>
+    select(clade, display_name)
+
+  return(nextstrain_clades)
+}
+
 #' Extract nowcasts from S3 bucket
 #'
 #' @param nowcast_dates Nowcast date(s) to extract
@@ -31,7 +52,8 @@ get_clade_list <- function(nowcast_dates,
 #' @autoglobal
 extract_nowcasts <- function(nowcast_dates,
                              states,
-                             bucket_name) {
+                             bucket_name,
+                             clades_w_display_name = clades_w_display_name) {
   hub_bucket <- arrow::s3_bucket(bucket_name)
   hub_con <- hubData::connect_hub(hub_bucket,
     file_format = "parquet",
@@ -42,7 +64,15 @@ extract_nowcasts <- function(nowcast_dates,
       location %in% states,
       nowcast_date %in% nowcast_dates
     ) |>
-    hubData::collect_hub()
+    hubData::collect_hub() |>
+    left_join(clades_w_display_name,
+      by = c("clade")
+    ) |>
+    mutate(clade = ifelse(!is.na(display_name),
+      display_name,
+      clade
+    )) |>
+    select(-display_name)
   return(nowcast_data)
 }
 

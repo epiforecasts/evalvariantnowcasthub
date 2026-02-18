@@ -7,7 +7,7 @@
 get_plot_model_preds_mult(
   model_preds_mult_nowcasts,
   final_eval_data,
-  clade_to_zoom = "25A",
+  clade_to_zoom = "25A (LP.8.1)",
   horizon_to_plot = c(-6, 0)
 )
 }
