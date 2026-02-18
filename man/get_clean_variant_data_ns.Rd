@@ -7,6 +7,7 @@
 get_clean_variant_data_ns(
   raw_variant_data,
   clade_list,
+  clades_w_display_name,
   location_data,
   nowcast_dates,
   type,
@@ -20,6 +21,8 @@ get_clean_variant_data_ns(
 next strain}
 
 \item{clade_list}{Vector of character strings of the clade names}
+
+\item{clades_w_display_name}{Tibble with clade + clade and pango lineage}
 
 \item{location_data}{Data.frame of location information}
 

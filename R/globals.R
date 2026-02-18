@@ -36,6 +36,7 @@ utils::globalVariables(c(
   "location_code", # <get_clean_variant_data>
   "population", # <get_clean_variant_data>
   "sequences", # <get_clean_variant_data>
+  "display_name", # <get_clean_variant_data>
   "location", # <get_clean_variant_data_ns>
   "abbreviation", # <get_clean_variant_data_ns>
   "target_date", # <get_clean_variant_data_ns>
@@ -45,6 +46,7 @@ utils::globalVariables(c(
   "clades_modeled", # <get_clean_variant_data_ns>
   "location_code", # <get_clean_variant_data_ns>
   "sequences", # <get_clean_variant_data_ns>
+  "display_name", # <get_clean_variant_data_ns>
   "target_date", # <prepare_data_for_scoring>
   "nowcast_date", # <prepare_data_for_scoring>
   "horizon", # <prepare_data_for_scoring>
@@ -58,8 +60,12 @@ utils::globalVariables(c(
   "location", # <compute_coverage>
   "nowcast_date", # <compute_coverage>
   "interval_range", # <compute_coverage>
+  "display_name", # <get_clade_display_name>
+  "clade", # <get_clade_display_name>
   "location", # <extract_nowcasts>
   "nowcast_date", # <extract_nowcasts>
+  "display_name", # <extract_nowcasts>
+  "clade", # <extract_nowcasts>
   "location", # <get_oracle_output>
   "location", # <get_target_data>
   "clades_modeled", # <get_plot_obs_clade_freq>

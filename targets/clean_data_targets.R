@@ -4,6 +4,7 @@ clean_data_targets <- list(
     command = get_clean_variant_data_ns(
       raw_variant_data,
       clade_list,
+      clades_w_display_name,
       location_data,
       nowcast_dates,
       type = "final"
@@ -14,6 +15,7 @@ clean_data_targets <- list(
     command = get_clean_variant_data(
       variant_data_as_of_nowcast_date,
       clade_list,
+      clades_w_display_name,
       location_data,
       nowcast_date_for_vis,
       seq_col_name = "observation",
@@ -25,6 +27,7 @@ clean_data_targets <- list(
     command = get_clean_variant_data(
       variant_data_for_evaluation,
       clade_list,
+      clades_w_display_name,
       location_data,
       nowcast_date_for_vis,
       seq_col_name = "oracle_value",
@@ -36,6 +39,7 @@ clean_data_targets <- list(
     command = get_clean_variant_data(
       variant_data_for_eval_mult_nowcasts,
       clade_list,
+      clades_w_display_name,
       location_data,
       nowcast_date_range_to_zoom,
       seq_col_name = "oracle_value",
@@ -47,6 +51,7 @@ clean_data_targets <- list(
     command = get_clean_variant_data(
       variant_data_eval_all,
       clade_list,
+      clades_w_display_name,
       location_data,
       nowcast_dates,
       type = "evaluation",

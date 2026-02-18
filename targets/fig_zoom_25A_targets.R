@@ -4,7 +4,7 @@ fig_zoom_25A_targets <- list(
     command = get_plot_model_preds_mult(
       model_preds_mult_nowcasts = df_mult_nowcasts,
       final_eval_data = clean_variant_data_final_all_states,
-      clade_to_zoom = "25A"
+      clade_to_zoom = "25A (LP.8.1)"
     )
   ),
   tar_target(
@@ -23,7 +23,7 @@ fig_zoom_25A_targets <- list(
     name = forecast_obj_25A_prepared,
     command = prepare_data_for_scoring(
       df_mult_nowcasts = df_mult_nowcasts,
-      clade = "25A",
+      clade = "25A (LP.8.1)",
       horizon_range = c(-6, 0)
     )
   ),
@@ -53,7 +53,7 @@ fig_zoom_25A_targets <- list(
       filter(
         location %in% states_for_vis,
         nowcast_date %in% nowcast_date_range_to_zoom,
-        clade == "25A"
+        clade == "25A (LP.8.1)"
       )
   ),
   # tar_target(

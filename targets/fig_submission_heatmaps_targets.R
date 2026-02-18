@@ -13,6 +13,7 @@ fig_submission_heatmaps_targets <- list(
     name = fig_submission_heatmaps_by_model,
     command = create_per_model_heatmap_fig(
       submission_presence_data,
+      seq_counts_by_loc,
       plot_components()
     )
   ),
@@ -21,6 +22,7 @@ fig_submission_heatmaps_targets <- list(
     name = fig_submission_heatmaps_summary,
     command = create_summary_heatmap_figure(
       submission_presence_data,
+      seq_counts_by_loc,
       plot_components()
     )
   ),
@@ -34,6 +36,7 @@ fig_submission_heatmaps_targets <- list(
     name = fig_eval_sequence_heatmap,
     command = plot_eval_sequence_heatmap(
       eval_sequence_counts_data,
+      seq_counts_by_loc,
       plot_components()
     )
   )
