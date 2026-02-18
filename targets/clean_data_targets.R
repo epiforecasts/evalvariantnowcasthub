@@ -67,6 +67,13 @@ clean_data_targets <- list(
       arrange(desc(total_seq))
   ),
   tar_target(
+    name = seq_counts_by_date_loc,
+    command = clean_variant_data_eval_all |>
+      group_by(location, nowcast_date, date) |>
+      summarise(n_seq = sum(sequences)) |>
+      ungroup()
+  ),
+  tar_target(
     name = scores_w_seq_count,
     command = scores |> as.data.frame() |>
       left_join(seq_counts_by_loc) |>

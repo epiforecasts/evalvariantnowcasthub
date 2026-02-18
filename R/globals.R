@@ -102,9 +102,11 @@ utils::globalVariables(c(
   "sequences", # <get_faceted_seq_as_of>
   "clades_modeled", # <get_faceted_seq_as_of>
   "model", # <get_plot_by_location>
+  "compare_against", # <get_plot_by_location>
   "total_seq", # <get_plot_by_location>
   "location", # <get_plot_by_location>
   "model", # <get_plot_by_nowcast_date>
+  "compare_against", # <get_plot_by_nowcast_date>
   "nowcast_date", # <get_plot_by_nowcast_date>
   "model_id", # <get_plot_coverage_overall>
   "interval_range", # <get_plot_coverage_overall>
@@ -114,6 +116,7 @@ utils::globalVariables(c(
   "50", # <get_plot_coverage_overall>
   "interval_label", # <get_plot_coverage_overall>
   "model", # <get_plot_overall>
+  "compare_against", # <get_plot_overall>
   "target_date", # <get_plot_horizon>
   "nowcast_date", # <get_plot_horizon>
   "model", # <get_plot_horizon>
@@ -125,14 +128,21 @@ utils::globalVariables(c(
   "nowcast_date", # <get_plot_seq_eval_date>
   "total_sequences", # <get_plot_seq_eval_date>
   "model", # <get_plot_avg_rel_skill_by_loc>
+  "compare_against", # <get_plot_avg_rel_skill_by_loc>
   "location", # <get_plot_avg_rel_skill_by_loc>
   "total_seq", # <get_plot_avg_rel_skill_by_loc>
   "scaled_rel_skill", # <get_plot_avg_rel_skill_by_loc>
+  "type_rel_skill", # <get_plot_avg_rel_skill_by_loc>
   "model", # <get_plot_avg_rel_skill_by_t>
+  "compare_against", # <get_plot_avg_rel_skill_by_t>
   "nowcast_date", # <get_plot_avg_rel_skill_by_t>
   "scaled_rel_skill", # <get_plot_avg_rel_skill_by_t>
+  "type_rel_skill", # <get_plot_avg_rel_skill_by_t>
   "model", # <get_plot_avg_rel_skill_overall>
+  "compare_against", # <get_plot_avg_rel_skill_overall>
+  "n_seq", # <get_plot_avg_rel_skill_overall>
   "scaled_rel_skill", # <get_plot_avg_rel_skill_overall>
+  "type_rel_skill", # <get_plot_avg_rel_skill_overall>
   "model_id", # <prepare_submission_data>
   "location", # <prepare_submission_data>
   "nowcast_date", # <prepare_submission_data>

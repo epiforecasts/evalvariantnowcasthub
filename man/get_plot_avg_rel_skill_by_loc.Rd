@@ -8,6 +8,7 @@ get_plot_avg_rel_skill_by_loc(
   scores_obj,
   seq_counts_by_loc,
   plot_name,
+  threshold_n_seq = 5,
   output_fp = file.path("output", "figs", "supp"),
   score_type = c("brier_score", "energy_score"),
   remove_legend = FALSE
@@ -19,6 +20,10 @@ get_plot_avg_rel_skill_by_loc(
 \item{seq_counts_by_loc}{Total sequences for each location}
 
 \item{plot_name}{Name of plot}
+
+\item{threshold_n_seq}{Minimum number of sequences for a particular nowcast
+date and location for the scaled relative skill to be included in the
+average}
 
 \item{output_fp}{directory to save figures}
 
