@@ -333,9 +333,21 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=lubridate"
     },
+    "17": {
+      "@type": "SoftwareApplication",
+      "identifier": "tidybayes",
+      "name": "tidybayes",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=tidybayes"
+    },
     "SystemRequirements": null
   },
-  "fileSize": "198.537KB",
+  "fileSize": "4994.792KB",
   "releaseNotes": "https://github.com/epiforecasts/evalvariantnowcasthub/blob/main/NEWS.md",
   "readme": "https://github.com/epiforecasts/evalvariantnowcasthub/blob/main/README.md"
 }
