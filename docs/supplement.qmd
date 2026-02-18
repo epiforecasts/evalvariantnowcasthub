@@ -42,11 +42,11 @@ The following models began submissions following the initial assessment period (
 
 ## Submission metadata
 
-![Fig. S7 Model submission coverage by location and nowcast date for each participating model. Tiles colored by model-specific colors indicate dates and locations where the model submitted a forecast. Gray tiles indicate missing submissions.](../output/figs/metadata/supp/submission_heatmaps_by_model.png)
+![Fig. S7 Model submission coverage by location and nowcast date for each participating model. Tiles colored by model-specific colors indicate dates and locations where the model submitted a forecast. Gray tiles indicate missing submissions. Locations are ordered by the total number of final evaluation sequences (lowest at the top, highest at the bottom). ](../output/figs/metadata/supp/submission_heatmaps_by_model.png)
 
-![Fig. S8 Summary of model submission coverage across all models. Color indicates the number of models that submitted forecasts for each location and nowcast date combination, ranging from 0 (no models) to 6 (all models).](../output/figs/metadata/supp/submission_heatmaps_summary.png)
+![Fig. S8 Summary of model submission coverage across all models. Color indicates the number of models that submitted forecasts for each location and nowcast date combination, ranging from 0 (no models) to 6 (all models). Locations are ordered by the total number of final evaluation sequences (lowest at the top, highest at the bottom).](../output/figs/metadata/supp/submission_heatmaps_summary.png)
 
-![Fig. S9 Evaluation sequence counts by location and nowcast date. Color indicates the total number of sequences available in the evaluation data (log scale) for each location and nowcast date combination. Gray tiles indicate nowcast date-location pairs with no sequences across all horizons.](../output/figs/metadata/supp/eval_sequence_counts_heatmap.png)
+![Fig. S9 Evaluation sequence counts by location and nowcast date. Color indicates the total number of sequences available in the evaluation data (log scale) for each location and nowcast date combination. Gray tiles indicate nowcast date-location pairs with no sequences across all horizons. Locations are ordered by the total number of final evaluation sequences (lowest at the top, highest at the bottom).](../output/figs/metadata/supp/eval_sequence_counts_heatmap.png)
 
 ![Fig. S10 Analysis of historical lags from collection to submission. Each line represents a week of data and the y-axis is the ratio of how much data we have at the given data lag compared to 19 weeks after that week , treating 19 weeks as the maximum delay (and thus data at 19 weeks has a ratio of 1). The dashed blue line represents when we perform evaluations (a 90 day, or 14 week, lag)](../output/figs/supp/data_lags_by_week.jpeg)
 

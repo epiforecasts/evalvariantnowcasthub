@@ -43,12 +43,19 @@ prepare_submission_data <- function(all_model_outputs,
 #' @returns ggplot2 object
 #' @autoglobal
 plot_model_submission_heatmap <- function(submission_data,
+                                          seq_counts_by_loc,
                                           model_id,
                                           plot_components) {
+  location_order <- seq_counts_by_loc |>
+    arrange(desc(total_seq)) |>
+    pull(location)
+
   model_data <- filter(
     submission_data,
     model_id == !!model_id, location != "US"
-  )
+  ) |>
+    left_join(seq_counts_by_loc) |>
+    mutate(location = factor(location, location_order))
 
   model_color <- plot_components$model_colors[model_id]
 
@@ -88,20 +95,29 @@ plot_model_submission_heatmap <- function(submission_data,
 #' @returns ggplot2 object
 #' @autoglobal
 plot_submission_summary <- function(submission_data,
+                                    seq_counts_by_loc,
                                     plot_components) {
+  location_order <- seq_counts_by_loc |>
+    arrange(desc(total_seq)) |>
+    pull(location)
+
   summary_data <- submission_data |>
     filter(location != "US") |>
     group_by(location, nowcast_date) |>
-    summarise(n_models = sum(submitted), .groups = "drop")
+    summarise(n_models = sum(submitted), .groups = "drop") |>
+    left_join(seq_counts_by_loc) |>
+    mutate(
+      location = factor(location, location_order),
+      n_models = factor(n_models)
+    )
 
   p <- ggplot(summary_data, aes(
     x = nowcast_date, y = location,
     fill = n_models
   )) +
     geom_tile(color = "white", linewidth = 0.5) +
-    scale_fill_viridis_c(
+    scale_fill_viridis_d(
       option = "viridis",
-      limits = c(0, 6),
       breaks = 0:6,
       name = "Number of\nModels"
     ) +
@@ -133,6 +149,7 @@ plot_submission_summary <- function(submission_data,
 #' @returns Combined patchwork plot of all per-model heatmaps
 #' @autoglobal
 create_per_model_heatmap_fig <- function(submission_data,
+                                         seq_counts_by_loc,
                                          plot_components,
                                          output_fp = file.path(
                                            "output",
@@ -148,6 +165,7 @@ create_per_model_heatmap_fig <- function(submission_data,
   model_plots <- lapply(model_ids, function(mid) {
     return(plot_model_submission_heatmap(
       submission_data,
+      seq_counts_by_loc,
       mid,
       plot_components
     ))
@@ -178,6 +196,7 @@ create_per_model_heatmap_fig <- function(submission_data,
 #' @returns ggplot2 object showing summary across all models
 #' @autoglobal
 create_summary_heatmap_figure <- function(submission_data,
+                                          seq_counts_by_loc,
                                           plot_components,
                                           output_fp = file.path(
                                             "output",
@@ -188,6 +207,7 @@ create_summary_heatmap_figure <- function(submission_data,
                                           plot_name = "submission_heatmap_summary") { # nolint
   summary_plot <- plot_submission_summary(
     submission_data,
+    seq_counts_by_loc,
     plot_components
   )
   dir.create(output_fp, recursive = TRUE, showWarnings = FALSE)
@@ -226,6 +246,7 @@ prepare_eval_sequence_data <- function(clean_variant_data_for_eval) {
 #' @returns ggplot2 object
 #' @autoglobal
 plot_eval_sequence_heatmap <- function(sequence_data,
+                                       seq_counts_by_loc,
                                        plot_components,
                                        output_fp = file.path(
                                          "output",
@@ -237,10 +258,15 @@ plot_eval_sequence_heatmap <- function(sequence_data,
   # Filter out US
   sequence_data <- filter(sequence_data, location != "US")
 
+  location_order <- seq_counts_by_loc |>
+    arrange(desc(total_seq)) |>
+    pull(location)
   # Replace 0 with NA for gray display
   sequence_data <- mutate(sequence_data,
     total_sequences = ifelse(total_sequences == 0, NA, total_sequences)
-  )
+  ) |>
+    left_join(seq_counts_by_loc) |>
+    mutate(location = factor(location, levels = location_order))
 
   p <- ggplot(sequence_data, aes(
     x = nowcast_date, y = location,
