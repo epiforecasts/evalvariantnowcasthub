@@ -31,7 +31,8 @@ Imports:
   data.table,
   rlang,
   cowplot,
-  lubridate
+  lubridate,
+  tidybayes
 Suggests:
     bookdown,
     targets,
