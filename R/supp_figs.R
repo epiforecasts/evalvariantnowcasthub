@@ -15,7 +15,8 @@ get_bar_chart_clade_comp <- function(clade_comp_weekly,
   weekly_prop <- clade_comp_weekly |>
     group_by(nowcast_date, week, source) |>
     mutate(prop = nseq / sum(nseq)) |>
-    ungroup()
+    ungroup() |>
+    mutate(source = ifelse(source == "NCBI", "GenBank", source))
   plot_comps <- plot_components()
   p <- ggplot(weekly_prop) +
     geom_bar(aes(x = week, y = prop, fill = clade), stat = "identity") +
@@ -66,7 +67,7 @@ get_volume_prop_comp_weekly <- function(volume_comp_weekly,
     geom_vline(aes(xintercept = nowcast_date), linetype = "dashed") +
     facet_grid(~nowcast_date, scales = "free_x") +
     get_plot_theme(dates = TRUE) +
-    scale_y_continuous("Ratio of NCBI to CA\nCOVIDNet sequence volume") +
+    scale_y_continuous("Ratio of Genbank data to CA\nCOVIDNet sequence volume") +
     scale_fill_discrete("Data") +
     scale_x_date(
       date_breaks = "4 weeks",

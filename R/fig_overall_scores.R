@@ -1475,8 +1475,6 @@ get_heatmap_rel_skill_by_model <- function(scores_obj,
 
   if (score_type == "brier_score") {
     label <- "Brier score"
-    # scores_obj <- scores_obj |>
-    #   filter(!model %in% c("CADPH-CATaLog", "CADPH-CATaMaran"))
   } else {
     label <- "Energy score"
   }
