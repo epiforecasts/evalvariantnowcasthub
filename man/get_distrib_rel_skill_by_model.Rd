@@ -6,7 +6,8 @@
 \usage{
 get_distrib_rel_skill_by_model(
   scores_obj,
-  seq_counts_by_loc,
+  seq_counts_by_date_loc,
+  threshold_n_seq = 5,
   plot_name,
   output_fp = file.path("output", "figs", "supp"),
   score_type = c("brier_score", "energy_score")
@@ -14,6 +15,13 @@ get_distrib_rel_skill_by_model(
 }
 \arguments{
 \item{scores_obj}{Scoringutils scores object}
+
+\item{seq_counts_by_date_loc}{Number of sequences at each location and
+nowcast date.}
+
+\item{threshold_n_seq}{Minimum number of sequences for a particular nowcast
+date and location for the scaled relative skill to be included in the
+average}
 
 \item{plot_name}{Name of plot}
 

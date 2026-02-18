@@ -475,38 +475,42 @@ fig_overall_targets <- list(
       plot_name = "avg_rel_skill_energy_t_ca"
     )
   ),
-  
-# Scaled relative skill heatmap and distribution plots--------
-tar_target(
-  name = heatmap_rel_skill_energy_scores,
-  command = get_heatmap_rel_skill_by_model(
+
+  # Scaled relative skill heatmap and distribution plots--------
+  tar_target(
+    name = heatmap_rel_skill_energy_scores,
+    command = get_heatmap_rel_skill_by_model(
       scores_obj = su_scores,
+      seq_counts_by_date_loc = seq_counts_by_date_loc,
       score_type = "energy_score",
-     plot_name = "heatmap_rel_skill_energy"
+      plot_name = "heatmap_rel_skill_energy"
+    )
+  ),
+  tar_target(
+    name = heatmap_rel_skill_brier_scores,
+    command = get_heatmap_rel_skill_by_model(
+      scores_obj = su_scores,
+      seq_counts_by_date_loc = seq_counts_by_date_loc,
+      score_type = "brier_score",
+      plot_name = "heatmap_rel_skill_brier"
+    )
+  ),
+  tar_target(
+    name = distrib_rel_skill_energy_score,
+    command = get_distrib_rel_skill_by_model(
+      scores_obj = su_scores,
+      seq_counts_by_date_loc = seq_counts_by_date_loc,
+      score_type = "energy_score",
+      plot_name = "distrib_rel_skill_energy"
+    )
+  ),
+  tar_target(
+    name = distrib_rel_skill_brier_score,
+    command = get_distrib_rel_skill_by_model(
+      scores_obj = su_scores,
+      seq_counts_by_date_loc = seq_counts_by_date_loc,
+      score_type = "brier_score",
+      plot_name = "distrib_rel_skill_brier"
+    )
   )
-),
-tar_target(
-  name = heatmap_rel_skill_brier_scores,
-  command = get_heatmap_rel_skill_by_model(
-    scores_obj = su_scores,
-    score_type = "brier_score",
-    plot_name = "heatmap_rel_skill_brier"
-  )
-),
-tar_target(
-  name = distrib_rel_skill_energy_score,
-  command = get_distrib_rel_skill_by_model(
-    scores_obj = su_scores,
-    score_type = "energy_score",
-    plot_name = "distrib_rel_skill_energy"
-  )
-),
-tar_target(
-  name = distrib_rel_skill_brier_score,
-  command = get_distrib_rel_skill_by_model(
-    scores_obj = su_scores,
-    score_type = "brier_score",
-    plot_name = "distrib_rel_skill_brier"
-  )
-)
 )

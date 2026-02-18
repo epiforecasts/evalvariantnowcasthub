@@ -142,16 +142,17 @@ utils::globalVariables(c(
   "compare_against", # <get_plot_avg_rel_skill_overall>
   "n_seq", # <get_plot_avg_rel_skill_overall>
   "scaled_rel_skill", # <get_plot_avg_rel_skill_overall>
-<<<<<<< heatmaps-rel-skill
+  "type_rel_skill", # <get_plot_avg_rel_skill_overall>
+  "location", # <get_heatmap_rel_skill_by_model>
+  "nowcast_date", # <get_heatmap_rel_skill_by_model>
+  "n_seq", # <get_heatmap_rel_skill_by_model>
   "model", # <get_heatmap_rel_skill_by_model>
   "compare_against", # <get_heatmap_rel_skill_by_model>
-  "nowcast_date", # <get_heatmap_rel_skill_by_model>
-  "location", # <get_heatmap_rel_skill_by_model>
+  "location", # <get_distrib_rel_skill_by_model>
+  "nowcast_date", # <get_distrib_rel_skill_by_model>
+  "n_seq", # <get_distrib_rel_skill_by_model>
   "model", # <get_distrib_rel_skill_by_model>
   "compare_against", # <get_distrib_rel_skill_by_model>
-=======
-  "type_rel_skill", # <get_plot_avg_rel_skill_overall>
->>>>>>> main
   "model_id", # <prepare_submission_data>
   "location", # <prepare_submission_data>
   "nowcast_date", # <prepare_submission_data>
