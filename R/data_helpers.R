@@ -53,7 +53,7 @@ get_clade_display_name <- function(url = "https://raw.githubusercontent.com/next
 extract_nowcasts <- function(nowcast_dates,
                              states,
                              bucket_name,
-                             clades_w_display_name = clades_w_display_name) {
+                             clades_w_display_name) {
   hub_bucket <- arrow::s3_bucket(bucket_name)
   hub_con <- hubData::connect_hub(hub_bucket,
     file_format = "parquet",
@@ -66,7 +66,7 @@ extract_nowcasts <- function(nowcast_dates,
     ) |>
     hubData::collect_hub() |>
     left_join(clades_w_display_name,
-      by = c("clade")
+      by = "clade"
     ) |>
     mutate(clade = ifelse(!is.na(display_name),
       display_name,

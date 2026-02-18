@@ -42,7 +42,7 @@ The following models began submissions following the initial assessment period (
 
 ## Submission metadata
 
-![Fig. S7 Model submission coverage by location and nowcast date for each participating model. Tiles colored by model-specific colors indicate dates and locations where the model submitted a forecast. Gray tiles indicate missing submissions. Locations are ordered by the total number of final evaluation sequences (lowest at the top, highest at the bottom). ](../output/figs/metadata/supp/submission_heatmaps_by_model.png)
+![Fig. S7 Model submission coverage by location and nowcast date for each participating model. Tiles colored by model-specific colors indicate dates and locations where the model submitted a forecast. Gray tiles indicate missing submissions. Locations are ordered by the total number of final evaluation sequences (lowest at the top, highest at the bottom).](../output/figs/metadata/supp/submission_heatmaps_by_model.png)
 
 ![Fig. S8 Summary of model submission coverage across all models. Color indicates the number of models that submitted forecasts for each location and nowcast date combination, ranging from 0 (no models) to 6 (all models). Locations are ordered by the total number of final evaluation sequences (lowest at the top, highest at the bottom).](../output/figs/metadata/supp/submission_heatmaps_summary.png)
 

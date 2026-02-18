@@ -118,7 +118,6 @@ plot_submission_summary <- function(submission_data,
     geom_tile(color = "white", linewidth = 0.5) +
     scale_fill_viridis_d(
       option = "viridis",
-      breaks = 0:6,
       name = "Number of\nModels"
     ) +
     scale_x_date(

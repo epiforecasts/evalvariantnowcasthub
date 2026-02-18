@@ -25,8 +25,7 @@ fig_zoom_25A_targets <- list(
       df_mult_nowcasts = df_mult_nowcasts,
       clade = "25A (LP.8.1)",
       horizon_range = c(-6, 0)
-    ) |>
-      mutate(clade = "25A (LP.8.1)")
+    )
   ),
   tar_target(
     name = bias_25A_scores,

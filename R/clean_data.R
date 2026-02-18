@@ -51,7 +51,7 @@ get_clean_variant_data <- function(raw_variant_data,
     summarise(sequences = sum(sequences)) |>
     ungroup() |>
     left_join(clades_w_display_name,
-      by = c("clades_modeled" = "clade")
+      by = c("clades_modeled" = "clade") # nolint
     ) |>
     mutate(clades_modeled = ifelse(!is.na(display_name),
       display_name,
@@ -65,7 +65,7 @@ get_clean_variant_data <- function(raw_variant_data,
 #' @param raw_variant_data Data.frame of latest data extracted directly from
 #'    next strain
 #' @param clade_list Vector of character strings of the clade names
-#' @param clades_w_display_name Tibble with clade + clade and pango lineage
+#' @param clades_w_display_name Tibble with clade and clade + pango lineage
 #' @param location_data Data.frame of location information
 #' @param nowcast_dates Vector of character strings indicate the date range of
 #'    the data.
@@ -164,7 +164,7 @@ get_clean_variant_data_ns <- function(raw_variant_data,
     summarise(sequences = sum(sequences)) |>
     ungroup() |>
     left_join(clades_w_display_name,
-      by = c("clades_modeled" = "clade")
+      by = c("clades_modeled" = "clade") # nolint
     ) |>
     mutate(clades_modeled = ifelse(!is.na(display_name),
       display_name,
