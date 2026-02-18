@@ -6,7 +6,9 @@
 \usage{
 get_plot_avg_rel_skill_overall(
   scores_obj,
+  seq_counts_by_date_loc,
   plot_name,
+  threshold_n_seq = 5,
   output_fp = file.path("output", "figs", "supp"),
   score_type = c("brier_score", "energy_score"),
   remove_legend = FALSE,
@@ -16,6 +18,9 @@ get_plot_avg_rel_skill_overall(
 }
 \arguments{
 \item{scores_obj}{Scoringutils scores object}
+
+\item{seq_counts_by_date_loc}{Number of sequences for evaluation for each
+nowcast date, collection date, and location}
 
 \item{plot_name}{Name of plot}
 

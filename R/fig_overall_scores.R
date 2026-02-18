@@ -65,8 +65,10 @@ get_plot_by_location <- function(scores_obj,
         metric = score_type,
         by = "location"
       ) |>
-      filter(model != "Hub-baseline",
-             compare_against == "Hub-baseline") |>
+      filter(
+        model != "Hub-baseline",
+        compare_against == "Hub-baseline"
+      ) |>
       left_join(seq_counts_by_loc) |>
       arrange(desc(total_seq)) |>
       mutate(location = factor(location, levels = unique(location))) |>
@@ -193,8 +195,10 @@ get_plot_by_nowcast_date <- function(scores_obj,
         metric = score_type,
         by = "nowcast_date"
       ) |>
-      filter(model != "Hub-baseline",
-             compare_against == "Hub-baseline")
+      filter(
+        model != "Hub-baseline",
+        compare_against == "Hub-baseline"
+      )
 
     p <- ggplot(rel_skill) +
       geom_point(
@@ -422,8 +426,10 @@ get_plot_overall <- function(scores_obj,
         baseline = "Hub-baseline",
         metric = score_type
       ) |>
-      filter(model != "Hub-baseline",
-             compare_against == "Hub-baseline")
+      filter(
+        model != "Hub-baseline",
+        compare_against == "Hub-baseline"
+      )
 
     p <- ggplot(rel_skill) +
       geom_point(
@@ -451,8 +457,10 @@ get_plot_overall <- function(scores_obj,
         x = "",
         y = glue::glue("Scaled relative skill\n({label})")
       ) +
-      scale_y_continuous(trans = "log10",
-                         breaks = c(0.8, 1.0, 1.2, 1.4)) +
+      scale_y_continuous(
+        trans = "log10",
+        breaks = c(0.8, 1.0, 1.2, 1.4)
+      ) +
       theme(
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank()
@@ -602,8 +610,10 @@ get_plot_horizon <- function(scores_obj,
         color = "none",
         shape = "none"
       ) +
-      scale_y_continuous(trans = "log10",
-                         breaks = c(0.8, 1.0, 1.2, 1.4)) +
+      scale_y_continuous(
+        trans = "log10",
+        breaks = c(0.8, 1.0, 1.2, 1.4)
+      ) +
       coord_cartesian(ylim = c(1 / 1.4, 1.4))
   } else {
     scores_sum <- scores_obj |>
@@ -643,7 +653,8 @@ get_plot_horizon <- function(scores_obj,
       ) +
       guides(
         color = "none",
-        shape = "none") #nolint
+        shape = "none"
+      ) # nolint
     if (score_type == "brier_score") {
       p <- p + coord_cartesian(ylim = c(0, 0.6))
     }
@@ -998,10 +1009,10 @@ get_scores_by_nowcast_date <- function(a, b, c, d, e, f, g, h, i, j, k, l,
 #' @param seq_counts_by_loc Total sequences for each location
 #' @param plot_name Name of plot
 #' @param threshold_n_seq Minimum number of sequences for a particular nowcast
-#'   date and location for the scaled relative skill to be included in the 
+#'   date and location for the scaled relative skill to be included in the
 #'   average
 #' @param threshold_n_seq Minimum number of sequences for a particular nowcast
-#'   date and location for the scaled relative skill to be included in the 
+#'   date and location for the scaled relative skill to be included in the
 #'   average
 #' @param output_fp directory to save figures
 #' @param score_type Character string indicating which score metric to use
@@ -1040,8 +1051,10 @@ get_plot_avg_rel_skill_by_loc <- function(scores_obj,
       metric = score_type,
       by = c("location", "nowcast_date", "target_date")
     ) |>
-    filter(model != "Hub-baseline",
-           compare_against == "Hub-baseline") |>
+    filter(
+      model != "Hub-baseline",
+      compare_against == "Hub-baseline"
+    ) |>
     group_by(location, model) |>
     summarise(scaled_rel_skill = exp(mean(log(!!sym(glue::glue(
       "{score_type}_scaled_relative_skill"
@@ -1049,8 +1062,10 @@ get_plot_avg_rel_skill_by_loc <- function(scores_obj,
     left_join(seq_counts_by_loc) |>
     filter(total_seq > threshold_n_seq) |>
     arrange(desc(total_seq)) |>
-    mutate(location = factor(location, levels = unique(location)),
-           type_rel_skill = "Average across individual days")
+    mutate(
+      location = factor(location, levels = unique(location)),
+      type_rel_skill = "Average across individual days"
+    )
   rel_skill_loc <- scores_obj |>
     ungroup() |>
     filter(!is.na(!!sym(score_type))) |>
@@ -1059,15 +1074,20 @@ get_plot_avg_rel_skill_by_loc <- function(scores_obj,
       metric = score_type,
       by = "location"
     ) |>
-    filter(model != "Hub-baseline",
-           compare_against == "Hub-baseline") |>
+    filter(
+      model != "Hub-baseline",
+      compare_against == "Hub-baseline"
+    ) |>
     left_join(seq_counts_by_loc) |>
     arrange(desc(total_seq)) |>
-    mutate(location = factor(location, levels = unique(location)),
-           type_rel_skill = "By overlapping set") |>
+    mutate(
+      location = factor(location, levels = unique(location)),
+      type_rel_skill = "By overlapping set"
+    ) |>
     filter(model != "Hub-baseline") |>
     rename(scaled_rel_skill = !!sym(glue::glue(
-      "{score_type}_scaled_relative_skill"))) |> 
+      "{score_type}_scaled_relative_skill"
+    ))) |>
     select(colnames(rel_skill_avg))
   rel_skill <- bind_rows(rel_skill_avg, rel_skill_loc)
 
@@ -1168,14 +1188,16 @@ get_plot_avg_rel_skill_by_t <- function(scores_obj,
       metric = score_type,
       by = c("nowcast_date", "location", "target_date")
     ) |>
-    filter(model != "Hub-baseline",
-           compare_against == "Hub-baseline") |>
+    filter(
+      model != "Hub-baseline",
+      compare_against == "Hub-baseline"
+    ) |>
     group_by(nowcast_date, model) |>
     summarise(scaled_rel_skill = exp(mean(log(!!sym(glue::glue(
       "{score_type}_scaled_relative_skill"
     ))), na.rm = TRUE))) |>
     mutate(type_rel_skill = "Average across individual days")
-  rel_skill_t <-  rel_skill <- scores_obj |>
+  rel_skill_t <- rel_skill <- scores_obj |>
     ungroup() |>
     filter(!is.na(!!sym(score_type))) |>
     scoringutils::get_pairwise_comparisons(
@@ -1183,13 +1205,15 @@ get_plot_avg_rel_skill_by_t <- function(scores_obj,
       metric = score_type,
       by = "nowcast_date"
     ) |>
-    filter(model != "Hub-baseline",
-           compare_against == "Hub-baseline") |>
+    filter(
+      model != "Hub-baseline",
+      compare_against == "Hub-baseline"
+    ) |>
     mutate(type_rel_skill = "By overlapping set") |>
     rename(scaled_rel_skill = !!sym(glue::glue(
-      "{score_type}_scaled_relative_skill"))) |>
+      "{score_type}_scaled_relative_skill"
+    ))) |>
     select(colnames(rel_skill_avg))
-  
   rel_skill <- bind_rows(rel_skill_avg, rel_skill_t)
 
   p <- ggplot(rel_skill) +
@@ -1260,7 +1284,7 @@ get_plot_avg_rel_skill_by_t <- function(scores_obj,
 #'
 #' @param scores_obj Scoringutils scores object
 #' @param seq_counts_by_date_loc Number of sequences for evaluation for each
-#'   nowcast date, collection date, and location 
+#'   nowcast date, collection date, and location
 #' @param score_type Character string indicating which score metric to use
 #' @param plot_name Name of plot
 #' @param output_fp directory to save figures
@@ -1304,18 +1328,22 @@ get_plot_avg_rel_skill_overall <- function(scores_obj,
       metric = score_type,
       by = c("nowcast_date", "target_date", "location")
     ) |>
-    filter(model != "Hub-baseline",
-           compare_against == "Hub-baseline") |>
+    filter(
+      model != "Hub-baseline",
+      compare_against == "Hub-baseline"
+    ) |>
     left_join(seq_counts_by_date_loc,
-              by = c("nowcast_date", "target_date" = "date", 
-                     "location") ) |>
+      by = c("nowcast_date",
+        "target_date" = "date", # nolint
+        "location"
+      )
+    ) |>
     filter(n_seq > threshold_n_seq) |>
     group_by(model) |>
     summarise(scaled_rel_skill = exp(mean(log(!!sym(glue::glue(
       "{score_type}_scaled_relative_skill"
     ))), na.rm = TRUE))) |>
     mutate(type_rel_skill = "Average across individual days")
-  
   rel_skill_overall <- scores_obj |>
     ungroup() |>
     filter(!is.na(!!sym(score_type))) |>
@@ -1323,17 +1351,19 @@ get_plot_avg_rel_skill_overall <- function(scores_obj,
       baseline = "Hub-baseline",
       metric = score_type
     ) |>
-    filter(model != "Hub-baseline",
-           compare_against == "Hub-baseline") |>
+    filter(
+      model != "Hub-baseline",
+      compare_against == "Hub-baseline"
+    ) |>
     mutate(type_rel_skill = "By overlapping set") |>
     rename(scaled_rel_skill = !!sym(glue::glue(
       "{score_type}_scaled_relative_skill"
-    ))) |> select(colnames(rel_skill_avg))
-  
-  rel_skill <- bind_rows(rel_skill_avg, 
-                         rel_skill_overall)
-  
-
+    ))) |>
+    select(colnames(rel_skill_avg))
+  rel_skill <- bind_rows(
+    rel_skill_avg,
+    rel_skill_overall
+  )
   p <- ggplot(rel_skill) +
     geom_point(
       aes(
