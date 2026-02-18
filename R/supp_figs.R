@@ -67,7 +67,7 @@ get_volume_prop_comp_weekly <- function(volume_comp_weekly,
     geom_vline(aes(xintercept = nowcast_date), linetype = "dashed") +
     facet_grid(~nowcast_date, scales = "free_x") +
     get_plot_theme(dates = TRUE) +
-    scale_y_continuous("Ratio of Genbank data to CA\nCOVIDNet sequence volume") + # nolint
+    scale_y_continuous("Ratio of GenBank data to CA\nCOVIDNet sequence volume") + # nolint
     scale_fill_discrete("Data") +
     scale_x_date(
       date_breaks = "4 weeks",
