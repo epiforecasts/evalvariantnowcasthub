@@ -115,7 +115,7 @@ plot_components <- function() {
     "24A (JN.1).evaluation" = pal_clades[1],
     "24B (JN.1.11.1).evaluation" = pal_clades[2],
     "24C (KP.3).evaluation" = pal_clades[3],
-    "24E (KP.3.1.1.).evaluation" = pal_clades[4],
+    "24E (KP.3.1.1).evaluation" = pal_clades[4],
     "recombinant.evaluation" = "#8B0000",
     "24F (XEC).evaluation" = pal_clades[5],
     "24G (KP.2.3).evaluation" = pal_clades[6],
