@@ -20,18 +20,17 @@ This README is organized into the following sections:
 
 ## Data sources
 
-Most data used in this paper comes directly from the Hub data itself. The full-time series of variant data in the U.S. is accessed directly from [Nextstrain](https://nextstrain.org/), which curates data from the Natioanl Center for Biotechnoligy and Information (NCBI) [GenBank](https://www.ncbi.nlm.nih.gov/genbank/) database. 
+Most data used in this paper comes directly from the Hub data itself. The full-time series of variant data in the U.S. is accessed directly from [Nextstrain](https://nextstrain.org/), which curates data from the National Center for Biotechnology and Information (NCBI) [GenBank](https://www.ncbi.nlm.nih.gov/genbank/) database.
 
 | Data type | Description | Link |
 |---|---|---|
 | Modeled clades | The clades modeled each week | https://raw.githubusercontent.com/reichlab/variant-nowcast-hub/refs/heads/main/auxiliary-data/modeled-clades/ |
 | Energy and Brier scores | Energy and Brier scores for each model, nowcast date, target date, and location | https://raw.githubusercontent.com/reichlab/variant-nowcast-hub/refs/heads/main/auxiliary-data/scores/scores.tsv |
 |50th and 90th interval coverage | The 50th and 90th interval coverage for each model, nowcast date, target date, location, and clade| https://github.com/reichlab/variant-nowcast-hub/raw/refs/heads/main/auxiliary-data/scores/coverage.parquet |
-| Final variant data | The latest variant data using the latest reference tree | https://data.nextstrain.org/files/workflows/forecasts-ncov/open/nextstrain_clades/usa.tsv.gz
+| Final variant data | The latest variant data using the latest reference tree | https://data.nextstrain.org/files/workflows/forecasts-ncov/open/nextstrain_clades/usa.tsv.gz |
 | Data available as of the nowcast date | The data teams had available to them when nowcasts were solicited | https://github.com/reichlab/variant-nowcast-hub/tree/main/target-data/time-series |
 | Evaluation data by nowcast date| The data used to evaluate nowcasts, containing the sequence counts 90 days after the nowcast date assigned the clade they would have been assigned on the nowcast date | https://github.com/reichlab/variant-nowcast-hub/tree/main/target-data/oracle-output |
-| Model nowcasts | Team's nowcasts, accessed via S3 bucket | Accessed via `hubData` R package `hubData::connect_hub("covid-variant-nowcast-hub", file_format = "parquet", skip_checks = TRUE)` |
+| Model nowcasts | Teams' nowcasts, accessed via S3 bucket | Accessed via `hubData` R package `hubData::connect_hub("covid-variant-nowcast-hub", file_format = "parquet", skip_checks = TRUE)` |
 | California data comparison | A comparison of the clade proportions and amount of sequencing between California COVID-Net and the GenBank data | https://github.com/epiforecasts/evalvariantnowcasthub/tree/main/output/data |
 
 For more details on the data stored on the Hub and the outputs solicited from teams for submission to the Hub, please see the [Variant Nowcast Hub guidelines](https://github.com/reichlab/variant-nowcast-hub/blob/main/README.md).
-
