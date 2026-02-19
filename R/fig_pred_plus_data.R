@@ -103,6 +103,7 @@ get_plot_seq_count <- function(eval_seq,
     ) +
     facet_wrap(~location, ncol = 3) +
     get_plot_theme(dates = TRUE) +
+    theme(axis.title = element_text(size = 11)) +
     scale_fill_manual(
       name = "Clade",
       values = plot_comps$clade_colors
@@ -113,7 +114,7 @@ get_plot_seq_count <- function(eval_seq,
       fill = guide_legend(
         title.position = "left",
         title.hjust = 0.5,
-        nrow = 2
+        nrow = 3
       )
     ) +
     scale_x_date(
