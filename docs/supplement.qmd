@@ -40,11 +40,11 @@ The following models began submissions following the initial assessment period (
 
 ![Fig. S8 Evaluation sequence counts by location and nowcast date. Color indicates the total number of sequences available in the evaluation data (log scale) for each location and nowcast date combination. Gray tiles indicate nowcast date-location pairs with no sequences across all horizons. Locations are ordered by the total number of final evaluation sequences (lowest at the top, highest at the bottom).](../output/figs/metadata/supp/eval_sequence_counts_heatmap.png)
 
-![Fig. S9 Example final sequence data from CA](../output/figs/data_figs/supp/final_seq_data_ex1.png)
+![Fig. S9 Weekly SARS-CoV-2 variant dynamics in the California from September 2nd, 2024 to June 14th, 2025 using the final set of sequences available 90 days after the last nowcast date. A. Final observed weekly clade frequencies. B. Number of weekly sequences collected colored by clade. C. Weekly percent of emergency department (ED) visits due to COVID-19 in California.](../output/figs/data_figs/supp/final_seq_data_ex1.png)
 
-![Fig. S10 Example final sequence data from IL](../output/figs/data_figs/supp/final_seq_data_ex2.png)
+![Fig. S10 Weekly SARS-CoV-2 variant dynamics in the Illinois from September 2nd, 2024 to June 14th, 2025 using the final set of sequences available 90 days after the last nowcast date. A. Final observed weekly clade frequencies. B. Number of weekly sequences collected colored by clade. C. Weekly percent of emergency department (ED) visits due to COVID-19 in Illinois.](../output/figs/data_figs/supp/final_seq_data_ex2.png)
 
-![Fig. S11 Example final sequence data from MN](../output/figs/data_figs/supp/final_seq_data_ex3.png)
+![Fig. S11 Weekly SARS-CoV-2 variant dynamics in the Minnesota from September 2nd, 2024 to June 14th, 2025 using the final set of sequences available 90 days after the last nowcast date. A. Final observed weekly clade frequencies. B. Number of weekly sequences collected colored by clade. C. Weekly percent of emergency department (ED) visits due to COVID-19 in Minnesota.](../output/figs/data_figs/supp/final_seq_data_ex3.png)
 
 ![Fig. S12 Different dynamics of 25A emergence](../output/figs/eda/plot_25A_emergence.png)
 
