@@ -46,7 +46,7 @@ The following models began submissions following the initial assessment period (
 
 ![Fig. S11 Weekly SARS-CoV-2 variant dynamics in the Minnesota from September 2nd, 2024 to June 14th, 2025 using the final set of sequences available 90 days after the last nowcast date. A. Final observed weekly clade frequencies. B. Number of weekly sequences collected colored by clade. C. Weekly percent of emergency department (ED) visits due to COVID-19 in Minnesota.](../output/figs/data_figs/supp/final_seq_data_ex3.png)
 
-![Fig. S12 Different dynamics of 25A emergence](../output/figs/eda/plot_25A_emergence.png)
+![Fig. S12 Dynamics of 25A emergence across 10 jursidictions with the highest level of sequencing, using the final data available at the last evaluation date.](../output/figs/eda/plot_25A_emergence.png)
 
 ![Fig. S13 Model nowcasts for the CADPH-CATaLog model from February 19th, 2025. Colors indicate clade, dashed vertical line indicates the nowcast date.](../output/figs/nowcasts/supp/fig_model_nowcasts_CADPH.png)
 
