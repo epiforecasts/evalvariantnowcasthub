@@ -98,10 +98,11 @@ get_bar_chart_comparison <- function(obs_data,
   ordered_clades <- base_clade_names[base_clade_names %in% clades_in_data]
 
   # Interleave fill_group levels so each clade's two shading levels are
-  # consecutive in the stack: [24A.as-of, 24A.eval, 24B.as-of, 24B.eval, ...]
+  # consecutive in the stack, with "evaluation" below "as of nowcast date"
+  # within each clade: [24A.eval, 24A.as-of, 24B.eval, 24B.as-of, ...]
   fill_group_levels <- c(rbind(
-    paste0(ordered_clades, ".as of nowcast date"),
-    paste0(ordered_clades, ".evaluation")
+    paste0(ordered_clades, ".evaluation"),
+    paste0(ordered_clades, ".as of nowcast date")
   ))
 
   comb_data <- comb_data |>
