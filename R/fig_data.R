@@ -141,6 +141,19 @@ get_bar_chart_seq_count <- function(obs_data,
 
   plot_comps <- plot_components()
 
+  # Set canonical clade order from clade_colors (base names, in definition
+  # order), filtered to clades present in this data.
+  clade_color_names <- names(plot_comps$clade_colors)
+  base_clade_names <- unique(
+    clade_color_names[!grepl(
+      "\\.(as of nowcast date|evaluation)$",
+      clade_color_names
+    )]
+  )
+  clades_in_data <- unique(as.character(obs_data$clades_modeled))
+  ordered_clades <- base_clade_names[base_clade_names %in% clades_in_data]
+  obs_data <- obs_data |>
+    mutate(clades_modeled = factor(clades_modeled, levels = ordered_clades))
 
   p <- ggplot(obs_data) +
     geom_bar(aes(x = date, y = sequences, fill = clades_modeled),
