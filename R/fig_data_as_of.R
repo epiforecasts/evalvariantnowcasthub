@@ -85,13 +85,50 @@ get_bar_chart_comparison <- function(obs_data,
 
   plot_comps <- plot_components()
 
+  # Build canonical clade order from clade_colors (base names, in definition
+  # order), then filter to clades present in the data.
+  clade_color_names <- names(plot_comps$clade_colors)
+  base_clade_names <- unique(
+    clade_color_names[!grepl(
+      "\\.(as of nowcast date|evaluation)$",
+      clade_color_names
+    )]
+  )
+  clades_in_data <- unique(as.character(comb_data$clades_modeled))
+  ordered_clades <- base_clade_names[base_clade_names %in% clades_in_data]
+
+  missing_clades <- setdiff(clades_in_data, base_clade_names)
+  if (length(missing_clades) > 0) {
+    cli::cli_warn(
+      c(
+        "The following clades are in the data but have no entry in",
+        "clade_colors and will be dropped from the plot: ",
+        "{.val {missing_clades}}"
+      )
+    )
+  }
+
+  # Interleave fill_group levels so each clade's two shading levels are
+  # consecutive in the stack, with "evaluation" below "as of nowcast date"
+  # within each clade: [24A.eval, 24A.as-of, 24B.eval, 24B.as-of, ...]
+  fill_group_levels <- c(rbind(
+    paste0(ordered_clades, ".evaluation"),
+    paste0(ordered_clades, ".as of nowcast date")
+  ))
+
+  comb_data <- comb_data |>
+    mutate(
+      clades_modeled = factor(clades_modeled, levels = ordered_clades),
+      fill_group = factor(fill_group, levels = fill_group_levels)
+    )
+
   p <- ggplot(comb_data) +
     geom_bar(
       aes(
         x = date, y = sequence_counts, fill = fill_group,
         alpha = data_availability
       ),
-      stat = "identity", position = position_stack(reverse = TRUE)
+      stat = "identity", position = position_stack()
     ) +
     get_plot_theme(dates = TRUE) +
     scale_fill_manual(

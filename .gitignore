@@ -12,6 +12,7 @@ cache
 *.Rproj
 !inst/extdata/*.rds
 /doc/
+/overleaf_to_word/
 /Meta/
 *.Rhistory
 .vscode
