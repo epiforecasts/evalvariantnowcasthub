@@ -155,6 +155,17 @@ get_bar_chart_seq_count <- function(obs_data,
   obs_data <- obs_data |>
     mutate(clades_modeled = factor(clades_modeled, levels = ordered_clades))
 
+  missing_clades <- setdiff(clades_in_data, base_clade_names)
+  if (length(missing_clades) > 0) {
+    cli::cli_warn(
+      c(
+        "The following clades are in the data but have no entry in",
+        "clade_colors and will be dropped from the plot: ",
+        "{.val {missing_clades}}"
+      )
+    )
+  }
+
   p <- ggplot(obs_data) +
     geom_bar(aes(x = date, y = sequences, fill = clades_modeled),
       stat = "identity", position = "stack"

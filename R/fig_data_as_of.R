@@ -97,6 +97,17 @@ get_bar_chart_comparison <- function(obs_data,
   clades_in_data <- unique(as.character(comb_data$clades_modeled))
   ordered_clades <- base_clade_names[base_clade_names %in% clades_in_data]
 
+  missing_clades <- setdiff(clades_in_data, base_clade_names)
+  if (length(missing_clades) > 0) {
+    cli::cli_warn(
+      c(
+        "The following clades are in the data but have no entry in",
+        "clade_colors and will be dropped from the plot: ",
+        "{.val {missing_clades}}"
+      )
+    )
+  }
+
   # Interleave fill_group levels so each clade's two shading levels are
   # consecutive in the stack, with "evaluation" below "as of nowcast date"
   # within each clade: [24A.eval, 24A.as-of, 24B.eval, 24B.as-of, ...]
