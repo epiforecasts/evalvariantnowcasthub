@@ -103,7 +103,7 @@ get_plot_seq_count <- function(eval_seq,
     ) +
     facet_wrap(~location, ncol = 3) +
     get_plot_theme(dates = TRUE) +
-    theme(axis.title = element_text(size = 11)) +
+    theme(axis.title = element_text(size = 10)) +
     scale_fill_manual(
       name = "Clade",
       values = plot_comps$clade_colors
@@ -157,6 +157,7 @@ get_plot_scores_over_time <- function(scores,
     )) +
     facet_wrap(~location, ncol = 3) +
     get_plot_theme(dates = TRUE) +
+    theme(axis.title = element_text(size = 11)) +
     xlab("") +
     ylab("Energy score") +
     guides(

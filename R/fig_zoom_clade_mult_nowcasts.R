@@ -298,7 +298,7 @@ get_plot_coverage_by_loc <- function(coverage) {
       width = 0.7
     ) +
     geom_hline(yintercept = 0.5, linetype = "dashed") +
-    geom_hline(yintercept = 0.95, linetype = "dashed") +
+    geom_hline(yintercept = 0.90, linetype = "dashed") +
     facet_wrap(~location, ncol = 3) +
     get_plot_theme(dates = FALSE) +
     theme(axis.text.x = element_blank()) +
