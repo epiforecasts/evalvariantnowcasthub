@@ -65,6 +65,7 @@ get_plot_model_pred_obs <- function(model_pred_obs_df,
     ) +
     xlab("") +
     ylab("Model predicted observed frequencies") +
+    theme(axis.title = element_text(size = 10)) +
     guides(
       fill = "none",
       color = "none"
