@@ -117,8 +117,8 @@ get_pred_int <- function(model_pred_prop,
                 n_seq = first(n_seq),
                 sequences = first(sequences),
                 q_0.5 = quantile(predicted_freq, 0.5),
-                q_0.025 = quantile(predicted_freq, 0.025),
-                q_0.975 = quantile(predicted_freq, 0.975),
+                q_0.05 = quantile(predicted_freq, 0.05),
+                q_0.95 = quantile(predicted_freq, 0.95),
                 q_0.25 = quantile(predicted_freq, 0.25),
                 q_0.75 = quantile(predicted_freq, 0.75)
               )

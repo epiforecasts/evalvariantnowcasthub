@@ -45,8 +45,8 @@ get_plot_model_preds_mult <- function(model_preds_mult_nowcasts,
     geom_ribbon(
       aes(
         x = target_date,
-        ymin = q_0.025,
-        ymax = q_0.975, fill = model_id,
+        ymin = q_0.05,
+        ymax = q_0.95, fill = model_id,
         group = nowcast_date
       ),
       alpha = 0.1,
@@ -298,7 +298,7 @@ get_plot_coverage_by_loc <- function(coverage) {
       width = 0.7
     ) +
     geom_hline(yintercept = 0.5, linetype = "dashed") +
-    geom_hline(yintercept = 0.95, linetype = "dashed") +
+    geom_hline(yintercept = 0.90, linetype = "dashed") +
     facet_wrap(~location, ncol = 3) +
     get_plot_theme(dates = FALSE) +
     theme(axis.text.x = element_blank()) +

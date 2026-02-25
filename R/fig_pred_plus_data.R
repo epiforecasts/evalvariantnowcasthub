@@ -43,7 +43,7 @@ get_plot_model_pred_obs <- function(model_pred_obs_df,
     ), alpha = 0.2) +
     geom_ribbon(aes(
       x = target_date,
-      ymin = q_0.025, ymax = q_0.975,
+      ymin = q_0.05, ymax = q_0.95,
       fill = clade
     ), alpha = 0.1) +
     geom_point(
@@ -65,6 +65,7 @@ get_plot_model_pred_obs <- function(model_pred_obs_df,
     ) +
     xlab("") +
     ylab("Model predicted observed frequencies") +
+    theme(axis.title = element_text(size = 10)) +
     guides(
       fill = "none",
       color = "none"
@@ -103,7 +104,7 @@ get_plot_seq_count <- function(eval_seq,
     ) +
     facet_wrap(~location, ncol = 3) +
     get_plot_theme(dates = TRUE) +
-    theme(axis.title = element_text(size = 11)) +
+    theme(axis.title = element_text(size = 10)) +
     scale_fill_manual(
       name = "Clade",
       values = plot_comps$clade_colors
@@ -157,6 +158,7 @@ get_plot_scores_over_time <- function(scores,
     )) +
     facet_wrap(~location, ncol = 3) +
     get_plot_theme(dates = TRUE) +
+    theme(axis.title = element_text(size = 11)) +
     xlab("") +
     ylab("Energy score") +
     guides(
