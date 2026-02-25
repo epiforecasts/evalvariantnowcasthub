@@ -43,7 +43,7 @@ get_plot_model_pred_obs <- function(model_pred_obs_df,
     ), alpha = 0.2) +
     geom_ribbon(aes(
       x = target_date,
-      ymin = q_0.025, ymax = q_0.975,
+      ymin = q_0.05, ymax = q_0.95,
       fill = clade
     ), alpha = 0.1) +
     geom_point(

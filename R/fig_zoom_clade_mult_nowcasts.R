@@ -45,8 +45,8 @@ get_plot_model_preds_mult <- function(model_preds_mult_nowcasts,
     geom_ribbon(
       aes(
         x = target_date,
-        ymin = q_0.025,
-        ymax = q_0.975, fill = model_id,
+        ymin = q_0.05,
+        ymax = q_0.95, fill = model_id,
         group = nowcast_date
       ),
       alpha = 0.1,

@@ -18,7 +18,7 @@ prepare_data_for_scoring <- function(df_mult_nowcasts,
     filter(horizon >= min(horizon_range), horizon <= max(horizon_range))
 
   # Reshape from wide to long format for scoringutils
-  # Current: q_0.5, q_0.025, q_0.975, q_0.25, q_0.75
+  # Current: q_0.5, q_0.05, q_0.95, q_0.25, q_0.75
   # Needed: quantile_level, predicted columns
   df_long <- df_filtered |>
     pivot_longer(
