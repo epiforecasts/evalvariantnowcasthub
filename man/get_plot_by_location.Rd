@@ -9,7 +9,8 @@ get_plot_by_location(
   seq_counts_by_loc,
   score_type = c("brier_score", "energy_score"),
   rel_skill_plot = TRUE,
-  remove_legend = TRUE
+  remove_legend = TRUE,
+  save_fig = FALSE
 )
 }
 \arguments{
@@ -23,6 +24,9 @@ get_plot_by_location(
 
 \item{remove_legend}{Boolean indicating whether to keep legend, default
 is TRUE.}
+
+\item{save_fig}{Boolean indicating whether or not to save the figure,
+default is FALSE}
 }
 \value{
 ggplot object

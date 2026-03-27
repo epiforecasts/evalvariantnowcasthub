@@ -38,6 +38,8 @@ get_relative_skill <- function(scores_obj,
 #' @param score_type Character string indicating which score metric to use
 #' @param remove_legend Boolean indicating whether to keep legend, default
 #'   is TRUE.
+#' @param save_fig Boolean indicating whether or not to save the figure,
+#'   default is FALSE
 #' @importFrom scoringutils summarise_scores
 #' @importFrom ggplot2 ggplot geom_bar aes geom_hline coord_flip
 #' @importFrom rlang sym
@@ -47,7 +49,8 @@ get_plot_by_location <- function(scores_obj,
                                  seq_counts_by_loc,
                                  score_type = c("brier_score", "energy_score"),
                                  rel_skill_plot = TRUE,
-                                 remove_legend = TRUE) {
+                                 remove_legend = TRUE,
+                                 save_fig = FALSE) {
   score_type <- rlang::arg_match(score_type)
   plot_components_list <- plot_components()
   if (score_type == "brier_score") {
@@ -154,6 +157,21 @@ get_plot_by_location <- function(scores_obj,
       shape = "none"
     )
   }
+
+  if (isTRUE(save_fig)) {
+    p <- p + theme(legend.position = "top") +
+      guides(fill = guide_legend(nrow = 1, title.position = "top"))
+    abs_or_rel <- ifelse(rel_skill_plot, "rel", "abs")
+    output_fp <- file.path("output", "figs", "overall_scores", "supp")
+    plot_name <- glue::glue("{score_type}_{abs_or_rel}")
+    ggsave(
+      file.path(output_fp, glue::glue("{plot_name}.png")),
+      plot = p,
+      height = 5,
+      width = 10
+    )
+  }
+
   return(p)
 }
 
@@ -907,6 +925,60 @@ get_by_loc_figure <- function(a, b, c, d, e,
   combined_fig <- a + b +
     c + d +
     e +
+    plot_layout(
+      design = fig_layout,
+      guides = "collect",
+      axis = "collect"
+    ) +
+    plot_annotation(
+      tag_levels = "A",
+      tag_suffix = "",
+      theme = theme(
+        legend.position = "top",
+        legend.box = "horizontal",
+        legend.title = element_text(hjust = 0.5),
+        plot.tag = element_text(size = 14, face = "bold")
+      )
+    )
+
+  # Create output directory if it doesn't exist
+  dir_create(output_fp, recurse = TRUE)
+
+  # Save figure
+  ggsave(
+    file.path(output_fp, glue::glue("{plot_name}.png")),
+    plot = combined_fig,
+    width = 12,
+    height = 15,
+    dpi = 300
+  )
+
+  return(combined_fig)
+}
+
+#' Get a plot of the summary of the overall scores
+#'
+#' @param a A
+#' @param b B
+#' @param c C
+#' @param output_fp directory to save figures
+#' @param plot_name name of the plot
+#'
+#' @returns ggplot object
+get_by_loc_figure_smaller <- function(a, b, c,
+                                      output_fp = file.path(
+                                        "output", "figs",
+                                        "overall_scores"
+                                      ),
+                                      plot_name = "by_location") {
+  fig_layout <- "
+  AAAA
+  BBBB
+  CCCC
+  "
+
+  combined_fig <- a + b +
+    c +
     plot_layout(
       design = fig_layout,
       guides = "collect",
