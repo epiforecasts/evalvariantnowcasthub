@@ -4,12 +4,7 @@
 \alias{extract_nowcasts}
 \title{Extract nowcasts from S3 bucket}
 \usage{
-extract_nowcasts(
-  nowcast_dates,
-  states,
-  bucket_name,
-  clades_w_display_name = clades_w_display_name
-)
+extract_nowcasts(nowcast_dates, states, bucket_name, clades_w_display_name)
 }
 \arguments{
 \item{nowcast_dates}{Nowcast date(s) to extract}

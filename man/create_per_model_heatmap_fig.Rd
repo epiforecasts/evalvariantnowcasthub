@@ -6,6 +6,7 @@
 \usage{
 create_per_model_heatmap_fig(
   submission_data,
+  seq_counts_by_loc,
   plot_components,
   output_fp = file.path("output", "figs", "metadata", "supp"),
   plot_name = "submission_heatmap_by_model"

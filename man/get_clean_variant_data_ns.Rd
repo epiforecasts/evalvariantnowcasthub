@@ -22,7 +22,7 @@ next strain}
 
 \item{clade_list}{Vector of character strings of the clade names}
 
-\item{clades_w_display_name}{Tibble with clade + clade and pango lineage}
+\item{clades_w_display_name}{Tibble with clade and clade + pango lineage}
 
 \item{location_data}{Data.frame of location information}
 
