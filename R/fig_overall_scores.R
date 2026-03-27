@@ -163,7 +163,7 @@ get_plot_by_location <- function(scores_obj,
       guides(fill = guide_legend(nrow = 1, title.position = "top"))
     abs_or_rel <- ifelse(rel_skill_plot, "rel", "abs")
     output_fp <- file.path("output", "figs", "overall_scores", "supp")
-    plot_name <- glue::glue("{score_type}_{abs_or_rel}.png")
+    plot_name <- glue::glue("{score_type}_{abs_or_rel}")
     ggsave(
       file.path(output_fp, glue::glue("{plot_name}.png")),
       plot = p,
