@@ -91,8 +91,8 @@ utils::globalVariables(c(
   "sequences", # <get_bar_chart_comparison>
   "sequences_final", # <get_bar_chart_comparison>
   "data_availability", # <get_bar_chart_comparison>
-  "sequence_counts", # <get_bar_chart_comparison>
   "fill_group", # <get_bar_chart_comparison>
+  "sequence_counts", # <get_bar_chart_comparison>
   "location", # <get_plot_model_outputs>
   "sequences", # <get_plot_model_outputs>
   "clades_modeled", # <get_plot_model_outputs>
@@ -163,9 +163,11 @@ utils::globalVariables(c(
   "location", # <prepare_submission_data>
   "nowcast_date", # <prepare_submission_data>
   "submitted", # <prepare_submission_data>
+  "total_seq", # <plot_model_submission_heatmap>
   "location", # <plot_model_submission_heatmap>
   "nowcast_date", # <plot_model_submission_heatmap>
   "submitted", # <plot_model_submission_heatmap>
+  "total_seq", # <plot_submission_summary>
   "location", # <plot_submission_summary>
   "nowcast_date", # <plot_submission_summary>
   "submitted", # <plot_submission_summary>
@@ -174,6 +176,7 @@ utils::globalVariables(c(
   "location", # <prepare_eval_sequence_data>
   "sequences", # <prepare_eval_sequence_data>
   "location", # <plot_eval_sequence_heatmap>
+  "total_seq", # <plot_eval_sequence_heatmap>
   "total_sequences", # <plot_eval_sequence_heatmap>
   "nowcast_date", # <plot_eval_sequence_heatmap>
   "location", # <get_plot_bias_by_date>

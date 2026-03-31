@@ -4,7 +4,12 @@
 \alias{plot_model_submission_heatmap}
 \title{Plot submission heatmap for a single model}
 \usage{
-plot_model_submission_heatmap(submission_data, model_id, plot_components)
+plot_model_submission_heatmap(
+  submission_data,
+  seq_counts_by_loc,
+  model_id,
+  plot_components
+)
 }
 \arguments{
 \item{submission_data}{Prepared submission status data}

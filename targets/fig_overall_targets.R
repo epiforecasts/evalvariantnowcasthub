@@ -210,7 +210,17 @@ fig_overall_targets <- list(
       seq_counts_by_loc = seq_counts_by_loc,
       score_type = "brier_score",
       rel_skill_plot = FALSE
-      # remove_legend = FALSE
+    )
+  ),
+  tar_target(
+    name = bar_chart_brier_location_to_save,
+    command = get_plot_by_location(
+      scores_obj = su_scores_all,
+      seq_counts_by_loc = seq_counts_by_loc,
+      score_type = "brier_score",
+      rel_skill_plot = FALSE,
+      remove_legend = FALSE,
+      save_fig = TRUE
     )
   ),
   tar_target(
@@ -230,6 +240,17 @@ fig_overall_targets <- list(
       seq_counts_by_loc = seq_counts_by_loc,
       rel_skill_plot = TRUE,
       score_type = "energy_score"
+    )
+  ),
+  tar_target(
+    name = bar_chart_energy_location_to_save,
+    command = get_plot_by_location(
+      scores_obj = su_scores_all,
+      seq_counts_by_loc = seq_counts_by_loc,
+      rel_skill_plot = FALSE,
+      score_type = "energy_score",
+      remove_legend = FALSE,
+      save_fig = TRUE
     )
   ),
   tar_target(
@@ -255,6 +276,17 @@ fig_overall_targets <- list(
       d = rel_skill_energy_location,
       e = plot_seq_counts_by_loc,
       plot_name = "by_location"
+    )
+  ),
+  tar_target(
+    name = by_loc_figure_sammler,
+    command = get_by_loc_figure_smaller(
+      # a = bar_chart_brier_location,
+      a = rel_skill_brier_location,
+      # c = bar_chart_energy_location,
+      b = rel_skill_energy_location,
+      c = plot_seq_counts_by_loc,
+      plot_name = "by_location_smaller"
     )
   ),
 

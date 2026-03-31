@@ -6,6 +6,7 @@
 \usage{
 plot_eval_sequence_heatmap(
   sequence_data,
+  seq_counts_by_loc,
   plot_components,
   output_fp = file.path("output", "figs", "metadata", "supp"),
   plot_name = "eval_sequence_counts_heatmap"

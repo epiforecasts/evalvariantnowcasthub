@@ -4,7 +4,7 @@
 \alias{plot_submission_summary}
 \title{Plot summary heatmap across all models}
 \usage{
-plot_submission_summary(submission_data, plot_components)
+plot_submission_summary(submission_data, seq_counts_by_loc, plot_components)
 }
 \arguments{
 \item{submission_data}{Prepared submission status data}
