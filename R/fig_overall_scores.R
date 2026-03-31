@@ -105,11 +105,11 @@ get_plot_by_location <- function(scores_obj,
       guides(
         color = guide_legend(
           title.position = "top",
-          nrow = 3
+          nrow = 1
         ),
         shape = guide_legend(
           title.position = "top",
-          nrow = 3
+          nrow = 1
         )
       )
   } else {

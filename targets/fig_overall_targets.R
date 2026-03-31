@@ -209,8 +209,8 @@ fig_overall_targets <- list(
       scores_obj = su_scores_all,
       seq_counts_by_loc = seq_counts_by_loc,
       score_type = "brier_score",
-      rel_skill_plot = FALSE,
-      remove_legend = FALSE
+      rel_skill_plot = FALSE
+      # remove_legend = FALSE
     )
   ),
   tar_target(
