@@ -4,6 +4,10 @@ This repository contains the code to generate the results of analysing the SARS-
 
 This README is organized into the following sections:
 
+- [System requirements](#system-requirements)
+- [Installation guide](#installation-guide)
+- [Demo](#demo)
+- [Intstructions for use](#instructions-for-use)
 - [Project structure](#project-structure) describing the contents of this repository
 - [Data sources](#data-sources) providing links and a description to external data sources used
 
