@@ -39,9 +39,10 @@ It has not been tested on Linux or Windows, but it should be compatible with all
 
 ## Installation guide
 1. Clone the repo from `https://github.com/epiforecasts/evalvariantnowcasthub`
-2. Run `devtools::load_all()` within the project directory. Install any dependencies required
+2. Run `devtools::load_all()` within the project directory. Users will be prompted to install any dependencies required.
 
 You have now installed the analysis package `evalvariantnowcasthub_0.0.0.1000` locally. This isn't necessary to run the pipeline but will ensure you have installed the required packages.
+This should take about 20 seconds to install on a recommended computer. 
 
 ## Demo and instructions for use
 To reproduce all results, simply run `targets::tar_make()` from the console in the project directory. 
