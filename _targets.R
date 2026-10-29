@@ -72,7 +72,8 @@ data_targets <- list(
 
 # Summarise and analyse the scores and predictions
 analysis_targets <- list(
-  pred_int_targets
+  pred_int_targets,
+  bootstrap_targets
 )
 
 # Make plots
