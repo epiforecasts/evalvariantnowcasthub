@@ -142,3 +142,125 @@ test_that("get_bonferroni_ci uses estimate +/- qnorm(1 - alpha/2P) * sd", {
   # Resamples where a model has no estimate are not counted
   expect_identical(ci$n_boot, c(4L, 4L, 3L))
 })
+
+test_that("log-scale bands are symmetric about the estimate on a log axis", {
+  estimates <- data.frame(
+    model = c("a", "b"),
+    estimate = c(0.8, 1.25),
+    stringsAsFactors = FALSE
+  )
+  boot_estimates <- data.frame(
+    boot_id = rep(1:4, times = 2),
+    model = rep(c("a", "b"), each = 4),
+    estimate = c(0.7, 0.9, 0.8, 0.85, 1.1, 1.4, 1.2, 1.3),
+    stringsAsFactors = FALSE
+  )
+  ci <- get_bonferroni_ci(estimates, boot_estimates,
+    alpha = 0.05, log_scale = TRUE
+  )
+
+  crit <- qnorm(1 - 0.05 / 4)
+  log_sd_a <- sd(log(c(0.7, 0.9, 0.8, 0.85)))
+  expect_equal(ci$lower[1], 0.8 * exp(-crit * log_sd_a), tolerance = 1e-12)
+  # Geometric symmetry: lower * upper == estimate^2
+  expect_equal(ci$lower * ci$upper, ci$estimate^2, tolerance = 1e-12)
+  expect_true(all(ci$lower > 0))
+  expect_true(all(ci$log_scale))
+})
+
+test_that("get_bonferroni_ci counts every row of a by-horizon table in P", {
+  estimates <- expand.grid(
+    model = c("a", "b"), horizon = 0:2, stringsAsFactors = FALSE
+  )
+  estimates$estimate <- 1
+  boot_estimates <- merge(
+    data.frame(boot_id = 1:3), estimates[, c("model", "horizon")]
+  )
+  boot_estimates$estimate <- rep_len(c(0.9, 1, 1.1), 18)
+  ci <- get_bonferroni_ci(estimates, boot_estimates,
+    alpha = 0.05, by = c("model", "horizon"), log_scale = TRUE
+  )
+
+  expect_identical(nrow(ci), 6L)
+  expect_identical(ci$n_comparisons, rep(6L, 6))
+  expect_false(anyNA(ci$boot_sd))
+})
+
+# Small Brier-type scores object with target dates, for SRSS tests:
+# 2 models x 3 weekly nowcast dates x 2 target dates x 2 locations
+toy_brier_scores <- function() {
+  fc <- expand.grid(
+    model = c("model_a", "Hub-baseline"),
+    nowcast_date = weekly_dates[1:3],
+    horizon = c(-1, 0),
+    location = c("CA", "NY"),
+    stringsAsFactors = FALSE
+  )
+  fc$target_date <- fc$nowcast_date + fc$horizon
+  fc$horizon <- NULL
+  fc$observed <- 1
+  set.seed(3)
+  fc$predicted <- runif(nrow(fc), 0.2, 0.8)
+  scores <- scoringutils::score(
+    scoringutils::as_forecast_point(fc),
+    metrics = list(
+      brier_score = function(observed, predicted) abs(observed - predicted)
+    )
+  )
+  scores
+}
+
+test_that("with two models SRSS is the ratio of mean scores", {
+  scores <- toy_brier_scores()
+  srss <- get_srss(scores, "brier_score")
+
+  df <- as.data.frame(scores)
+  expect_identical(srss$model, "model_a")
+  expect_equal(
+    srss$estimate,
+    mean(df$brier_score[df$model == "model_a"]) /
+      mean(df$brier_score[df$model == "Hub-baseline"]),
+    tolerance = 1e-12
+  )
+})
+
+test_that("an identity resample reproduces the original SRSS", {
+  scores <- toy_brier_scores()
+  boot_dates <- data.frame(
+    boot_id = 1L, position = 1:3, nowcast_date = weekly_dates[1:3]
+  )
+  boot <- get_bootstrap_srss(scores, boot_dates, "brier_score")
+
+  expect_named(boot, c("boot_id", "model", "estimate"))
+  expect_equal(
+    boot$estimate, get_srss(scores, "brier_score")$estimate,
+    tolerance = 1e-12
+  )
+})
+
+test_that("resampling daily SRSS equals recomputing it on the resample", {
+  scores <- toy_brier_scores()
+  # Date 1 drawn twice, date 3 once, date 2 not at all
+  boot_dates <- data.frame(
+    boot_id = 1L, position = 1:3, nowcast_date = weekly_dates[c(1, 1, 3)]
+  )
+  shortcut <- get_bootstrap_srss_by_horizon(
+    scores, boot_dates, "brier_score"
+  )
+  # Duplicated forecasts give tied pairs in scoringutils' (unused) Wilcoxon
+  # p-values; silence only that warning
+  full <- withCallingHandlers(
+    get_resampled_scores(scores, boot_dates, 1) |>
+      get_daily_srss("brier_score") |>
+      get_srss_by_horizon("brier_score"),
+    warning = function(w) {
+      if (grepl("exact p-value with ties", conditionMessage(w), fixed = TRUE)) {
+        invokeRestart("muffleWarning")
+      }
+    }
+  )
+
+  expect_named(shortcut, c("boot_id", "model", "horizon", "estimate"))
+  expect_identical(shortcut$horizon, full$horizon)
+  expect_equal(shortcut$estimate, full$estimate, tolerance = 1e-12)
+})

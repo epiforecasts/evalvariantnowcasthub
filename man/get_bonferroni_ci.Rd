@@ -4,21 +4,33 @@
 \alias{get_bonferroni_ci}
 \title{Bonferroni simultaneous confidence bands from bootstrap estimates}
 \usage{
-get_bonferroni_ci(estimates, boot_estimates, alpha)
+get_bonferroni_ci(
+  estimates,
+  boot_estimates,
+  alpha,
+  by = "model",
+  log_scale = FALSE
+)
 }
 \arguments{
 \item{estimates}{Data frame of point estimates from the original data,
-with columns \code{model} and \code{estimate}. Each row is one comparison.}
+with columns \code{by} and \code{estimate}. Each row is one comparison.}
 
 \item{boot_estimates}{Data frame of bootstrap estimates with columns
-\code{boot_id}, \code{model} and \code{estimate}.}
+\code{boot_id}, \code{by} and \code{estimate}.}
 
 \item{alpha}{Significance level of the simultaneous bands.}
+
+\item{by}{Character vector of columns identifying a row of \code{estimates},
+e.g. \code{"model"} or \code{c("model", "horizon")}.}
+
+\item{log_scale}{Logical; build the bands on the log scale. Default
+\code{FALSE}.}
 }
 \value{
-\code{estimates} with added columns \code{boot_sd}, \code{n_boot} (resamples
-in which the model was scored), \code{lower}, \code{upper}, \code{n_comparisons}
-(\code{P}), \code{crit_value} (\code{c}) and \code{alpha}.
+\code{estimates} with added columns \code{boot_sd} (on the scale the band
+is built on), \code{n_boot} (resamples with an estimate), \code{lower}, \code{upper},
+\code{n_comparisons} (\code{P}), \code{crit_value} (\code{c}), \code{alpha} and \code{log_scale}.
 }
 \description{
 Constructs simultaneous confidence bands following Pohle, Zahn & Lerch
@@ -27,4 +39,11 @@ the bootstrap estimates and \verb{c = qnorm(1 - alpha / (2P))} is the
 Bonferroni critical value for the \code{P} rows of \code{estimates}. The bands
 therefore hold simultaneously across all rows of \code{estimates}, so pass
 one table (e.g. one region and score type) at a time.
+}
+\details{
+With \code{log_scale = TRUE} the bands are built for \code{log(estimate)} and
+back-transformed, \verb{exp(log(estimate) +/- c * sd(log(bootstrap)))}, so
+they are symmetric about the estimate on a log axis and positive. Use
+this for ratios such as the scaled relative skill. Coverage is unchanged
+by the back-transformation because \code{exp()} is monotone.
 }

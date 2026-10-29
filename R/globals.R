@@ -41,7 +41,19 @@ utils::globalVariables(c(
   "model", # <get_bootstrap_mean_scores>
   "estimate", # <get_bootstrap_mean_scores>
   "estimate", # <get_bonferroni_ci>
-  "model", # <get_bonferroni_ci>
+  "model", # <get_srss>
+  "compare_against", # <get_srss>
+  "boot_id", # <get_bootstrap_srss>
+  "model", # <get_bootstrap_srss>
+  "estimate", # <get_bootstrap_srss>
+  "target_date", # <get_daily_srss>
+  "nowcast_date", # <get_daily_srss>
+  "model", # <get_srss_by_horizon>
+  "horizon", # <get_srss_by_horizon>
+  "boot_id", # <get_bootstrap_srss_by_horizon>
+  "model", # <get_bootstrap_srss_by_horizon>
+  "horizon", # <get_bootstrap_srss_by_horizon>
+  "estimate", # <get_bootstrap_srss_by_horizon>
   "location", # <get_clean_variant_data>
   "abbreviation", # <get_clean_variant_data>
   "clade", # <get_clean_variant_data>
