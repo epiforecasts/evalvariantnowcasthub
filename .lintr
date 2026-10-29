@@ -13,5 +13,9 @@ exclusions: list(
     "inst",
     "tests/testthat.R" = list(
       unused_import_linter = Inf
+    ),
+    "_targets.R" = list(
+      unused_import_linter = Inf,
+      missing_package_linter = Inf
     )
   )

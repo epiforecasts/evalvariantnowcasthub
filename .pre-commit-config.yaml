@@ -10,6 +10,8 @@ repos:
     # -   id: codemeta-description-updated
     -   id: use-tidy-description
     -   id: lintr
+        additional_dependencies:
+        -   cyclocomp
     -   id: parsable-R
     -   id: no-browser-statement
     -   id: deps-in-desc
