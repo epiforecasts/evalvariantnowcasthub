@@ -332,3 +332,91 @@ get_bootstrap_srss_by_horizon <- function(scores_obj,
   bind_rows(boot_estimates) |>
     select(boot_id, model, horizon, estimate)
 }
+
+#' Number of nowcast dates each model shares with the baseline
+#'
+#' Counts the nowcast dates on which both a model and the baseline have
+#' scores, i.e. the dates contributing to their pairwise comparison.
+#'
+#' @inheritParams get_srss
+#' @param scores_obj Scoringutils scores object.
+#' @importFrom dplyr filter distinct inner_join count select
+#' @importFrom rlang sym
+#' @returns Data frame with columns `model` and `n_overlapping_dates`.
+#' @autoglobal
+get_n_overlapping_dates <- function(scores_obj,
+                                    score_type = c(
+                                      "brier_score",
+                                      "energy_score"
+                                    ),
+                                    baseline = "Hub-baseline") {
+  score_type <- rlang::arg_match(score_type)
+  dates <- as.data.frame(scores_obj) |>
+    filter(!is.na(!!sym(score_type))) |>
+    distinct(model, nowcast_date)
+  baseline_dates <- filter(dates, model == baseline)
+  dates |>
+    filter(model != baseline) |>
+    inner_join(
+      select(baseline_dates, nowcast_date),
+      by = "nowcast_date"
+    ) |>
+    count(model, name = "n_overlapping_dates")
+}
+
+#' Format confidence bands as a results table
+#'
+#' Labels a table of Bonferroni bands from [get_bonferroni_ci()] with its
+#' region, score type and metric, and puts the columns in a standard order
+#' for saving.
+#'
+#' @param ci Confidence bands, as returned by [get_bonferroni_ci()].
+#' @param region Character string naming the region, e.g.
+#'   `"US excluding CA"`.
+#' @param score_type Character string naming the score.
+#' @param metric Character string naming the metric, e.g.
+#'   `"mean score"` or `"SRSS"`.
+#' @param n_dates Optional data frame with column `model` and a count of
+#'   nowcast dates to add, e.g. from [get_n_overlapping_dates()].
+#' @importFrom dplyr mutate rename select any_of left_join
+#' @returns Data frame with columns `region`, `score_type`, `metric`,
+#'   `model`, `horizon` (if present), `estimate`, `ci_lower`, `ci_upper`,
+#'   the nowcast date count, `n_comparisons`, `crit_value`, `alpha`,
+#'   `scale`, `boot_sd` and `n_boot`.
+#' @autoglobal
+format_ci_table <- function(ci, region, score_type, metric, n_dates = NULL) {
+  if (!is.null(n_dates)) {
+    ci <- left_join(ci, n_dates, by = "model")
+  }
+  ci |>
+    mutate(
+      region = region,
+      score_type = score_type,
+      metric = metric,
+      scale = ifelse(log_scale, "log", "raw")
+    ) |>
+    rename(ci_lower = lower, ci_upper = upper) |>
+    select(any_of(c(
+      "region", "score_type", "metric", "model", "horizon", "estimate",
+      "ci_lower", "ci_upper", "n_nowcast_dates", "n_overlapping_dates",
+      "n_comparisons", "crit_value", "alpha", "scale", "boot_sd", "n_boot"
+    )))
+}
+
+#' Save a table as a CSV file
+#'
+#' @param table Data frame to save.
+#' @param file_name Character string, file name without extension.
+#' @param output_fp Character string indicating directory to save file.
+#' @importFrom fs dir_create
+#' @importFrom readr write_csv
+#' @returns Character string with the path of the saved file.
+#' @autoglobal
+save_table_csv <- function(table,
+                           file_name,
+                           output_fp = file.path("output", "tables")) {
+  dir_create(output_fp, recurse = TRUE)
+  path <- file.path(output_fp, glue::glue("{file_name}.csv"))
+  write_csv(table, path)
+  return(path)
+}

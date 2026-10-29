@@ -29,6 +29,7 @@ Imports:
   tidyr,
   roxyglobals,
   data.table,
+  fs,
   rlang,
   cowplot,
   lubridate,

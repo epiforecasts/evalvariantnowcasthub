@@ -264,3 +264,36 @@ test_that("resampling daily SRSS equals recomputing it on the resample", {
   expect_identical(shortcut$horizon, full$horizon)
   expect_equal(shortcut$estimate, full$estimate, tolerance = 1e-12)
 })
+
+test_that("get_n_overlapping_dates counts dates shared with the baseline", {
+  scores <- toy_brier_scores()
+  # model_a misses nowcast date 1 entirely
+  scores <- scores[!(scores$model == "model_a" &
+    scores$nowcast_date == weekly_dates[1]), ]
+  n_dates <- get_n_overlapping_dates(scores, "brier_score")
+
+  expect_identical(n_dates$model, "model_a")
+  expect_identical(n_dates$n_overlapping_dates, 2L)
+})
+
+test_that("format_ci_table labels and orders the columns", {
+  ci <- data.frame(
+    model = c("a", "b"), estimate = c(1, 2), boot_sd = 0.1, n_boot = 4L,
+    lower = c(0.5, 1.5), upper = c(1.5, 2.5), n_comparisons = 2L,
+    crit_value = 2.24, alpha = 0.05, log_scale = TRUE,
+    stringsAsFactors = FALSE
+  )
+  n_dates <- data.frame(
+    model = c("a", "b"), n_overlapping_dates = c(30L, 35L),
+    stringsAsFactors = FALSE
+  )
+  table <- format_ci_table(ci, "CA", "brier_score", "SRSS", n_dates)
+
+  expect_named(table, c(
+    "region", "score_type", "metric", "model", "estimate", "ci_lower",
+    "ci_upper", "n_overlapping_dates", "n_comparisons", "crit_value",
+    "alpha", "scale", "boot_sd", "n_boot"
+  ))
+  expect_identical(table$scale, c("log", "log"))
+  expect_identical(table$n_overlapping_dates, c(30L, 35L))
+})

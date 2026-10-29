@@ -276,5 +276,118 @@ bootstrap_targets <- list(
       by = c("model", "horizon"),
       log_scale = TRUE
     )
+  ),
+  # Results tables------------------------------------------------------
+  # One table per metric, with region and score type as columns, saved as
+  # CSV to output/tables/
+  tar_target(
+    name = table_ci_abs,
+    command = bind_rows(
+      format_ci_table(
+        ci = ci_abs_brier_ep,
+        region = "US excluding CA",
+        score_type = "brier_score",
+        metric = "mean score"
+      ),
+      format_ci_table(
+        ci = ci_abs_energy_ep,
+        region = "US excluding CA",
+        score_type = "energy_score",
+        metric = "mean score"
+      ),
+      format_ci_table(
+        ci = ci_abs_brier_ca,
+        region = "CA",
+        score_type = "brier_score",
+        metric = "mean score"
+      ),
+      format_ci_table(
+        ci = ci_abs_energy_ca,
+        region = "CA",
+        score_type = "energy_score",
+        metric = "mean score"
+      )
+    )
+  ),
+  tar_target(
+    name = table_ci_srss,
+    command = bind_rows(
+      format_ci_table(
+        ci = ci_srss_brier_ep,
+        region = "US excluding CA",
+        score_type = "brier_score",
+        metric = "SRSS",
+        n_dates = get_n_overlapping_dates(su_scores_ep, "brier_score")
+      ),
+      format_ci_table(
+        ci = ci_srss_energy_ep,
+        region = "US excluding CA",
+        score_type = "energy_score",
+        metric = "SRSS",
+        n_dates = get_n_overlapping_dates(su_scores_ep, "energy_score")
+      ),
+      format_ci_table(
+        ci = ci_srss_brier_ca,
+        region = "CA",
+        score_type = "brier_score",
+        metric = "SRSS",
+        n_dates = get_n_overlapping_dates(su_scores_ca, "brier_score")
+      ),
+      format_ci_table(
+        ci = ci_srss_energy_ca,
+        region = "CA",
+        score_type = "energy_score",
+        metric = "SRSS",
+        n_dates = get_n_overlapping_dates(su_scores_ca, "energy_score")
+      )
+    )
+  ),
+  tar_target(
+    name = table_ci_srss_horizon,
+    command = bind_rows(
+      format_ci_table(
+        ci = ci_srss_horizon_brier_ep,
+        region = "US excluding CA",
+        score_type = "brier_score",
+        metric = "SRSS",
+        n_dates = get_n_overlapping_dates(su_scores_ep, "brier_score")
+      ),
+      format_ci_table(
+        ci = ci_srss_horizon_energy_ep,
+        region = "US excluding CA",
+        score_type = "energy_score",
+        metric = "SRSS",
+        n_dates = get_n_overlapping_dates(su_scores_ep, "energy_score")
+      ),
+      format_ci_table(
+        ci = ci_srss_horizon_brier_ca,
+        region = "CA",
+        score_type = "brier_score",
+        metric = "SRSS",
+        n_dates = get_n_overlapping_dates(su_scores_ca, "brier_score")
+      ),
+      format_ci_table(
+        ci = ci_srss_horizon_energy_ca,
+        region = "CA",
+        score_type = "energy_score",
+        metric = "SRSS",
+        n_dates = get_n_overlapping_dates(su_scores_ca, "energy_score")
+      )
+    )
+  ),
+  tar_target(
+    name = csv_ci_abs,
+    command = save_table_csv(table_ci_abs, "ci_mean_score_overall"),
+    format = "file"
+  ),
+  tar_target(
+    name = csv_ci_srss,
+    command = save_table_csv(table_ci_srss, "ci_srss_overall"),
+    format = "file"
+  ),
+  tar_target(
+    name = csv_ci_srss_horizon,
+    command = save_table_csv(table_ci_srss_horizon, "ci_srss_by_horizon"),
+    format = "file"
   )
 )

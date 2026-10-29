@@ -63,6 +63,11 @@ utils::globalVariables(c(
   "model", # <get_bootstrap_srss_by_horizon>
   "horizon", # <get_bootstrap_srss_by_horizon>
   "estimate", # <get_bootstrap_srss_by_horizon>
+  "model", # <get_n_overlapping_dates>
+  "nowcast_date", # <get_n_overlapping_dates>
+  "log_scale", # <format_ci_table>
+  "lower", # <format_ci_table>
+  "upper", # <format_ci_table>
   "location", # <get_clean_variant_data>
   "abbreviation", # <get_clean_variant_data>
   "clade", # <get_clean_variant_data>
