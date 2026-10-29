@@ -32,7 +32,8 @@ Imports:
   rlang,
   cowplot,
   lubridate,
-  tidybayes
+  tidybayes,
+  UQforecasts
 Suggests:
     bookdown,
     targets,
@@ -49,6 +50,7 @@ Roxygen: list(markdown = TRUE, roclets = c("collate", "namespace", "rd",
     "roxyglobals::global_roclet"))
 RoxygenNote: 7.3.3
 Remotes:
-  hubData=hubverse-org/hubData
+  hubData=hubverse-org/hubData,
+  UQforecasts=TanjaZahn/UQforecasts@de919e0eab1cdb9084b368024960b67c496efefa
 Config/roxyglobals/filename: globals.R
 Config/roxyglobals/unique: FALSE
