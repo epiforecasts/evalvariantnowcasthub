@@ -88,5 +88,37 @@ eda_plot_targets <- list(
       title = "CA: mean Brier score",
       plot_name = "boot_resamples_brier_ca"
     )
+  ),
+  tar_target(
+    name = plot_boot_resamples_energy_ep,
+    command = get_plot_bootstrap_resamples(
+      scores_obj = su_scores_ep,
+      boot_dates = boot_dates,
+      boot_estimates = boot_abs_energy_ep,
+      ci = ci_abs_energy_ep,
+      score_type = "energy_score",
+      title = "US excluding CA: mean energy score",
+      plot_name = "boot_resamples_energy_ep"
+    )
+  ),
+  tar_target(
+    name = plot_boot_resamples_energy_ca,
+    command = get_plot_bootstrap_resamples(
+      scores_obj = su_scores_ca,
+      boot_dates = boot_dates,
+      boot_estimates = boot_abs_energy_ca,
+      ci = ci_abs_energy_ca,
+      score_type = "energy_score",
+      title = "CA: mean energy score",
+      plot_name = "boot_resamples_energy_ca"
+    )
+  ),
+  # Nowcast dates drawn into every bootstrap resample
+  tar_target(
+    name = plot_boot_dates,
+    command = get_plot_bootstrap_dates(
+      boot_dates = boot_dates,
+      plot_name = "boot_dates_all_resamples"
+    )
   )
 )

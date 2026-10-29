@@ -33,6 +33,8 @@ utils::globalVariables(c(
   "estimate", # <get_plot_bootstrap_resamples>
   "lower", # <get_plot_bootstrap_resamples>
   "upper", # <get_plot_bootstrap_resamples>
+  "boot_id", # <get_plot_bootstrap_dates>
+  "nowcast_date", # <get_plot_bootstrap_dates>
   "model", # <get_mean_score_by_model>
   "nowcast_date", # <get_mean_score_by_model>
   "boot_id", # <get_bootstrap_mean_scores>

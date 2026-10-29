@@ -412,3 +412,59 @@ get_plot_bootstrap_resamples <- function(scores_obj,
   }
   return(p)
 }
+
+#' Plot the nowcast dates in every bootstrap resample
+#'
+#' Condensed overview of all moving block bootstrap resamples. The top
+#' panel is a heatmap with one row per resample and one column per nowcast
+#' date, coloured by the number of copies of that date in the resample
+#' (blank if not drawn). The bottom panel shows the total number of times
+#' each nowcast date was drawn across all resamples, with a dashed line at
+#' the number expected if every date were equally likely.
+#'
+#' @param boot_dates Data frame of resampled nowcast dates, as returned by
+#'   [get_block_bootstrap_dates()].
+#' @param plot_name Character string indicating name of plot.
+#' @param output_fp Character string indicating directory to save file.
+#' @param save Boolean indicating whether or not to save the plot.
+#' @importFrom ggplot2 ggplot aes geom_tile geom_col geom_hline
+#'   scale_fill_viridis_c scale_y_reverse labs ggsave
+#' @importFrom dplyr count
+#' @returns patchwork object
+#' @autoglobal
+get_plot_bootstrap_dates <- function(boot_dates,
+                                     plot_name,
+                                     output_fp = file.path(
+                                       "output", "figs", "eda"
+                                     ),
+                                     save = TRUE) {
+  n_boot <- length(unique(boot_dates$boot_id))
+  copies <- count(boot_dates, boot_id, nowcast_date)
+  totals <- count(boot_dates, nowcast_date)
+
+  p_heatmap <- ggplot(copies) +
+    geom_tile(aes(x = nowcast_date, y = boot_id, fill = n)) +
+    scale_fill_viridis_c(name = "Copies in\nresample") +
+    scale_y_reverse(expand = c(0, 0)) +
+    get_plot_theme(dates = TRUE) +
+    labs(x = "", y = "Resample (boot_id)")
+
+  p_totals <- ggplot(totals) +
+    geom_col(aes(x = nowcast_date, y = n), fill = "gray40") +
+    geom_hline(yintercept = n_boot, linetype = "dashed") +
+    get_plot_theme(dates = TRUE) +
+    labs(x = "Nowcast date", y = "Total draws")
+
+  p <- patchwork::wrap_plots(
+    p_heatmap, p_totals,
+    ncol = 1, heights = c(4, 1)
+  )
+
+  if (isTRUE(save)) {
+    dir_create(output_fp, recurse = TRUE)
+    ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
+      plot = p, width = 8, height = 10
+    )
+  }
+  return(p)
+}
