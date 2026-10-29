@@ -44,7 +44,6 @@ utils::globalVariables(c(
   "upper", # <get_plot_srss_horizon_ci>
   "model", # <get_plot_srss_horizon_ci>
   "estimate", # <get_plot_srss_horizon_ci>
-  "model", # <get_mean_score_by_model>
   "nowcast_date", # <get_mean_score_by_model>
   "boot_id", # <get_bootstrap_mean_scores>
   "model", # <get_bootstrap_mean_scores>

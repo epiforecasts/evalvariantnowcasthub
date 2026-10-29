@@ -4,21 +4,31 @@
 \alias{get_mean_score_by_model}
 \title{Mean score by model over all rows}
 \usage{
-get_mean_score_by_model(scores, score_type = c("brier_score", "energy_score"))
+get_mean_score_by_model(
+  scores,
+  score_type = c("brier_score", "energy_score"),
+  by = NULL
+)
 }
 \arguments{
 \item{scores}{Scoringutils scores object, or a resample of one from
 \code{\link[=get_resampled_scores]{get_resampled_scores()}}.}
 
 \item{score_type}{Character string indicating which score metric to use.}
+
+\item{by}{Optional character vector of columns to compute the mean
+within, in addition to model, e.g. \code{"location"}. Default \code{NULL} gives
+the overall mean per model.}
 }
 \value{
-Data frame with columns \code{model}, \code{estimate} (the mean score)
-and \code{n_nowcast_dates} (number of distinct nowcast dates scored).
+Data frame with columns \code{by} (if given), \code{model}, \code{estimate}
+(the mean score) and \code{n_nowcast_dates} (number of distinct nowcast
+dates scored).
 }
 \description{
 Averages a score over every scored row (location, target date and
 nowcast date) for each model, as in the absolute score bar charts of
-\code{\link[=get_plot_overall]{get_plot_overall()}}. Rows where the score is missing are dropped; in
+\code{\link[=get_plot_overall]{get_plot_overall()}}, or within groups such as location as in
+\code{\link[=get_plot_by_location]{get_plot_by_location()}}. Rows where the score is missing are dropped; in
 our data a model's score is either missing for all rows or none.
 }

@@ -2,13 +2,14 @@
 % Please edit documentation in R/bootstrap_ci.R
 \name{get_bootstrap_srss}
 \alias{get_bootstrap_srss}
-\title{Bootstrap the overall scaled relative skill}
+\title{Bootstrap the scaled relative skill}
 \usage{
 get_bootstrap_srss(
   scores_obj,
   boot_dates,
   score_type,
-  baseline = "Hub-baseline"
+  baseline = "Hub-baseline",
+  by = NULL
 )
 }
 \arguments{
@@ -21,11 +22,17 @@ column.}
 \item{score_type}{Character string indicating which score metric to use.}
 
 \item{baseline}{Character string naming the baseline model.}
+
+\item{by}{Optional character vector of columns to run separate
+tournaments within, passed to
+\code{\link[scoringutils:get_pairwise_comparisons]{scoringutils::get_pairwise_comparisons()}}. Default \code{NULL} gives one
+overall tournament.}
 }
 \value{
-Data frame with columns \code{boot_id}, \code{model} and \code{estimate}.
+Data frame with columns \code{boot_id}, \code{by} (if given), \code{model} and
+\code{estimate}.
 }
 \description{
 Re-runs the full pairwise tournament (\code{\link[=get_srss]{get_srss()}}) on every resample in
-\code{boot_dates}.
+\code{boot_dates}, overall or within the groups in \code{by}.
 }
