@@ -12,10 +12,27 @@
 #' @param y_breaks Optional numeric vector of breaks for a log10 y axis,
 #'   replacing the panel's original log10 scale. Use only for relative
 #'   skill panels.
-#' @importFrom ggplot2 geom_errorbar aes coord_cartesian scale_y_continuous
+#' @param point_size Optional size for the panel's points, e.g. so large
+#'   relative skill markers do not hide narrow error bars.
+#' @importFrom ggplot2 geom_errorbar geom_point aes coord_cartesian
+#'   scale_y_continuous
 #' @returns ggplot object
 #' @autoglobal
-add_ci_errorbars <- function(p, ci, ylim = NULL, y_breaks = NULL) {
+add_ci_errorbars <- function(p,
+                             ci,
+                             ylim = NULL,
+                             y_breaks = NULL,
+                             point_size = NULL) {
+  if (!is.null(point_size)) {
+    # Replace each point layer with a new one with the same mapping, so
+    # the original panel object is not modified
+    p$layers <- lapply(p$layers, function(layer) {
+      if (!inherits(layer$geom, "GeomPoint")) {
+        return(layer)
+      }
+      geom_point(mapping = layer$mapping, size = point_size)
+    })
+  }
   p <- p +
     geom_errorbar(
       data = ci,

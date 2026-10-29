@@ -4,7 +4,7 @@
 \alias{add_ci_errorbars}
 \title{Add confidence band error bars to an overall score panel}
 \usage{
-add_ci_errorbars(p, ci, ylim = NULL, y_breaks = NULL)
+add_ci_errorbars(p, ci, ylim = NULL, y_breaks = NULL, point_size = NULL)
 }
 \arguments{
 \item{p}{ggplot object from \code{\link[=get_plot_overall]{get_plot_overall()}}.}
@@ -18,6 +18,9 @@ e.g. to show bands extending beyond the panel's original limits.}
 \item{y_breaks}{Optional numeric vector of breaks for a log10 y axis,
 replacing the panel's original log10 scale. Use only for relative
 skill panels.}
+
+\item{point_size}{Optional size for the panel's points, e.g. so large
+relative skill markers do not hide narrow error bars.}
 }
 \value{
 ggplot object
