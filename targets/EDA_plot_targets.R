@@ -120,5 +120,82 @@ eda_plot_targets <- list(
       boot_dates = boot_dates,
       plot_name = "boot_dates_all_resamples"
     )
+  ),
+  # Bootstrap SRSS overall and by horizon, with Bonferroni bands
+  tar_target(
+    name = plot_boot_srss_brier_ep,
+    command = get_plot_bootstrap_srss(
+      boot_estimates = boot_srss_brier_ep,
+      ci = ci_srss_brier_ep,
+      score_type = "brier_score",
+      title = "US excluding CA: SRSS (Brier score)",
+      plot_name = "boot_srss_brier_ep"
+    )
+  ),
+  tar_target(
+    name = plot_srss_horizon_ci_brier_ep,
+    command = get_plot_srss_horizon_ci(
+      ci = ci_srss_horizon_brier_ep,
+      score_type = "brier_score",
+      title = "US excluding CA: SRSS by horizon (Brier score)",
+      plot_name = "srss_horizon_ci_brier_ep"
+    )
+  ),
+  tar_target(
+    name = plot_boot_srss_energy_ep,
+    command = get_plot_bootstrap_srss(
+      boot_estimates = boot_srss_energy_ep,
+      ci = ci_srss_energy_ep,
+      score_type = "energy_score",
+      title = "US excluding CA: SRSS (energy score)",
+      plot_name = "boot_srss_energy_ep"
+    )
+  ),
+  tar_target(
+    name = plot_srss_horizon_ci_energy_ep,
+    command = get_plot_srss_horizon_ci(
+      ci = ci_srss_horizon_energy_ep,
+      score_type = "energy_score",
+      title = "US excluding CA: SRSS by horizon (energy score)",
+      plot_name = "srss_horizon_ci_energy_ep"
+    )
+  ),
+  tar_target(
+    name = plot_boot_srss_brier_ca,
+    command = get_plot_bootstrap_srss(
+      boot_estimates = boot_srss_brier_ca,
+      ci = ci_srss_brier_ca,
+      score_type = "brier_score",
+      title = "CA: SRSS (Brier score)",
+      plot_name = "boot_srss_brier_ca"
+    )
+  ),
+  tar_target(
+    name = plot_srss_horizon_ci_brier_ca,
+    command = get_plot_srss_horizon_ci(
+      ci = ci_srss_horizon_brier_ca,
+      score_type = "brier_score",
+      title = "CA: SRSS by horizon (Brier score)",
+      plot_name = "srss_horizon_ci_brier_ca"
+    )
+  ),
+  tar_target(
+    name = plot_boot_srss_energy_ca,
+    command = get_plot_bootstrap_srss(
+      boot_estimates = boot_srss_energy_ca,
+      ci = ci_srss_energy_ca,
+      score_type = "energy_score",
+      title = "CA: SRSS (energy score)",
+      plot_name = "boot_srss_energy_ca"
+    )
+  ),
+  tar_target(
+    name = plot_srss_horizon_ci_energy_ca,
+    command = get_plot_srss_horizon_ci(
+      ci = ci_srss_horizon_energy_ca,
+      score_type = "energy_score",
+      title = "CA: SRSS by horizon (energy score)",
+      plot_name = "srss_horizon_ci_energy_ca"
+    )
   )
 )

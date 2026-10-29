@@ -468,3 +468,151 @@ get_plot_bootstrap_dates <- function(boot_dates,
   }
   return(p)
 }
+
+#' Plot the bootstrap distribution of the scaled relative skill
+#'
+#' Shows the overall scaled relative skill (SRSS) of each model against the
+#' baseline in every bootstrap resample, with the original estimate and its
+#' Bonferroni simultaneous band on the log scale (black), as used for the
+#' results. For comparison, the band built on the raw scale from the same
+#' resamples is drawn alongside in grey. The y axis is log10, as in the
+#' relative skill panels of the overall score figure.
+#'
+#' @param boot_estimates Bootstrap SRSS, as returned by
+#'   [get_bootstrap_srss()].
+#' @param ci Log-scale confidence bands, as returned by
+#'   [get_bonferroni_ci()] with `log_scale = TRUE`.
+#' @param score_type Character string indicating which score metric to use.
+#' @param title Character string for the plot title.
+#' @param plot_name Character string indicating name of plot.
+#' @param output_fp Character string indicating directory to save file.
+#' @param save Boolean indicating whether or not to save the plot.
+#' @importFrom ggplot2 ggplot aes geom_jitter geom_errorbar geom_point
+#'   geom_hline scale_color_manual scale_y_continuous labs ggsave theme
+#'   element_blank position_nudge
+#' @importFrom dplyr filter
+#' @returns ggplot object
+#' @autoglobal
+get_plot_bootstrap_srss <- function(boot_estimates,
+                                    ci,
+                                    score_type = c(
+                                      "brier_score",
+                                      "energy_score"
+                                    ),
+                                    title = NULL,
+                                    plot_name,
+                                    output_fp = file.path(
+                                      "output", "figs", "eda"
+                                    ),
+                                    save = TRUE) {
+  score_type <- rlang::arg_match(score_type)
+  label <- ifelse(score_type == "brier_score", "Brier score", "Energy score")
+  model_colors <- plot_components()$model_colors
+  boot_estimates <- filter(boot_estimates, model %in% ci$model)
+  ci_raw <- get_bonferroni_ci(
+    estimates = ci[, c("model", "estimate")],
+    boot_estimates = boot_estimates,
+    alpha = ci$alpha[1],
+    log_scale = FALSE
+  )
+
+  p <- ggplot() +
+    geom_hline(yintercept = 1, linetype = "dashed", color = "gray50") +
+    geom_jitter(
+      data = boot_estimates,
+      aes(x = model, y = estimate, color = model),
+      width = 0.15, alpha = 0.4, size = 1
+    ) +
+    geom_errorbar(
+      data = ci, aes(x = model, ymin = lower, ymax = upper),
+      width = 0.3
+    ) +
+    geom_errorbar(
+      data = ci_raw, aes(x = model, ymin = lower, ymax = upper),
+      width = 0.15, color = "gray60",
+      position = position_nudge(x = 0.3)
+    ) +
+    geom_point(data = ci, aes(x = model, y = estimate), size = 3) +
+    scale_color_manual(values = model_colors) +
+    scale_y_continuous(trans = "log10") +
+    get_plot_theme() +
+    theme(axis.text.x = element_blank()) +
+    labs(
+      x = "",
+      y = glue::glue("Scaled relative skill\n({label})"),
+      color = "Model",
+      title = title,
+      subtitle = "Black: log-scale band (used). Grey: raw-scale band."
+    )
+
+  if (isTRUE(save)) {
+    dir_create(output_fp, recurse = TRUE)
+    ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
+      plot = p, width = 8, height = 6
+    )
+  }
+  return(p)
+}
+
+#' Plot the scaled relative skill by horizon with confidence bands
+#'
+#' Shows the scaled relative skill (SRSS) by horizon for each model, as in
+#' the relative skill by horizon panels of the overall score figure, with
+#' Bonferroni simultaneous bands (shaded) that hold jointly across all
+#' models and horizons in the table. One facet per model.
+#'
+#' @param ci Confidence bands by model and horizon, as returned by
+#'   [get_bonferroni_ci()] with `by = c("model", "horizon")`.
+#' @inheritParams get_plot_bootstrap_srss
+#' @importFrom ggplot2 ggplot aes geom_ribbon geom_line geom_hline
+#'   geom_vline facet_wrap scale_color_manual scale_fill_manual
+#'   scale_y_continuous labs ggsave
+#' @returns ggplot object
+#' @autoglobal
+get_plot_srss_horizon_ci <- function(ci,
+                                     score_type = c(
+                                       "brier_score",
+                                       "energy_score"
+                                     ),
+                                     title = NULL,
+                                     plot_name,
+                                     output_fp = file.path(
+                                       "output", "figs", "eda"
+                                     ),
+                                     save = TRUE) {
+  score_type <- rlang::arg_match(score_type)
+  label <- ifelse(score_type == "brier_score", "Brier score", "Energy score")
+  model_colors <- plot_components()$model_colors
+
+  p <- ggplot(ci) +
+    geom_hline(yintercept = 1, linetype = "dashed", color = "gray50") +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
+    geom_ribbon(
+      aes(x = horizon, ymin = lower, ymax = upper, fill = model),
+      alpha = 0.3
+    ) +
+    geom_line(aes(x = horizon, y = estimate, color = model), linewidth = 1) +
+    facet_wrap(~model) +
+    scale_color_manual(values = model_colors) +
+    scale_fill_manual(values = model_colors) +
+    scale_y_continuous(trans = "log10") +
+    get_plot_theme() +
+    labs(
+      x = "Horizon (days)",
+      y = glue::glue("Scaled relative skill\n({label})"),
+      color = "Model", fill = "Model",
+      title = title,
+      subtitle = glue::glue(
+        "Bonferroni bands across {ci$n_comparisons[1]} model-horizon ",
+        "comparisons (c = {round(ci$crit_value[1], 2)})"
+      )
+    )
+
+  if (isTRUE(save)) {
+    dir_create(output_fp, recurse = TRUE)
+    ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
+      plot = p, width = 10, height = 6
+    )
+  }
+  return(p)
+}
