@@ -46,7 +46,8 @@ tar_option_set(
     "arrow",
     "hubData",
     "rjson",
-    "rlang"
+    "rlang",
+    "UQforecasts"
   ),
   workspace_on_error = TRUE,
   storage = "worker",
