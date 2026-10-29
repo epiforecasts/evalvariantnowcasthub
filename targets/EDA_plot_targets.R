@@ -25,7 +25,7 @@ eda_plot_targets <- list(
   tar_target(
     name = plot_a_few_states_data,
     command = get_plot_mult_locs(
-      data = clean_variant_data_final_all_states |>
+      data = clean_variant_data_final_all_states |> # nolint
         filter(location %in% states_for_vis),
       plot_name = "plot_obs_freq_few_locs"
     )
@@ -33,7 +33,7 @@ eda_plot_targets <- list(
   tar_target(
     name = plot_US_data,
     command = get_plot_mult_locs(
-      data = clean_variant_data_final_all_states |>
+      data = clean_variant_data_final_all_states |> # nolint
         group_by(clades_modeled, date) |>
         summarise(sequences = sum(sequences)) |>
         mutate(location = "US"),
@@ -61,6 +61,32 @@ eda_plot_targets <- list(
     command = get_plot_rel_skill_overall(
       scores_obj = su_scores_excl_partial,
       score_type = "energy_score"
+    )
+  ),
+  # Bootstrap diagnostics: how resamples differ from the original data and
+  # the resulting bootstrap distribution of the mean score by model
+  tar_target(
+    name = plot_boot_resamples_brier_ep,
+    command = get_plot_bootstrap_resamples(
+      scores_obj = su_scores_ep,
+      boot_dates = boot_dates,
+      boot_estimates = boot_abs_brier_ep,
+      ci = ci_abs_brier_ep,
+      score_type = "brier_score",
+      title = "US excluding CA: mean Brier score",
+      plot_name = "boot_resamples_brier_ep"
+    )
+  ),
+  tar_target(
+    name = plot_boot_resamples_brier_ca,
+    command = get_plot_bootstrap_resamples(
+      scores_obj = su_scores_ca,
+      boot_dates = boot_dates,
+      boot_estimates = boot_abs_brier_ca,
+      ci = ci_abs_brier_ca,
+      score_type = "brier_score",
+      title = "CA: mean Brier score",
+      plot_name = "boot_resamples_brier_ca"
     )
   )
 )

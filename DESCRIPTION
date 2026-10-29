@@ -32,6 +32,7 @@ Imports:
   rlang,
   cowplot,
   lubridate,
+  patchwork,
   tidybayes
 Suggests:
     bookdown,

@@ -27,6 +27,12 @@ utils::globalVariables(c(
   "model_id", # <get_plot_scores_t>
   "scored", # <get_plot_scores_t>
   "model", # <get_plot_rel_skill_overall>
+  "model", # <get_plot_bootstrap_resamples>
+  "boot_id", # <get_plot_bootstrap_resamples>
+  "nowcast_date", # <get_plot_bootstrap_resamples>
+  "estimate", # <get_plot_bootstrap_resamples>
+  "lower", # <get_plot_bootstrap_resamples>
+  "upper", # <get_plot_bootstrap_resamples>
   "model", # <get_mean_score_by_model>
   "nowcast_date", # <get_mean_score_by_model>
   "boot_id", # <get_bootstrap_mean_scores>

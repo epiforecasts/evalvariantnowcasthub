@@ -269,3 +269,146 @@ get_plot_rel_skill_overall <- function(scores_obj,
   }
   return(p)
 }
+
+#' Plot how bootstrap resamples differ from the original data
+#'
+#' Diagnostic figure for the moving block bootstrap of the mean score by
+#' model. Panel A shows which nowcast dates (and how many copies of each)
+#' make up the original data and a few example resamples. Panel B shows the
+#' mean score by model for each nowcast date in the original data, so the
+#' weeks a resample over- or under-represents can be read off. Panel C
+#' compares the mean score by model in the original data and in the
+#' example resamples. Panel D shows the mean score by model across all
+#' resamples, with the original estimate and its Bonferroni simultaneous
+#' confidence band.
+#'
+#' @param scores_obj Scoringutils scores object.
+#' @param boot_dates Data frame of resampled nowcast dates, as returned by
+#'   [get_block_bootstrap_dates()].
+#' @param boot_estimates Bootstrap estimates for `scores_obj`, as returned
+#'   by [get_bootstrap_mean_scores()].
+#' @param ci Confidence bands, as returned by [get_bonferroni_ci()].
+#' @param score_type Character string indicating which score metric to use.
+#' @param boot_ids Integer vector of example resamples to show.
+#' @param title Character string for the figure title.
+#' @param plot_name Character string indicating name of plot.
+#' @param output_fp Character string indicating directory to save file.
+#' @param save Boolean indicating whether or not to save the plot.
+#' @importFrom ggplot2 ggplot aes geom_col geom_line geom_point
+#'   geom_errorbar geom_jitter facet_grid vars labs scale_color_manual
+#'   position_dodge ggsave theme element_blank
+#' @importFrom dplyr filter group_by summarise mutate bind_rows count select
+#' @importFrom rlang sym
+#' @returns patchwork object
+#' @autoglobal
+get_plot_bootstrap_resamples <- function(scores_obj,
+                                         boot_dates,
+                                         boot_estimates,
+                                         ci,
+                                         score_type = c(
+                                           "brier_score",
+                                           "energy_score"
+                                         ),
+                                         boot_ids = c(1, 2),
+                                         title = NULL,
+                                         plot_name,
+                                         output_fp = file.path(
+                                           "output", "figs", "eda"
+                                         ),
+                                         save = TRUE) {
+  score_type <- rlang::arg_match(score_type)
+  label <- ifelse(score_type == "brier_score", "Brier score", "Energy score")
+  model_colors <- plot_components()$model_colors
+  sample_levels <- c("Original", paste("Resample", boot_ids))
+  models <- ci$model
+  scores_obj <- filter(scores_obj, model %in% models)
+
+  # A: copies of each nowcast date in the original and example resamples
+  original_dates <- data.frame(
+    sample = "Original",
+    nowcast_date = sort(unique(as.Date(boot_dates$nowcast_date))),
+    stringsAsFactors = FALSE
+  )
+  resample_dates <- boot_dates |>
+    filter(boot_id %in% boot_ids) |>
+    mutate(sample = paste("Resample", boot_id))
+  date_counts <- bind_rows(original_dates, resample_dates) |>
+    count(sample, nowcast_date) |>
+    mutate(sample = factor(sample, levels = sample_levels))
+
+  p_dates <- ggplot(date_counts) +
+    geom_col(aes(x = nowcast_date, y = n), fill = "gray40") +
+    facet_grid(rows = vars(sample)) +
+    get_plot_theme(dates = TRUE) +
+    labs(x = "Nowcast date", y = "Copies in sample", title = "A")
+
+  # B: mean score by model and nowcast date in the original data
+  weekly <- as.data.frame(scores_obj) |>
+    filter(!is.na(!!sym(score_type))) |>
+    group_by(model, nowcast_date) |>
+    summarise(estimate = mean(!!sym(score_type)), .groups = "drop")
+  p_weekly <- ggplot(weekly) +
+    geom_line(aes(x = nowcast_date, y = estimate, color = model)) +
+    scale_color_manual(values = model_colors) +
+    get_plot_theme(dates = TRUE) +
+    labs(
+      x = "Nowcast date", y = glue::glue("Mean {label}"),
+      color = "Model", title = "B"
+    )
+
+  # C: the summary metric in the original data and example resamples
+  original_means <- mutate(select(ci, model, estimate), sample = "Original")
+  resample_means <- boot_estimates |>
+    filter(boot_id %in% boot_ids) |>
+    mutate(sample = paste("Resample", boot_id))
+  sample_means <- bind_rows(original_means, resample_means) |>
+    filter(model %in% models) |>
+    mutate(sample = factor(sample, levels = sample_levels))
+
+  p_samples <- ggplot(sample_means) +
+    geom_point(
+      aes(x = model, y = estimate, color = model, shape = sample),
+      size = 3, position = position_dodge(width = 0.6)
+    ) +
+    scale_color_manual(values = model_colors, guide = "none") +
+    get_plot_theme() +
+    theme(axis.text.x = element_blank()) +
+    labs(
+      x = "", y = glue::glue("Mean {label}"), shape = "Sample",
+      title = "C"
+    )
+
+  # D: all bootstrap estimates with the original estimate and its band
+  p_boot <- ggplot() +
+    geom_jitter(
+      data = filter(boot_estimates, model %in% models),
+      aes(x = model, y = estimate, color = model),
+      width = 0.15, alpha = 0.4, size = 1
+    ) +
+    geom_errorbar(
+      data = ci, aes(x = model, ymin = lower, ymax = upper),
+      width = 0.3
+    ) +
+    geom_point(data = ci, aes(x = model, y = estimate), size = 3) +
+    scale_color_manual(values = model_colors, guide = "none") +
+    get_plot_theme() +
+    theme(axis.text.x = element_blank()) +
+    labs(
+      x = "", y = glue::glue("Mean {label}"), color = "Model",
+      title = "D"
+    )
+
+  p <- patchwork::wrap_plots(
+    p_dates, p_weekly, p_samples, p_boot,
+    ncol = 2, guides = "collect"
+  ) +
+    patchwork::plot_annotation(title = title)
+
+  if (isTRUE(save)) {
+    dir_create(output_fp, recurse = TRUE)
+    ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
+      plot = p, width = 12, height = 8
+    )
+  }
+  return(p)
+}
