@@ -200,6 +200,13 @@ utils::globalVariables(c(
   "n_seq", # <get_distrib_rel_skill_by_model>
   "model", # <get_distrib_rel_skill_by_model>
   "compare_against", # <get_distrib_rel_skill_by_model>
+  "model", # <add_ci_errorbars>
+  "lower", # <add_ci_errorbars>
+  "upper", # <add_ci_errorbars>
+  "horizon", # <add_ci_ribbons>
+  "lower", # <add_ci_ribbons>
+  "upper", # <add_ci_ribbons>
+  "model", # <add_ci_ribbons>
   "model_id", # <prepare_submission_data>
   "location", # <prepare_submission_data>
   "nowcast_date", # <prepare_submission_data>
