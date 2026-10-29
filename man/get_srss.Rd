@@ -7,7 +7,8 @@
 get_srss(
   scores,
   score_type = c("brier_score", "energy_score"),
-  baseline = "Hub-baseline"
+  baseline = "Hub-baseline",
+  by = NULL
 )
 }
 \arguments{
@@ -17,15 +18,22 @@ get_srss(
 \item{score_type}{Character string indicating which score metric to use.}
 
 \item{baseline}{Character string naming the baseline model.}
+
+\item{by}{Optional character vector of columns to run separate
+tournaments within, passed to
+\code{\link[scoringutils:get_pairwise_comparisons]{scoringutils::get_pairwise_comparisons()}}. Default \code{NULL} gives one
+overall tournament.}
 }
 \value{
-Data frame with columns \code{model} and \code{estimate} (the SRSS), one
-row per model other than the baseline.
+Data frame with columns \code{by} (if given), \code{model} and \code{estimate}
+(the SRSS), one row per group and model other than the baseline.
 }
 \description{
 Runs the full scoringutils pairwise tournament across all models, as in
 the relative skill panels of \code{\link[=get_plot_overall]{get_plot_overall()}}, and returns each
 model's scaled relative skill (SRSS) against \code{baseline}. Each pair of
 models is compared on the forecasts they share, so models need not
-cover the same nowcast dates or locations.
+cover the same nowcast dates or locations. With \code{by}, a separate
+tournament is run within each group, e.g. \code{by = "location"} as in
+\code{\link[=get_plot_by_location]{get_plot_by_location()}}.
 }

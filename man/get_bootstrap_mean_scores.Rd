@@ -4,7 +4,7 @@
 \alias{get_bootstrap_mean_scores}
 \title{Bootstrap the mean score by model}
 \usage{
-get_bootstrap_mean_scores(scores_obj, boot_dates, score_type)
+get_bootstrap_mean_scores(scores_obj, boot_dates, score_type, by = NULL)
 }
 \arguments{
 \item{scores_obj}{Scoringutils scores object with a \code{nowcast_date}
@@ -14,10 +14,14 @@ column.}
 \code{\link[=get_block_bootstrap_dates]{get_block_bootstrap_dates()}}.}
 
 \item{score_type}{Character string indicating which score metric to use.}
+
+\item{by}{Optional character vector of columns to compute the mean
+within, in addition to model, e.g. \code{"location"}. Default \code{NULL} gives
+the overall mean per model.}
 }
 \value{
-Data frame with columns \code{boot_id}, \code{model} and \code{estimate}, one
-row per resample and model.
+Data frame with columns \code{boot_id}, \code{by} (if given), \code{model} and
+\code{estimate}, one row per resample, group and model.
 }
 \description{
 Computes \code{\link[=get_mean_score_by_model]{get_mean_score_by_model()}} on every resample in \code{boot_dates}.

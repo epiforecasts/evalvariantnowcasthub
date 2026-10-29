@@ -96,29 +96,36 @@ get_resampled_scores <- function(scores_obj, boot_dates, b) {
 #'
 #' Averages a score over every scored row (location, target date and
 #' nowcast date) for each model, as in the absolute score bar charts of
-#' [get_plot_overall()]. Rows where the score is missing are dropped; in
+#' [get_plot_overall()], or within groups such as location as in
+#' [get_plot_by_location()]. Rows where the score is missing are dropped; in
 #' our data a model's score is either missing for all rows or none.
 #'
 #' @param scores Scoringutils scores object, or a resample of one from
 #'   [get_resampled_scores()].
 #' @param score_type Character string indicating which score metric to use.
-#' @importFrom dplyr filter group_by summarise n_distinct
+#' @param by Optional character vector of columns to compute the mean
+#'   within, in addition to model, e.g. `"location"`. Default `NULL` gives
+#'   the overall mean per model.
+#' @importFrom dplyr filter group_by summarise n_distinct across all_of
 #' @importFrom rlang sym
-#' @returns Data frame with columns `model`, `estimate` (the mean score)
-#'   and `n_nowcast_dates` (number of distinct nowcast dates scored).
+#' @returns Data frame with columns `by` (if given), `model`, `estimate`
+#'   (the mean score) and `n_nowcast_dates` (number of distinct nowcast
+#'   dates scored).
 #' @autoglobal
 get_mean_score_by_model <- function(scores,
                                     score_type = c(
                                       "brier_score",
                                       "energy_score"
-                                    )) {
+                                    ),
+                                    by = NULL) {
   score_type <- rlang::arg_match(score_type)
   as.data.frame(scores) |>
     filter(!is.na(!!sym(score_type))) |>
-    group_by(model) |>
+    group_by(across(all_of(c(by, "model")))) |>
     summarise(
       estimate = mean(!!sym(score_type)),
-      n_nowcast_dates = n_distinct(nowcast_date)
+      n_nowcast_dates = n_distinct(nowcast_date),
+      .groups = "drop"
     )
 }
 
@@ -128,21 +135,22 @@ get_mean_score_by_model <- function(scores,
 #'
 #' @inheritParams get_resampled_scores
 #' @inheritParams get_mean_score_by_model
-#' @importFrom dplyr bind_rows mutate select
-#' @returns Data frame with columns `boot_id`, `model` and `estimate`, one
-#'   row per resample and model.
+#' @importFrom dplyr bind_rows mutate select all_of
+#' @returns Data frame with columns `boot_id`, `by` (if given), `model` and
+#'   `estimate`, one row per resample, group and model.
 #' @autoglobal
 get_bootstrap_mean_scores <- function(scores_obj,
                                       boot_dates,
-                                      score_type) {
+                                      score_type,
+                                      by = NULL) {
   boot_ids <- unique(boot_dates$boot_id)
   boot_estimates <- lapply(boot_ids, function(b) {
     get_resampled_scores(scores_obj, boot_dates, b) |>
-      get_mean_score_by_model(score_type) |>
+      get_mean_score_by_model(score_type, by = by) |>
       mutate(boot_id = b)
   })
   bind_rows(boot_estimates) |>
-    select(boot_id, model, estimate)
+    select(boot_id, all_of(by), model, estimate)
 }
 
 #' Bonferroni simultaneous confidence bands from bootstrap estimates
@@ -206,55 +214,65 @@ get_bonferroni_ci <- function(estimates,
 #' the relative skill panels of [get_plot_overall()], and returns each
 #' model's scaled relative skill (SRSS) against `baseline`. Each pair of
 #' models is compared on the forecasts they share, so models need not
-#' cover the same nowcast dates or locations.
+#' cover the same nowcast dates or locations. With `by`, a separate
+#' tournament is run within each group, e.g. `by = "location"` as in
+#' [get_plot_by_location()].
 #'
 #' @param scores Scoringutils scores object, or a resample of one from
 #'   [get_resampled_scores()].
 #' @param score_type Character string indicating which score metric to use.
 #' @param baseline Character string naming the baseline model.
-#' @importFrom dplyr filter select
+#' @param by Optional character vector of columns to run separate
+#'   tournaments within, passed to
+#'   [scoringutils::get_pairwise_comparisons()]. Default `NULL` gives one
+#'   overall tournament.
+#' @importFrom dplyr filter select all_of
 #' @importFrom rlang sym
-#' @returns Data frame with columns `model` and `estimate` (the SRSS), one
-#'   row per model other than the baseline.
+#' @returns Data frame with columns `by` (if given), `model` and `estimate`
+#'   (the SRSS), one row per group and model other than the baseline.
 #' @autoglobal
 get_srss <- function(scores,
                      score_type = c("brier_score", "energy_score"),
-                     baseline = "Hub-baseline") {
+                     baseline = "Hub-baseline",
+                     by = NULL) {
   score_type <- rlang::arg_match(score_type)
   srss_col <- glue::glue("{score_type}_scaled_relative_skill")
   scores |>
     filter(!is.na(!!sym(score_type))) |>
     scoringutils::get_pairwise_comparisons(
       baseline = baseline,
-      metric = score_type
+      metric = score_type,
+      by = by
     ) |>
     as.data.frame() |>
     filter(model != baseline, compare_against == baseline) |>
-    select(model, estimate = !!sym(srss_col))
+    select(all_of(by), model, estimate = !!sym(srss_col))
 }
 
-#' Bootstrap the overall scaled relative skill
+#' Bootstrap the scaled relative skill
 #'
 #' Re-runs the full pairwise tournament ([get_srss()]) on every resample in
-#' `boot_dates`.
+#' `boot_dates`, overall or within the groups in `by`.
 #'
 #' @inheritParams get_resampled_scores
 #' @inheritParams get_srss
-#' @importFrom dplyr bind_rows mutate select
-#' @returns Data frame with columns `boot_id`, `model` and `estimate`.
+#' @importFrom dplyr bind_rows mutate select all_of
+#' @returns Data frame with columns `boot_id`, `by` (if given), `model` and
+#'   `estimate`.
 #' @autoglobal
 get_bootstrap_srss <- function(scores_obj,
                                boot_dates,
                                score_type,
-                               baseline = "Hub-baseline") {
+                               baseline = "Hub-baseline",
+                               by = NULL) {
   boot_ids <- unique(boot_dates$boot_id)
   boot_estimates <- lapply(boot_ids, function(b) {
     get_resampled_scores(scores_obj, boot_dates, b) |>
-      get_srss(score_type, baseline) |>
+      get_srss(score_type, baseline, by = by) |>
       mutate(boot_id = b)
   })
   bind_rows(boot_estimates) |>
-    select(boot_id, model, estimate)
+    select(boot_id, all_of(by), model, estimate)
 }
 
 #' Daily scaled relative skill for each forecast
