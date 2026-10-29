@@ -24,5 +24,82 @@ bootstrap_targets <- list(
       n_boot = n_boot,
       block_length = boot_block_length
     )
+  ),
+  # Absolute scores: mean score by model over all rows-------------------
+  # Bootstrap estimates (one row per resample and model) are kept as
+  # targets so the bootstrap distributions can be inspected.
+  # CADPH-CATaMaran has only 2 CA nowcast dates, too few to bootstrap, so
+  # it is excluded from the CA tables.
+  ## US excluding CA
+  tar_target(
+    name = boot_abs_brier_ep,
+    command = get_bootstrap_mean_scores(
+      scores_obj = su_scores_ep,
+      boot_dates = boot_dates,
+      score_type = "brier_score"
+    )
+  ),
+  tar_target(
+    name = ci_abs_brier_ep,
+    command = get_bonferroni_ci(
+      estimates = get_mean_score_by_model(su_scores_ep, "brier_score"),
+      boot_estimates = boot_abs_brier_ep,
+      alpha = ci_alpha
+    )
+  ),
+  tar_target(
+    name = boot_abs_energy_ep,
+    command = get_bootstrap_mean_scores(
+      scores_obj = su_scores_ep,
+      boot_dates = boot_dates,
+      score_type = "energy_score"
+    )
+  ),
+  tar_target(
+    name = ci_abs_energy_ep,
+    command = get_bonferroni_ci(
+      estimates = get_mean_score_by_model(su_scores_ep, "energy_score"),
+      boot_estimates = boot_abs_energy_ep,
+      alpha = ci_alpha
+    )
+  ),
+  ## CA
+  tar_target(
+    name = boot_abs_brier_ca,
+    command = get_bootstrap_mean_scores(
+      scores_obj = su_scores_ca,
+      boot_dates = boot_dates,
+      score_type = "brier_score"
+    )
+  ),
+  tar_target(
+    name = ci_abs_brier_ca,
+    command = get_bonferroni_ci(
+      estimates = filter(
+        get_mean_score_by_model(su_scores_ca, "brier_score"),
+        model != "CADPH-CATaMaran"
+      ),
+      boot_estimates = boot_abs_brier_ca,
+      alpha = ci_alpha
+    )
+  ),
+  tar_target(
+    name = boot_abs_energy_ca,
+    command = get_bootstrap_mean_scores(
+      scores_obj = su_scores_ca,
+      boot_dates = boot_dates,
+      score_type = "energy_score"
+    )
+  ),
+  tar_target(
+    name = ci_abs_energy_ca,
+    command = get_bonferroni_ci(
+      estimates = filter(
+        get_mean_score_by_model(su_scores_ca, "energy_score"),
+        model != "CADPH-CATaMaran"
+      ),
+      boot_estimates = boot_abs_energy_ca,
+      alpha = ci_alpha
+    )
   )
 )
