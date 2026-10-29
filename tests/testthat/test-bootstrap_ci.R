@@ -82,3 +82,63 @@ test_that("get_resampled_scores copies rows once per position drawn", {
     as.data.frame(resample)[, scoringutils::get_forecast_unit(resample)]
   ) > 0)
 })
+
+test_that("get_mean_score_by_model averages over all rows per model", {
+  scores <- toy_scores()
+  scores$ae_point[scores$model == "model_a"][1] <- NA
+  # Pretend ae_point is brier_score to use the function's score types
+  scores$brier_score <- scores$ae_point
+  means <- get_mean_score_by_model(scores, "brier_score")
+
+  df <- as.data.frame(scores)
+  expect_equal(
+    means$estimate[means$model == "model_a"],
+    mean(df$brier_score[df$model == "model_a"], na.rm = TRUE),
+    tolerance = 1e-12
+  )
+  expect_identical(means$n_nowcast_dates, c(3L, 3L))
+})
+
+test_that("an identity resample reproduces the original estimate", {
+  scores <- toy_scores()
+  scores$brier_score <- scores$ae_point
+  boot_dates <- data.frame(
+    boot_id = 1L,
+    position = 1:3,
+    nowcast_date = weekly_dates[1:3]
+  )
+  boot <- get_bootstrap_mean_scores(scores, boot_dates, "brier_score")
+  orig <- get_mean_score_by_model(scores, "brier_score")
+
+  expect_named(boot, c("boot_id", "model", "estimate"))
+  expect_equal(boot$estimate, orig$estimate, tolerance = 1e-12)
+})
+
+test_that("get_bonferroni_ci uses estimate +/- qnorm(1 - alpha/2P) * sd", {
+  estimates <- data.frame(
+    model = c("a", "b", "c"),
+    estimate = c(1, 2, 3),
+    stringsAsFactors = FALSE
+  )
+  boot_estimates <- data.frame(
+    boot_id = rep(1:4, times = 3),
+    model = rep(c("a", "b", "c"), each = 4),
+    estimate = c(0.9, 1.1, 1.0, 1.0, 1.8, 2.2, 2.0, 2.0, 3, 3, 3, NA),
+    stringsAsFactors = FALSE
+  )
+  ci <- get_bonferroni_ci(estimates, boot_estimates, alpha = 0.05)
+
+  crit <- qnorm(1 - 0.05 / (2 * 3))
+  expect_identical(ci$n_comparisons, rep(3L, 3))
+  expect_equal(ci$crit_value, rep(crit, 3), tolerance = 1e-12)
+  expect_equal(
+    ci$lower,
+    c(1, 2, 3) - crit * c(sd(c(0.9, 1.1, 1, 1)), sd(c(1.8, 2.2, 2, 2)), 0),
+    tolerance = 1e-12
+  )
+  expect_equal(ci$upper - ci$estimate, ci$estimate - ci$lower,
+    tolerance = 1e-12
+  )
+  # Resamples where a model has no estimate are not counted
+  expect_identical(ci$n_boot, c(4L, 4L, 3L))
+})

@@ -91,3 +91,94 @@ get_resampled_scores <- function(scores_obj, boot_dates, b) {
     relationship = "many-to-many"
   )
 }
+
+#' Mean score by model over all rows
+#'
+#' Averages a score over every scored row (location, target date and
+#' nowcast date) for each model, as in the absolute score bar charts of
+#' [get_plot_overall()]. Rows where the score is missing are dropped; in
+#' our data a model's score is either missing for all rows or none.
+#'
+#' @param scores Scoringutils scores object, or a resample of one from
+#'   [get_resampled_scores()].
+#' @param score_type Character string indicating which score metric to use.
+#' @importFrom dplyr filter group_by summarise n_distinct
+#' @importFrom rlang sym
+#' @returns Data frame with columns `model`, `estimate` (the mean score)
+#'   and `n_nowcast_dates` (number of distinct nowcast dates scored).
+#' @autoglobal
+get_mean_score_by_model <- function(scores,
+                                    score_type = c(
+                                      "brier_score",
+                                      "energy_score"
+                                    )) {
+  score_type <- rlang::arg_match(score_type)
+  as.data.frame(scores) |>
+    filter(!is.na(!!sym(score_type))) |>
+    group_by(model) |>
+    summarise(
+      estimate = mean(!!sym(score_type)),
+      n_nowcast_dates = n_distinct(nowcast_date)
+    )
+}
+
+#' Bootstrap the mean score by model
+#'
+#' Computes [get_mean_score_by_model()] on every resample in `boot_dates`.
+#'
+#' @inheritParams get_resampled_scores
+#' @inheritParams get_mean_score_by_model
+#' @importFrom dplyr bind_rows mutate select
+#' @returns Data frame with columns `boot_id`, `model` and `estimate`, one
+#'   row per resample and model.
+#' @autoglobal
+get_bootstrap_mean_scores <- function(scores_obj,
+                                      boot_dates,
+                                      score_type) {
+  boot_ids <- unique(boot_dates$boot_id)
+  boot_estimates <- lapply(boot_ids, function(b) {
+    get_resampled_scores(scores_obj, boot_dates, b) |>
+      get_mean_score_by_model(score_type) |>
+      mutate(boot_id = b)
+  })
+  bind_rows(boot_estimates) |>
+    select(boot_id, model, estimate)
+}
+
+#' Bonferroni simultaneous confidence bands from bootstrap estimates
+#'
+#' Constructs simultaneous confidence bands following Pohle, Zahn & Lerch
+#' (2026): `estimate +/- c * sd`, where `sd` is the standard deviation of
+#' the bootstrap estimates and `c = qnorm(1 - alpha / (2P))` is the
+#' Bonferroni critical value for the `P` rows of `estimates`. The bands
+#' therefore hold simultaneously across all rows of `estimates`, so pass
+#' one table (e.g. one region and score type) at a time.
+#'
+#' @param estimates Data frame of point estimates from the original data,
+#'   with columns `model` and `estimate`. Each row is one comparison.
+#' @param boot_estimates Data frame of bootstrap estimates with columns
+#'   `boot_id`, `model` and `estimate`.
+#' @param alpha Significance level of the simultaneous bands.
+#' @importFrom dplyr group_by summarise left_join mutate n
+#' @importFrom stats qnorm sd
+#' @returns `estimates` with added columns `boot_sd`, `n_boot` (resamples
+#'   in which the model was scored), `lower`, `upper`, `n_comparisons`
+#'   (`P`), `crit_value` (`c`) and `alpha`.
+#' @autoglobal
+get_bonferroni_ci <- function(estimates, boot_estimates, alpha) {
+  n_comparisons <- nrow(estimates)
+  crit_value <- qnorm(1 - alpha / (2 * n_comparisons))
+  boot_sd <- boot_estimates |>
+    filter(!is.na(estimate)) |>
+    group_by(model) |>
+    summarise(boot_sd = sd(estimate), n_boot = n())
+  estimates |>
+    left_join(boot_sd, by = "model") |>
+    mutate(
+      lower = estimate - crit_value * boot_sd,
+      upper = estimate + crit_value * boot_sd,
+      n_comparisons = n_comparisons,
+      crit_value = crit_value,
+      alpha = alpha
+    )
+}

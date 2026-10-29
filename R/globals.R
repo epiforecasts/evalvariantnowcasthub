@@ -27,6 +27,13 @@ utils::globalVariables(c(
   "model_id", # <get_plot_scores_t>
   "scored", # <get_plot_scores_t>
   "model", # <get_plot_rel_skill_overall>
+  "model", # <get_mean_score_by_model>
+  "nowcast_date", # <get_mean_score_by_model>
+  "boot_id", # <get_bootstrap_mean_scores>
+  "model", # <get_bootstrap_mean_scores>
+  "estimate", # <get_bootstrap_mean_scores>
+  "estimate", # <get_bonferroni_ci>
+  "model", # <get_bonferroni_ci>
   "location", # <get_clean_variant_data>
   "abbreviation", # <get_clean_variant_data>
   "clade", # <get_clean_variant_data>
