@@ -42,6 +42,7 @@ Suggests:
     usethis,
     withr,
     knitr,
+    purrr,
     roxyglobals
 Encoding: UTF-8
 Language: en-GB
