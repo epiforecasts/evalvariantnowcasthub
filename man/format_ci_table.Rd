@@ -17,12 +17,14 @@ format_ci_table(ci, region, score_type, metric, n_dates = NULL)
 \item{metric}{Character string naming the metric, e.g.
 \code{"mean score"} or \code{"SRSS"}.}
 
-\item{n_dates}{Optional data frame with column \code{model} and a count of
-nowcast dates to add, e.g. from \code{\link[=get_n_overlapping_dates]{get_n_overlapping_dates()}}.}
+\item{n_dates}{Optional data frame with column \code{model} (and any grouping
+columns shared with \code{ci}, e.g. \code{location}) and a count of nowcast dates
+to add, e.g. from \code{\link[=get_n_overlapping_dates]{get_n_overlapping_dates()}}.}
 }
 \value{
 Data frame with columns \code{region}, \code{score_type}, \code{metric},
-\code{model}, \code{horizon} (if present), \code{estimate}, \code{ci_lower}, \code{ci_upper},
+\code{location} and \code{model}, \code{horizon} (if present), \code{estimate}, \code{ci_lower},
+\code{ci_upper},
 the nowcast date count, \code{n_comparisons}, \code{crit_value}, \code{alpha},
 \code{scale}, \code{boot_sd} and \code{n_boot}.
 }

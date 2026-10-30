@@ -7,7 +7,8 @@
 get_n_overlapping_dates(
   scores_obj,
   score_type = c("brier_score", "energy_score"),
-  baseline = "Hub-baseline"
+  baseline = "Hub-baseline",
+  by = NULL
 )
 }
 \arguments{
@@ -16,11 +17,18 @@ get_n_overlapping_dates(
 \item{score_type}{Character string indicating which score metric to use.}
 
 \item{baseline}{Character string naming the baseline model.}
+
+\item{by}{Optional character vector of columns to run separate
+tournaments within, passed to
+\code{\link[scoringutils:get_pairwise_comparisons]{scoringutils::get_pairwise_comparisons()}}. Default \code{NULL} gives one
+overall tournament.}
 }
 \value{
-Data frame with columns \code{model} and \code{n_overlapping_dates}.
+Data frame with columns \code{by} (if given), \code{model} and
+\code{n_overlapping_dates}.
 }
 \description{
 Counts the nowcast dates on which both a model and the baseline have
-scores, i.e. the dates contributing to their pairwise comparison.
+scores, i.e. the dates contributing to their pairwise comparison,
+overall or within the groups in \code{by} (e.g. per location).
 }

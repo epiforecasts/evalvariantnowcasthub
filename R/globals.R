@@ -63,7 +63,7 @@ utils::globalVariables(c(
   "horizon", # <get_bootstrap_srss_by_horizon>
   "estimate", # <get_bootstrap_srss_by_horizon>
   "model", # <get_n_overlapping_dates>
-  "nowcast_date", # <get_n_overlapping_dates>
+  "n_overlapping_dates", # <filter_min_overlap>
   "log_scale", # <format_ci_table>
   "lower", # <format_ci_table>
   "upper", # <format_ci_table>

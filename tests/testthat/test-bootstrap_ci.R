@@ -337,3 +337,37 @@ test_that("mean scores and bootstraps keep the by columns", {
   # Identity resample reproduces the original estimates
   expect_equal(boot_abs$estimate, means$estimate, tolerance = 1e-12)
 })
+
+test_that("log-scale bands drop bootstrap estimates with no log", {
+  estimates <- data.frame(
+    model = "a", estimate = 1.2, stringsAsFactors = FALSE
+  )
+  boot_estimates <- data.frame(
+    boot_id = 1:5, model = "a",
+    estimate = c(1.1, 1.3, 1.2, 0, Inf),
+    stringsAsFactors = FALSE
+  )
+  ci <- get_bonferroni_ci(estimates, boot_estimates,
+    alpha = 0.05, log_scale = TRUE
+  )
+
+  expect_identical(ci$n_boot, 3L)
+  expect_equal(ci$boot_sd, sd(log(c(1.1, 1.3, 1.2))), tolerance = 1e-12)
+  expect_false(is.na(ci$lower))
+})
+
+test_that("filter_min_overlap keeps rows with enough overlapping dates", {
+  estimates <- data.frame(
+    location = c("CA", "CA", "NY"), model = c("a", "b", "a"),
+    estimate = 1, stringsAsFactors = FALSE
+  )
+  n_dates <- data.frame(
+    location = c("CA", "CA", "NY"), model = c("a", "b", "a"),
+    n_overlapping_dates = c(10L, 2L, 6L), stringsAsFactors = FALSE
+  )
+  kept <- filter_min_overlap(estimates, n_dates, min_dates = 6)
+
+  expect_identical(kept$model, c("a", "a"))
+  expect_identical(kept$location, c("CA", "NY"))
+  expect_identical(kept$n_overlapping_dates, c(10L, 6L))
+})
