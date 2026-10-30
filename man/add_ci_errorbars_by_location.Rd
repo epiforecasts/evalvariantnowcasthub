@@ -9,6 +9,7 @@ add_ci_errorbars_by_location(
   ci,
   dodge_width,
   dodge_points = FALSE,
+  floor = NULL,
   point_size = NULL,
   ylim = NULL,
   y_breaks = NULL
@@ -26,6 +27,10 @@ panel's own dodge width (0.9) for bar panels.}
 
 \item{dodge_points}{Logical; dodge the panel's points by model. Use for
 relative skill panels.}
+
+\item{floor}{Optional lower limit for the drawn error bars, e.g. \code{0} for
+absolute scores, which cannot be negative. Only the display is
+truncated; the bands themselves are unchanged.}
 
 \item{point_size}{Optional size for the panel's points, e.g. so large
 relative skill markers do not hide narrow error bars.}

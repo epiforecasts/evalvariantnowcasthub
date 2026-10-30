@@ -114,6 +114,9 @@ replace_y_axis <- function(p, ylim = NULL, y_breaks = NULL) {
 #'   panel's own dodge width (0.9) for bar panels.
 #' @param dodge_points Logical; dodge the panel's points by model. Use for
 #'   relative skill panels.
+#' @param floor Optional lower limit for the drawn error bars, e.g. `0` for
+#'   absolute scores, which cannot be negative. Only the display is
+#'   truncated; the bands themselves are unchanged.
 #' @inheritParams add_ci_errorbars
 #' @importFrom ggplot2 geom_errorbar geom_point aes position_dodge
 #' @importFrom dplyr distinct left_join mutate
@@ -124,6 +127,7 @@ add_ci_errorbars_by_location <- function(p,
                                          ci,
                                          dodge_width,
                                          dodge_points = FALSE,
+                                         floor = NULL,
                                          point_size = NULL,
                                          ylim = NULL,
                                          y_breaks = NULL) {
@@ -148,6 +152,9 @@ add_ci_errorbars_by_location <- function(p,
       by = c("location", "model")
     ) |>
     mutate(location = factor(location, levels = levels(p$data$location)))
+  if (!is.null(floor)) {
+    ci_plot <- mutate(ci_plot, lower = pmax(lower, floor))
+  }
   if (isTRUE(dodge_points)) {
     # Coloured by model, so bands stay distinguishable next to the points
     errorbars <- geom_errorbar(

@@ -5,8 +5,11 @@
 # (width 0.9); relative skill points and their (model-coloured) error bars
 # are dodged side by side (width 0.7) so each model's band is readable.
 # Rows without a band (fewer than min_dates_ci nowcast dates) keep their bar
-# or point without an error bar. Relative skill axes are widened to show the
-# full bands, keeping them symmetric about 1 on the log scale.
+# or point without an error bar. Absolute score bands are drawn truncated at
+# 0 (a mean score cannot be negative; a band reaching 0 means the mean is
+# poorly determined); the CSV keeps the untruncated values. Relative skill
+# axes are widened to show the full bands, keeping them symmetric about 1 on
+# the log scale.
 fig_location_ci_targets <- list(
   tar_target(
     name = loc_srss_ylim_brier,
@@ -33,7 +36,7 @@ fig_location_ci_targets <- list(
     command = get_by_loc_figure(
       a = add_ci_errorbars_by_location(
         bar_chart_brier_location, ci_abs_brier_loc,
-        dodge_width = 0.9
+        dodge_width = 0.9, floor = 0
       ),
       b = add_ci_errorbars_by_location(
         rel_skill_brier_location, ci_srss_brier_loc,
@@ -43,7 +46,7 @@ fig_location_ci_targets <- list(
       ),
       c = add_ci_errorbars_by_location(
         bar_chart_energy_location, ci_abs_energy_loc,
-        dodge_width = 0.9
+        dodge_width = 0.9, floor = 0
       ),
       d = add_ci_errorbars_by_location(
         rel_skill_energy_location, ci_srss_energy_loc,
