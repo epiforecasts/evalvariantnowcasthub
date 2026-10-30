@@ -1,10 +1,9 @@
 bootstrap_targets <- list(
   # Moving block bootstrap settings (Pohle, Zahn & Lerch 2026)-------------
-  # Number of bootstrap resamples. Small for development; increase for the
-  # final results.
+  # Number of bootstrap resamples. Use 100 for quicker development runs.
   tar_target(
     name = n_boot,
-    command = 100
+    command = 1000
   ),
   # Block length in nowcast dates, l = 3 * floor(N^(1/4)) = 6 for N = 35
   tar_target(
