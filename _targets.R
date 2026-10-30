@@ -72,7 +72,8 @@ data_targets <- list(
 
 # Summarise and analyse the scores and predictions
 analysis_targets <- list(
-  pred_int_targets
+  pred_int_targets,
+  bootstrap_targets
 )
 
 # Make plots
@@ -83,6 +84,7 @@ plot_targets <- list(
   fig_nowcast_targets,
   fig_pred_plus_data_targets,
   fig_overall_targets,
+  fig_overall_ci_targets,
   fig_overall_targets_no_exclusions,
   fig_zoom_25A_targets,
   fig_submission_heatmaps_targets,
