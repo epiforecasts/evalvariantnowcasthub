@@ -86,6 +86,7 @@ plot_targets <- list(
   fig_pred_plus_data_targets,
   fig_overall_targets,
   fig_overall_ci_targets,
+  fig_location_ci_targets,
   fig_overall_targets_no_exclusions,
   fig_zoom_25A_targets,
   fig_submission_heatmaps_targets,
