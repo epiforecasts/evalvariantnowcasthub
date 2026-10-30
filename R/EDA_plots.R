@@ -115,7 +115,7 @@ get_plot_clade_by_loc <- function(data,
     summarise(
       total_seq = sum(sequences)
     ) |>
-    arrange(desc(total_seq)) |>
+    arrange(desc(total_seq), location) |>
     head(10)
 
   if (temporal_granularity == "weeks") {

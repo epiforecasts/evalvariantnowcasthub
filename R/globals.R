@@ -44,7 +44,6 @@ utils::globalVariables(c(
   "upper", # <get_plot_srss_horizon_ci>
   "model", # <get_plot_srss_horizon_ci>
   "estimate", # <get_plot_srss_horizon_ci>
-  "model", # <get_mean_score_by_model>
   "nowcast_date", # <get_mean_score_by_model>
   "boot_id", # <get_bootstrap_mean_scores>
   "model", # <get_bootstrap_mean_scores>
@@ -64,7 +63,7 @@ utils::globalVariables(c(
   "horizon", # <get_bootstrap_srss_by_horizon>
   "estimate", # <get_bootstrap_srss_by_horizon>
   "model", # <get_n_overlapping_dates>
-  "nowcast_date", # <get_n_overlapping_dates>
+  "n_overlapping_dates", # <filter_min_overlap>
   "log_scale", # <format_ci_table>
   "lower", # <format_ci_table>
   "upper", # <format_ci_table>
@@ -207,6 +206,10 @@ utils::globalVariables(c(
   "lower", # <add_ci_ribbons>
   "upper", # <add_ci_ribbons>
   "model", # <add_ci_ribbons>
+  "location", # <add_ci_errorbars_by_location>
+  "model", # <add_ci_errorbars_by_location>
+  "lower", # <add_ci_errorbars_by_location>
+  "upper", # <add_ci_errorbars_by_location>
   "model_id", # <prepare_submission_data>
   "location", # <prepare_submission_data>
   "nowcast_date", # <prepare_submission_data>

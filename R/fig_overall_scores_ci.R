@@ -93,3 +93,89 @@ replace_y_axis <- function(p, ylim = NULL, y_breaks = NULL) {
   }
   p
 }
+
+#' Add confidence band error bars to a by-location panel
+#'
+#' Adds Bonferroni simultaneous confidence bands as error bars to a panel
+#' from [get_plot_by_location()], with locations on the x axis and one bar
+#' or point per model. Error bars are dodged by model to line up with the
+#' panel's dodged bars; with `dodge_points = TRUE` the relative skill
+#' points, drawn on top of each other in the original panel, are dodged the
+#' same way so each model's band is readable, with error bars coloured
+#' by model. Model and location
+#' combinations without a band (e.g. too few nowcast dates) keep their
+#' place in the dodge but have no error bar.
+#'
+#' @param p ggplot object from [get_plot_by_location()].
+#' @param ci Confidence bands with columns `location`, `model`, `lower` and
+#'   `upper`, as returned by [get_bonferroni_ci()] with
+#'   `by = c("location", "model")`.
+#' @param dodge_width Width used to dodge models within a location; use the
+#'   panel's own dodge width (0.9) for bar panels.
+#' @param dodge_points Logical; dodge the panel's points by model. Use for
+#'   relative skill panels.
+#' @param floor Optional lower limit for the drawn error bars, e.g. `0` for
+#'   absolute scores, which cannot be negative. Only the display is
+#'   truncated; the bands themselves are unchanged.
+#' @inheritParams add_ci_errorbars
+#' @importFrom ggplot2 geom_errorbar geom_point aes position_dodge
+#' @importFrom dplyr distinct left_join mutate
+#' @importFrom rlang %||%
+#' @returns ggplot object
+#' @autoglobal
+add_ci_errorbars_by_location <- function(p,
+                                         ci,
+                                         dodge_width,
+                                         dodge_points = FALSE,
+                                         floor = NULL,
+                                         point_size = NULL,
+                                         ylim = NULL,
+                                         y_breaks = NULL) {
+  dodge <- position_dodge(width = dodge_width)
+  if (isTRUE(dodge_points)) {
+    # Replace each point layer with a dodged one with the same mapping, so
+    # the original panel object is not modified
+    p$layers <- lapply(p$layers, function(layer) {
+      if (!inherits(layer$geom, "GeomPoint")) {
+        return(layer)
+      }
+      size <- point_size %||% layer$aes_params$size
+      geom_point(mapping = layer$mapping, size = size, position = dodge)
+    })
+  }
+  # One row per model and location shown in the panel, so that error bars
+  # are dodged into the same slots as the panel's bars or points
+  plot_rows <- distinct(as.data.frame(p$data), location, model)
+  ci_plot <- plot_rows |>
+    left_join(
+      mutate(ci, location = as.character(location)),
+      by = c("location", "model")
+    ) |>
+    mutate(location = factor(location, levels = levels(p$data$location)))
+  if (!is.null(floor)) {
+    ci_plot <- mutate(ci_plot, lower = pmax(lower, floor))
+  }
+  if (isTRUE(dodge_points)) {
+    # Coloured by model, so bands stay distinguishable next to the points
+    errorbars <- geom_errorbar(
+      data = ci_plot,
+      aes(x = location, ymin = lower, ymax = upper, color = model),
+      width = 0.4 * dodge_width,
+      linewidth = 0.4,
+      position = dodge,
+      na.rm = TRUE,
+      inherit.aes = FALSE
+    )
+  } else {
+    errorbars <- geom_errorbar(
+      data = ci_plot,
+      aes(x = location, ymin = lower, ymax = upper, group = model),
+      width = 0.4 * dodge_width,
+      linewidth = 0.3,
+      position = dodge,
+      na.rm = TRUE,
+      inherit.aes = FALSE
+    )
+  }
+  replace_y_axis(p + errorbars, ylim, y_breaks)
+}

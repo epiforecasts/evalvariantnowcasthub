@@ -73,7 +73,7 @@ get_plot_by_location <- function(scores_obj,
         compare_against == "Hub-baseline"
       ) |>
       left_join(seq_counts_by_loc) |>
-      arrange(desc(total_seq)) |>
+      arrange(desc(total_seq), location) |>
       mutate(location = factor(location, levels = unique(location))) |>
       filter(model != "Hub-baseline")
 
@@ -121,7 +121,7 @@ get_plot_by_location <- function(scores_obj,
       filter(!is.na(score_type)) |>
       scoringutils::summarise_scores(by = c("model", "location")) |>
       left_join(seq_counts_by_loc) |>
-      arrange(desc(total_seq)) |>
+      arrange(desc(total_seq), location) |>
       mutate(location = factor(location, levels = unique(location)))
     p <- ggplot(scores_sum) +
       geom_bar(
@@ -708,7 +708,7 @@ get_plot_horizon <- function(scores_obj,
 get_plot_seq_counts_loc <- function(seq_counts_by_loc) {
   plot_comps <- plot_components()
   seq_counts <- seq_counts_by_loc |>
-    arrange(desc(total_seq)) |>
+    arrange(desc(total_seq), location) |>
     mutate(location = factor(location, levels = unique(location)))
   p <- ggplot(seq_counts) +
     geom_bar(aes(x = location, y = total_seq),
@@ -1133,7 +1133,7 @@ get_plot_avg_rel_skill_by_loc <- function(scores_obj,
     ))), na.rm = TRUE))) |>
     left_join(seq_counts_by_loc) |>
     filter(total_seq > threshold_n_seq) |>
-    arrange(desc(total_seq)) |>
+    arrange(desc(total_seq), location) |>
     mutate(
       location = factor(location, levels = unique(location)),
       type_rel_skill = "Average across individual days"
@@ -1151,7 +1151,7 @@ get_plot_avg_rel_skill_by_loc <- function(scores_obj,
       compare_against == "Hub-baseline"
     ) |>
     left_join(seq_counts_by_loc) |>
-    arrange(desc(total_seq)) |>
+    arrange(desc(total_seq), location) |>
     mutate(
       location = factor(location, levels = unique(location)),
       type_rel_skill = "By overlapping set"
