@@ -32,12 +32,15 @@ identifiability_targets <- list(
     name = id_rising_clade,
     command = "25A (LP.8.1)"
   ),
-  # Loop A: constant sequences per day on every scored horizon, spanning
-  # the observed daily N on scored location-days (min 1, median 3, 95th
-  # percentile 23, 99th percentile 40, max 83; state means 1 to 24)
+  # Loop A: sequences per week across the 42 scoring days (-31 to +10),
+  # spanning observed volumes over location x nowcast date windows (zeros
+  # included): 25th percentile 0.5/week, median 4.2/week, 90th percentile
+  # 48/week, max 346/week. Below 7/week (1/day), sequences fall on a random
+  # subset of days (N = 1 each, redrawn each replicate); from 7/week up, N is
+  # constant on every day.
   tar_target(
-    name = id_n_grid,
-    command = c(1, 2, 3, 5, 10, 15, 25, 40, 85)
+    name = id_rate_grid,
+    command = c(0.5, 1, 2, 4, 7, 14, 21, 35, 70, 105, 175, 350)
   ),
   # Truth-----------------------------------------------------------------
   tar_target(
