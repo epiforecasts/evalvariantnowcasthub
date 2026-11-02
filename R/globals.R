@@ -192,5 +192,17 @@ utils::globalVariables(c(
   "90", # <get_plot_coverage_by_loc>
   "50", # <get_plot_coverage_by_loc>
   "interval_label", # <get_plot_coverage_by_loc>
+  "clades_modeled", # <get_truth_fit_data>
+  "clade", # <get_truth_fit_data>
+  "sequences", # <get_truth_fit_data>
+  "clade", # <fit_truth_mlr>
+  "n", # <fit_truth_mlr>
+  "week", # <get_plot_truth_fit>
+  "n", # <get_plot_truth_fit>
+  "clade", # <get_plot_truth_fit>
+  "week_n", # <get_plot_truth_fit>
+  "proportion", # <get_plot_truth_fit>
+  "sequences", # <get_plot_truth_fit>
+  "theta", # <get_plot_truth_fit>
   NULL
 ))

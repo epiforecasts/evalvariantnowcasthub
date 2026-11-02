@@ -42,6 +42,7 @@ Suggests:
     usethis,
     withr,
     knitr,
+    nnet,
     purrr,
     roxyglobals
 Encoding: UTF-8
