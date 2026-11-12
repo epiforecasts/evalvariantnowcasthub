@@ -179,3 +179,45 @@ add_ci_errorbars_by_location <- function(p,
   }
   replace_y_axis(p + errorbars, ylim, y_breaks)
 }
+
+#' Combine two by-location panels into one figure
+#'
+#' Stacks two by-location panels (e.g. scaled relative skill on the Brier
+#' and energy scores, with confidence bands), tagged A and B with a shared
+#' legend. Locations keep the order of the panels, i.e. descending total
+#' number of sequences, without the sequence-count panel.
+#'
+#' @param a ggplot object for the top panel.
+#' @param b ggplot object for the bottom panel.
+#' @param plot_name Character string indicating name of plot.
+#' @param output_fp Character string indicating directory to save file.
+#' @importFrom patchwork plot_layout plot_annotation
+#' @importFrom ggplot2 theme element_text ggsave
+#' @returns patchwork object
+#' @autoglobal
+get_by_loc_ci_figure <- function(a, b,
+                                 plot_name,
+                                 output_fp = file.path(
+                                   "output", "figs", "overall_scores"
+                                 )) {
+  combined_fig <- a + b +
+    plot_layout(ncol = 1, guides = "collect") +
+    plot_annotation(
+      tag_levels = "A",
+      theme = theme(
+        legend.position = "top",
+        legend.box = "horizontal",
+        legend.title = element_text(hjust = 0.5),
+        plot.tag = element_text(size = 14, face = "bold")
+      )
+    )
+  dir_create(output_fp, recurse = TRUE)
+  ggsave(
+    file.path(output_fp, glue::glue("{plot_name}.png")),
+    plot = combined_fig,
+    width = 12,
+    height = 9,
+    dpi = 300
+  )
+  return(combined_fig)
+}
