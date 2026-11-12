@@ -77,3 +77,52 @@ The following models began submissions following the initial assessment period (
 ![Fig. S26 Absolute Brier (top) and energy (bottom) in the U.S. excluding California (left) and California (right) by horizon.](../output/figs/overall_scores/supp/absolute_scores_by_horizon.png)
 
 ![Fig. S27 Bias over time for three example states in the US during the 25A emergence.](../output/figs/zoom_25A/supp/bias_over_time_25A.png)
+
+# Uncertainty quantification for model comparisons
+
+*Section added during revision; figures and table to be reordered into the main text and supplement later.*
+
+To quantify uncertainty in the model comparisons, we used a moving block bootstrap over nowcast dates. Each of 1,000 resamples was built from blocks of 6 consecutive nowcast dates (block length $l = 3\lfloor N^{1/4} \rfloor$ for $N = 35$ nowcast dates), so that all locations, target dates and models from a nowcast date were resampled together, preserving correlation across locations and horizons within a date and across neighbouring dates. In each resample we recomputed the mean absolute Brier and energy scores and the scaled relative skill score (SRSS), using the full pairwise comparison across all models as in the main analysis. Following Pohle, Zahn & Lerch (2026), we constructed Bonferroni simultaneous 95% confidence bands as the estimate $\pm\, c \times$ the bootstrap standard deviation, with $c = \Phi^{-1}(1 - 0.05/2P)$ and $P$ the number of comparisons in each table or panel, so the bands hold jointly across all of them. Bands for the SRSS were constructed on the log scale and back-transformed, so they are symmetric about the estimate on the log axis used in the figures; bands for absolute scores were constructed on the original scale. Models or location-model combinations with fewer than 6 nowcast dates (one bootstrap block), including CADPH-CATaMaran, are shown without a band.
+
+```{r}
+#| label: srss-ci-table
+#| echo: false
+srss_ci <- read.csv(file.path("..", "output", "tables", "ci_srss_overall.csv"))
+srss_ci <- srss_ci[order(
+  factor(srss_ci$region, levels = c("US excluding CA", "CA")),
+  srss_ci$score_type, srss_ci$model
+), ]
+fmt <- function(x) formatC(x, format = "f", digits = 3)
+knitr::kable(
+  data.frame(
+    Region = srss_ci$region,
+    Score = ifelse(srss_ci$score_type == "brier_score", "Brier", "Energy"),
+    Model = srss_ci$model,
+    SRSS = fmt(srss_ci$estimate),
+    `95% CI` = paste0(
+      "[", fmt(srss_ci$ci_lower), ", ", fmt(srss_ci$ci_upper), "]"
+    ),
+    `Overlapping nowcast dates` = srss_ci$n_overlapping_dates,
+    check.names = FALSE
+  ),
+  row.names = FALSE,
+  align = "lllrcr",
+  caption = paste(
+    "Table S1. Scaled relative skill score (SRSS) of each model versus the",
+    "Hub-baseline, with Bonferroni simultaneous 95% confidence intervals",
+    "from a moving block bootstrap over nowcast dates (1,000 resamples,",
+    "blocks of 6 nowcast dates), for the U.S. excluding California and for",
+    "California, on the Brier and energy scores. SRSS < 1 indicates better",
+    "performance than the Hub-baseline. Intervals hold simultaneously across",
+    "the models within each region and score. Overlapping nowcast dates is",
+    "the number of nowcast dates on which both the model and the Hub-baseline",
+    "were scored. CADPH-CATaMaran is not shown because it submitted on only",
+    "2 nowcast dates. The UGA-multicast Brier interval in the U.S. excluding",
+    "California has a lower bound of 1.0004, which rounds to 1.000."
+  )
+)
+```
+
+![Fig. S28 Score comparison over all evaluated nowcast dates, horizons, and jurisdictions, as in the main text overall score figure, with Bonferroni simultaneous 95% confidence intervals from a moving block bootstrap over nowcast dates (1,000 resamples, blocks of 6 nowcast dates). Stratified by the U.S. excluding California (left) and California (right). (A, C, E, G). Absolute Brier and energy scores with error bars. (B, D, F, H). Scaled relative skill on the Brier and energy scores with error bars; SRSS $<$ 1 indicates improved performance compared to the Hub-baseline. (I to L). Scaled relative skill by nowcast horizon with shaded bands. Intervals hold simultaneously across all models in each panel (and across all models and horizons in panels I to L). SRSS intervals are constructed on the log scale. CADPH-CATaMaran is shown without an interval because it submitted on only 2 nowcast dates. Color indicates model.](../output/figs/overall_scores/overall_score_comparison_ci.png)
+
+![Fig. S29 Score comparison by jurisdiction, as in the main text figure by location, with Bonferroni simultaneous 95% confidence intervals from a moving block bootstrap over nowcast dates (1,000 resamples, blocks of 6 nowcast dates). Jurisdictions are shown in descending order by the total number of sequences during the assessment period. (A & C). Absolute Brier and energy scores; intervals reaching 0 are truncated at 0 and indicate that the mean score is poorly determined. (B & D). Scaled relative skill on the Brier and energy scores; SRSS $<$ 1 indicates improved performance over the Hub-baseline. (E). Total number of sequences for each jurisdiction (log scale). Intervals hold simultaneously across all jurisdiction-model combinations in each panel. Combinations with fewer than 6 nowcast dates are shown without an interval. Color indicates model.](../output/figs/overall_scores/by_location_ci.png)
