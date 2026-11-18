@@ -373,3 +373,33 @@ test_that("mean scores and bootstraps keep the by columns", {
   # Identity resample reproduces the original estimates
   expect_equal(boot_abs$estimate, means$estimate, tolerance = 1e-12)
 })
+
+test_that("filter_full_roster keeps only draws with every model present", {
+  estimates <- data.frame(
+    model = c("a", "b", "c"), estimate = 1, stringsAsFactors = FALSE
+  )
+  # Draw 2 is missing model c; draw 3 has c with a non-finite estimate
+  boot <- data.frame(
+    boot_id = c(1, 1, 1, 2, 2, 3, 3, 3),
+    model = c("a", "b", "c", "a", "b", "a", "b", "c"),
+    estimate = c(1, 1, 1, 1, 1, 1, 1, NaN),
+    stringsAsFactors = FALSE
+  )
+  kept <- filter_full_roster(boot, estimates)
+  expect_identical(unique(kept$boot_id), 1)
+
+  # Within groups, the roster is checked per group
+  est_h <- data.frame(
+    horizon = c(0, 0, 1), model = c("a", "b", "a"),
+    stringsAsFactors = FALSE
+  )
+  boot_h <- data.frame(
+    boot_id = c(1, 1, 1, 2, 2), horizon = c(0, 0, 1, 0, 1),
+    model = c("a", "b", "a", "a", "a"), estimate = 1,
+    stringsAsFactors = FALSE
+  )
+  kept_h <- filter_full_roster(boot_h, est_h, by = "horizon")
+  # Draw 2 lacks b at horizon 0, so only its horizon 1 row is kept
+  expect_identical(nrow(kept_h), 4L)
+  expect_false(any(kept_h$boot_id == 2 & kept_h$horizon == 0))
+})

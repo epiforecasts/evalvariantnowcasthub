@@ -54,6 +54,10 @@ utils::globalVariables(c(
   "boot_id", # <get_bootstrap_srss>
   "model", # <get_bootstrap_srss>
   "estimate", # <get_bootstrap_srss>
+  "model", # <filter_full_roster>
+  "estimate", # <filter_full_roster>
+  "n_present", # <filter_full_roster>
+  "n_models", # <filter_full_roster>
   "target_date", # <add_horizon>
   "nowcast_date", # <add_horizon>
   "model", # <get_n_overlapping_dates>

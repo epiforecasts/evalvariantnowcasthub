@@ -102,6 +102,11 @@ bootstrap_targets <- list(
     )
   ),
   # Scaled relative skill (SRSS) vs Hub-baseline, overall------------------
+  # The *_full targets keep only bootstrap draws in which every model of the
+  # original tournament is present (filter_full_roster()), so the bands
+  # describe the same tournament as the reported SRSS. This matters for CA
+  # Brier, where draws without CADPH-CATaMaran's 2 dates drop it from the
+  # tournament and shift the other models' SRSS.
   # Full pairwise tournament on each resample. CADPH-CATaMaran stays in the
   # CA tournaments, so the other models' SRSS match the figure, but is
   # excluded from the CA tables. Bands are built on the log scale.
@@ -115,10 +120,17 @@ bootstrap_targets <- list(
     )
   ),
   tar_target(
+    name = boot_srss_brier_ep_full,
+    command = filter_full_roster(
+      boot_estimates = boot_srss_brier_ep,
+      estimates = get_srss(su_scores_ep, "brier_score")
+    )
+  ),
+  tar_target(
     name = ci_srss_brier_ep,
     command = get_bonferroni_ci(
       estimates = get_srss(su_scores_ep, "brier_score"),
-      boot_estimates = boot_srss_brier_ep,
+      boot_estimates = boot_srss_brier_ep_full,
       alpha = ci_alpha,
       log_scale = TRUE
     )
@@ -132,10 +144,17 @@ bootstrap_targets <- list(
     )
   ),
   tar_target(
+    name = boot_srss_energy_ep_full,
+    command = filter_full_roster(
+      boot_estimates = boot_srss_energy_ep,
+      estimates = get_srss(su_scores_ep, "energy_score")
+    )
+  ),
+  tar_target(
     name = ci_srss_energy_ep,
     command = get_bonferroni_ci(
       estimates = get_srss(su_scores_ep, "energy_score"),
-      boot_estimates = boot_srss_energy_ep,
+      boot_estimates = boot_srss_energy_ep_full,
       alpha = ci_alpha,
       log_scale = TRUE
     )
@@ -150,13 +169,20 @@ bootstrap_targets <- list(
     )
   ),
   tar_target(
+    name = boot_srss_brier_ca_full,
+    command = filter_full_roster(
+      boot_estimates = boot_srss_brier_ca,
+      estimates = get_srss(su_scores_ca, "brier_score")
+    )
+  ),
+  tar_target(
     name = ci_srss_brier_ca,
     command = get_bonferroni_ci(
       estimates = filter(
         get_srss(su_scores_ca, "brier_score"),
         model != "CADPH-CATaMaran"
       ),
-      boot_estimates = boot_srss_brier_ca,
+      boot_estimates = boot_srss_brier_ca_full,
       alpha = ci_alpha,
       log_scale = TRUE
     )
@@ -170,13 +196,20 @@ bootstrap_targets <- list(
     )
   ),
   tar_target(
+    name = boot_srss_energy_ca_full,
+    command = filter_full_roster(
+      boot_estimates = boot_srss_energy_ca,
+      estimates = get_srss(su_scores_ca, "energy_score")
+    )
+  ),
+  tar_target(
     name = ci_srss_energy_ca,
     command = get_bonferroni_ci(
       estimates = filter(
         get_srss(su_scores_ca, "energy_score"),
         model != "CADPH-CATaMaran"
       ),
-      boot_estimates = boot_srss_energy_ca,
+      boot_estimates = boot_srss_energy_ca_full,
       alpha = ci_alpha,
       log_scale = TRUE
     )
@@ -195,13 +228,24 @@ bootstrap_targets <- list(
     )
   ),
   tar_target(
+    name = boot_srss_horizon_brier_ep_full,
+    command = filter_full_roster(
+      boot_estimates = boot_srss_horizon_brier_ep,
+      estimates = get_srss(
+        add_horizon(su_scores_ep), "brier_score",
+        by = "horizon"
+      ),
+      by = "horizon"
+    )
+  ),
+  tar_target(
     name = ci_srss_horizon_brier_ep,
     command = get_bonferroni_ci(
       estimates = get_srss(
         add_horizon(su_scores_ep), "brier_score",
         by = "horizon"
       ),
-      boot_estimates = boot_srss_horizon_brier_ep,
+      boot_estimates = boot_srss_horizon_brier_ep_full,
       alpha = ci_alpha,
       by = c("model", "horizon"),
       log_scale = TRUE
@@ -217,13 +261,24 @@ bootstrap_targets <- list(
     )
   ),
   tar_target(
+    name = boot_srss_horizon_energy_ep_full,
+    command = filter_full_roster(
+      boot_estimates = boot_srss_horizon_energy_ep,
+      estimates = get_srss(
+        add_horizon(su_scores_ep), "energy_score",
+        by = "horizon"
+      ),
+      by = "horizon"
+    )
+  ),
+  tar_target(
     name = ci_srss_horizon_energy_ep,
     command = get_bonferroni_ci(
       estimates = get_srss(
         add_horizon(su_scores_ep), "energy_score",
         by = "horizon"
       ),
-      boot_estimates = boot_srss_horizon_energy_ep,
+      boot_estimates = boot_srss_horizon_energy_ep_full,
       alpha = ci_alpha,
       by = c("model", "horizon"),
       log_scale = TRUE
@@ -240,13 +295,24 @@ bootstrap_targets <- list(
     )
   ),
   tar_target(
+    name = boot_srss_horizon_brier_ca_full,
+    command = filter_full_roster(
+      boot_estimates = boot_srss_horizon_brier_ca,
+      estimates = get_srss(
+        add_horizon(su_scores_ca), "brier_score",
+        by = "horizon"
+      ),
+      by = "horizon"
+    )
+  ),
+  tar_target(
     name = ci_srss_horizon_brier_ca,
     command = get_bonferroni_ci(
       estimates = filter(
         get_srss(add_horizon(su_scores_ca), "brier_score", by = "horizon"),
         model != "CADPH-CATaMaran"
       ),
-      boot_estimates = boot_srss_horizon_brier_ca,
+      boot_estimates = boot_srss_horizon_brier_ca_full,
       alpha = ci_alpha,
       by = c("model", "horizon"),
       log_scale = TRUE
@@ -262,13 +328,24 @@ bootstrap_targets <- list(
     )
   ),
   tar_target(
+    name = boot_srss_horizon_energy_ca_full,
+    command = filter_full_roster(
+      boot_estimates = boot_srss_horizon_energy_ca,
+      estimates = get_srss(
+        add_horizon(su_scores_ca), "energy_score",
+        by = "horizon"
+      ),
+      by = "horizon"
+    )
+  ),
+  tar_target(
     name = ci_srss_horizon_energy_ca,
     command = get_bonferroni_ci(
       estimates = filter(
         get_srss(add_horizon(su_scores_ca), "energy_score", by = "horizon"),
         model != "CADPH-CATaMaran"
       ),
-      boot_estimates = boot_srss_horizon_energy_ca,
+      boot_estimates = boot_srss_horizon_energy_ca_full,
       alpha = ci_alpha,
       by = c("model", "horizon"),
       log_scale = TRUE

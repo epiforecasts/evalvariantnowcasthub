@@ -275,6 +275,47 @@ get_bootstrap_srss <- function(scores_obj,
     select(boot_id, all_of(by), model, estimate)
 }
 
+#' Keep bootstrap draws with the full model roster
+#'
+#' The scaled relative skill of a model depends on every model in the
+#' pairwise tournament, not only on the model and the baseline. A resample
+#' that contains none of a sparsely submitting model's dates drops that model
+#' from the tournament, so the other models' SRSS in that draw describe a
+#' different tournament from the reported estimate (#135). This keeps only
+#' the draws (within each `by` group) in which every model of the original
+#' tournament is present, so the bootstrap describes the same tournament as
+#' the point estimate.
+#'
+#' @param boot_estimates Bootstrap estimates with columns `boot_id`, `by`,
+#'   `model` and `estimate`, e.g. from [get_bootstrap_srss()].
+#' @param estimates Estimates from the original data for the full
+#'   tournament (before removing any models from the reported table), with
+#'   columns `by` and `model`, e.g. from [get_srss()].
+#' @param by Optional character vector of grouping columns, e.g.
+#'   `"horizon"`, within which the roster is checked.
+#' @importFrom dplyr semi_join group_by summarise filter n_distinct across
+#'   all_of inner_join
+#' @returns `boot_estimates` restricted to full-roster draws.
+#' @autoglobal
+filter_full_roster <- function(boot_estimates, estimates, by = NULL) {
+  roster <- estimates |>
+    group_by(across(all_of(by))) |>
+    summarise(n_models = n_distinct(model), .groups = "drop")
+  present <- boot_estimates |>
+    filter(is.finite(estimate)) |>
+    semi_join(estimates, by = c(by, "model")) |>
+    group_by(across(all_of(c("boot_id", by)))) |>
+    summarise(n_present = n_distinct(model), .groups = "drop")
+  full <- if (length(by) == 0) {
+    filter(present, n_present == roster$n_models)
+  } else {
+    present |>
+      inner_join(roster, by = by) |>
+      filter(n_present == n_models)
+  }
+  semi_join(boot_estimates, full, by = c("boot_id", by))
+}
+
 #' Add the horizon to a scores object
 #'
 #' Adds `horizon`, the target date minus the nowcast date in days, so that
