@@ -468,3 +468,33 @@ test_that("get_log_breaks picks standard ratios within the limits", {
 test_that("get_log_breaks uses coarse breaks for very wide ranges", {
   expect_identical(get_log_breaks(c(1 / 15, 15)), c(0.1, 0.2, 0.5, 1, 2, 5, 10))
 })
+
+test_that("get_srss drops groups with fewer than two models", {
+  scores <- toy_brier_scores()
+  # NY keeps only the baseline
+  scores <- scores[!(scores$location == "NY" & scores$model == "model_a"), ]
+  srss <- get_srss(scores, "brier_score", by = "location")
+
+  expect_identical(srss$location, "CA")
+  expect_identical(srss$model, "model_a")
+  # No group with two models: an empty result, not an error
+  only_baseline <- scores[scores$model == "Hub-baseline", ]
+  expect_identical(
+    nrow(get_srss(only_baseline, "brier_score", by = "location")), 0L
+  )
+})
+
+test_that("get_n_overlapping_dates requires a shared target date", {
+  scores <- toy_brier_scores()
+  # On nowcast date 1, model_a keeps only horizon -1 and the baseline only
+  # horizon 0, so they share the nowcast date but no target date
+  d1 <- scores$nowcast_date == weekly_dates[1]
+  scores <- scores[!(d1 & scores$model == "model_a" &
+    scores$target_date == weekly_dates[1]), ]
+  d1 <- scores$nowcast_date == weekly_dates[1]
+  scores <- scores[!(d1 & scores$model == "Hub-baseline" &
+    scores$target_date == weekly_dates[1] - 1), ]
+  n_dates <- get_n_overlapping_dates(scores, "brier_score")
+
+  expect_identical(n_dates$n_overlapping_dates, 2L)
+})

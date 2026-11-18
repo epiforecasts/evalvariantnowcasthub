@@ -22,7 +22,8 @@ get_srss(
 \item{by}{Optional character vector of columns to run separate
 tournaments within, passed to
 \code{\link[scoringutils:get_pairwise_comparisons]{scoringutils::get_pairwise_comparisons()}}. Default \code{NULL} gives one
-overall tournament.}
+overall tournament. Groups with fewer than two models are dropped, as
+no comparison can be made in them.}
 }
 \value{
 Data frame with columns \code{by} (if given), \code{model} and \code{estimate}
