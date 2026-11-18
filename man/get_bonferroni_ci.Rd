@@ -45,5 +45,8 @@ With \code{log_scale = TRUE} the bands are built for \code{log(estimate)} and
 back-transformed, \verb{exp(log(estimate) +/- c * sd(log(bootstrap)))}, so
 they are symmetric about the estimate on a log axis and positive. Use
 this for ratios such as the scaled relative skill. Coverage is unchanged
-by the back-transformation because \code{exp()} is monotone.
+by the back-transformation because \code{exp()} is monotone. Bootstrap
+estimates that are not positive and finite (e.g. a scaled relative skill
+of 0 when a model's only overlapping scores in a sparse resample are 0)
+have no log and are dropped; \code{n_boot} reports how many were used.
 }

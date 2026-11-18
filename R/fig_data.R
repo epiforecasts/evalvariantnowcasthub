@@ -421,7 +421,7 @@ get_plot_seq_counts_by_loc <- function(obs_data,
       total_seq = sum(sequences),
       total_pop = max(population)
     ) |>
-    arrange(desc(total_seq)) |>
+    arrange(desc(total_seq), location) |>
     mutate(
       location = factor(location, levels = location),
       cdf_seq = cumsum(total_seq) / sum(total_seq),

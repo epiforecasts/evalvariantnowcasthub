@@ -47,7 +47,7 @@ plot_model_submission_heatmap <- function(submission_data,
                                           model_id,
                                           plot_components) {
   location_order <- seq_counts_by_loc |>
-    arrange(desc(total_seq)) |>
+    arrange(desc(total_seq), location) |>
     pull(location)
 
   model_data <- filter(
@@ -98,7 +98,7 @@ plot_submission_summary <- function(submission_data,
                                     seq_counts_by_loc,
                                     plot_components) {
   location_order <- seq_counts_by_loc |>
-    arrange(desc(total_seq)) |>
+    arrange(desc(total_seq), location) |>
     pull(location)
 
   summary_data <- submission_data |>
@@ -258,7 +258,7 @@ plot_eval_sequence_heatmap <- function(sequence_data,
   sequence_data <- filter(sequence_data, location != "US")
 
   location_order <- seq_counts_by_loc |>
-    arrange(desc(total_seq)) |>
+    arrange(desc(total_seq), location) |>
     pull(location)
   # Replace 0 with NA for gray display
   sequence_data <- mutate(sequence_data,
