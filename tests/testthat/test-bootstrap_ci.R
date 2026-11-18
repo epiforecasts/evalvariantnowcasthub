@@ -238,31 +238,52 @@ test_that("an identity resample reproduces the original SRSS", {
   )
 })
 
-test_that("resampling daily SRSS equals recomputing it on the resample", {
-  scores <- toy_brier_scores()
+test_that("SRSS by horizon is a ratio of mean scores within each horizon", {
+  scores <- add_horizon(toy_brier_scores())
+  srss <- get_srss(scores, "brier_score", by = "horizon")
+
+  df <- as.data.frame(scores)
+  expect_named(srss, c("horizon", "model", "estimate"))
+  expect_identical(sort(srss$horizon), c(-1L, 0L))
+  # With two models, SRSS within a horizon is the ratio of mean scores
+  for (h in c(-1L, 0L)) {
+    in_h <- df$horizon == h
+    expect_equal(
+      srss$estimate[srss$horizon == h],
+      mean(df$brier_score[in_h & df$model == "model_a"]) /
+        mean(df$brier_score[in_h & df$model == "Hub-baseline"]),
+      tolerance = 1e-12
+    )
+  }
+})
+
+test_that("bootstrapping SRSS by horizon re-runs the comparison per resample", {
+  scores <- add_horizon(toy_brier_scores())
   # Date 1 drawn twice, date 3 once, date 2 not at all
   boot_dates <- data.frame(
     boot_id = 1L, position = 1:3, nowcast_date = weekly_dates[c(1, 1, 3)]
   )
-  shortcut <- get_bootstrap_srss_by_horizon(
-    scores, boot_dates, "brier_score"
-  )
   # Duplicated forecasts give tied pairs in scoringutils' (unused) Wilcoxon
   # p-values; silence only that warning
-  full <- withCallingHandlers(
-    get_resampled_scores(scores, boot_dates, 1) |>
-      get_daily_srss("brier_score") |>
-      get_srss_by_horizon("brier_score"),
-    warning = function(w) {
+  quiet_ties <- function(expr) {
+    withCallingHandlers(expr, warning = function(w) {
       if (grepl("exact p-value with ties", conditionMessage(w), fixed = TRUE)) {
         invokeRestart("muffleWarning")
       }
-    }
-  )
+    })
+  }
+  boot <- quiet_ties(get_bootstrap_srss(
+    scores, boot_dates, "brier_score",
+    by = "horizon"
+  ))
+  direct <- quiet_ties(get_srss(
+    get_resampled_scores(scores, boot_dates, 1), "brier_score",
+    by = "horizon"
+  ))
 
-  expect_named(shortcut, c("boot_id", "model", "horizon", "estimate"))
-  expect_identical(shortcut$horizon, full$horizon)
-  expect_equal(shortcut$estimate, full$estimate, tolerance = 1e-12)
+  expect_named(boot, c("boot_id", "horizon", "model", "estimate"))
+  expect_identical(boot$horizon, direct$horizon)
+  expect_equal(boot$estimate, direct$estimate, tolerance = 1e-12)
 })
 
 test_that("get_n_overlapping_dates counts dates shared with the baseline", {

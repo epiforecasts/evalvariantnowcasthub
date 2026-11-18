@@ -1,35 +1,5 @@
 date_breaks <- ymd(c("2024-10-07", "2025-06-02"))
 
-#' Get relative skill scores with specified grouping
-#'
-#' @param scores_obj Scoringutils scores object
-#' @param score_type Character string indicating which score metric to use
-#' @param by Character vector of grouping variables for relative skill
-#' calculation
-#' @importFrom scoringutils add_relative_skill
-#' @importFrom dplyr filter
-#' @importFrom rlang sym
-#' @returns Data frame with relative skill scores
-#' @autoglobal
-get_relative_skill <- function(scores_obj,
-                               score_type = c("brier_score", "energy_score"),
-                               by = "target_date") {
-  score_type <- rlang::arg_match(score_type)
-
-  rel_skill <- scoringutils::add_relative_skill(
-    scores_obj,
-    metric = score_type,
-    baseline = "Hub-baseline",
-    by = by
-  )
-
-  # Filter out NA scores
-  rel_skill_filtered <- rel_skill |>
-    filter(!is.na(!!sym(score_type)))
-
-  return(rel_skill_filtered)
-}
-
 #' Brier/Energy Relative/Overall by location
 #'
 #' @param scores_obj Scoringutils scores object

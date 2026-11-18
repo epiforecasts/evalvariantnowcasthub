@@ -182,23 +182,24 @@ bootstrap_targets <- list(
     )
   ),
   # SRSS by horizon---------------------------------------------------------
-  # Daily SRSS (tournament per target date and nowcast date) averaged by
-  # model and horizon. P = models x horizons per table.
+  # Full pairwise tournament within each horizon on each resample, as in
+  # get_plot_horizon(). P = models x horizons per table.
   ## US excluding CA
   tar_target(
     name = boot_srss_horizon_brier_ep,
-    command = get_bootstrap_srss_by_horizon(
-      scores_obj = su_scores_ep,
+    command = get_bootstrap_srss(
+      scores_obj = add_horizon(su_scores_ep),
       boot_dates = boot_dates,
-      score_type = "brier_score"
+      score_type = "brier_score",
+      by = "horizon"
     )
   ),
   tar_target(
     name = ci_srss_horizon_brier_ep,
     command = get_bonferroni_ci(
-      estimates = get_srss_by_horizon(
-        get_daily_srss(su_scores_ep, "brier_score"),
-        "brier_score"
+      estimates = get_srss(
+        add_horizon(su_scores_ep), "brier_score",
+        by = "horizon"
       ),
       boot_estimates = boot_srss_horizon_brier_ep,
       alpha = ci_alpha,
@@ -208,18 +209,19 @@ bootstrap_targets <- list(
   ),
   tar_target(
     name = boot_srss_horizon_energy_ep,
-    command = get_bootstrap_srss_by_horizon(
-      scores_obj = su_scores_ep,
+    command = get_bootstrap_srss(
+      scores_obj = add_horizon(su_scores_ep),
       boot_dates = boot_dates,
-      score_type = "energy_score"
+      score_type = "energy_score",
+      by = "horizon"
     )
   ),
   tar_target(
     name = ci_srss_horizon_energy_ep,
     command = get_bonferroni_ci(
-      estimates = get_srss_by_horizon(
-        get_daily_srss(su_scores_ep, "energy_score"),
-        "energy_score"
+      estimates = get_srss(
+        add_horizon(su_scores_ep), "energy_score",
+        by = "horizon"
       ),
       boot_estimates = boot_srss_horizon_energy_ep,
       alpha = ci_alpha,
@@ -230,20 +232,18 @@ bootstrap_targets <- list(
   ## CA
   tar_target(
     name = boot_srss_horizon_brier_ca,
-    command = get_bootstrap_srss_by_horizon(
-      scores_obj = su_scores_ca,
+    command = get_bootstrap_srss(
+      scores_obj = add_horizon(su_scores_ca),
       boot_dates = boot_dates,
-      score_type = "brier_score"
+      score_type = "brier_score",
+      by = "horizon"
     )
   ),
   tar_target(
     name = ci_srss_horizon_brier_ca,
     command = get_bonferroni_ci(
       estimates = filter(
-        get_srss_by_horizon(
-          get_daily_srss(su_scores_ca, "brier_score"),
-          "brier_score"
-        ),
+        get_srss(add_horizon(su_scores_ca), "brier_score", by = "horizon"),
         model != "CADPH-CATaMaran"
       ),
       boot_estimates = boot_srss_horizon_brier_ca,
@@ -254,20 +254,18 @@ bootstrap_targets <- list(
   ),
   tar_target(
     name = boot_srss_horizon_energy_ca,
-    command = get_bootstrap_srss_by_horizon(
-      scores_obj = su_scores_ca,
+    command = get_bootstrap_srss(
+      scores_obj = add_horizon(su_scores_ca),
       boot_dates = boot_dates,
-      score_type = "energy_score"
+      score_type = "energy_score",
+      by = "horizon"
     )
   ),
   tar_target(
     name = ci_srss_horizon_energy_ca,
     command = get_bonferroni_ci(
       estimates = filter(
-        get_srss_by_horizon(
-          get_daily_srss(su_scores_ca, "energy_score"),
-          "energy_score"
-        ),
+        get_srss(add_horizon(su_scores_ca), "energy_score", by = "horizon"),
         model != "CADPH-CATaMaran"
       ),
       boot_estimates = boot_srss_horizon_energy_ca,
