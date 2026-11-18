@@ -109,7 +109,7 @@ To quantify uncertainty in the model comparisons, we used a moving block bootstr
 
 ![Fig. S28 Composition of the moving block bootstrap resamples. Top: the first 50 of 1,000 resamples (rows) by nowcast date (columns), coloured by the number of copies of that nowcast date in the resample (white: not drawn). Each resample is built from blocks of 6 consecutive nowcast dates, drawn with replacement and possibly overlapping, so a nowcast date can appear more than once and runs of consecutive dates are kept together. Bottom: total number of times each nowcast date was drawn across all 1,000 resamples; the dashed line shows the number expected if every nowcast date were drawn equally often. Nowcast dates near the start and end of the evaluation period are drawn less often because they belong to fewer possible blocks.](../output/figs/eda/boot_dates_all_resamples.png)
 
-To test whether each model's overall performance differed from the Hub-baseline's, we also carried out a permutation test of each model's overall SRSS. Under the null hypothesis that a model and the Hub-baseline perform equally well, their scores are exchangeable: swapping the two models' scores should not systematically change the SRSS. We defined each combination of jurisdiction and nowcast date as an exchange unit. In each of `r format(n_perm, big.mark = ",")` permutations, each unit was selected independently with probability 0.5, and within the selected units the model's and the Hub-baseline's scores were swapped for every target date on which both were scored. Swapping all target dates of a unit together preserves the correlation across horizons within a nowcast date. We then recomputed the SRSS using the full pairwise comparison across all models, as for the point estimates and the bootstrap. The two-sided p-value is the proportion of permutations in which the absolute log SRSS was at least as large as the observed absolute log SRSS, computed as $(1 + k)/(1 + n)$ for $k$ such permutations out of $n$, so that it is never zero (the smallest attainable p-value is `r signif(1 / (1 + n_perm), 1)`). We report unadjusted p-values and Bonferroni-adjusted p-values (multiplied by the number of models tested within each region and score, capped at 1), matching the families of the simultaneous confidence intervals (Table S2). In California, which is a single jurisdiction, the exchange units are the nowcast dates. CADPH-CATaMaran was kept in the pairwise comparison but not tested, because it submitted on only 2 nowcast dates.
+To test whether each model's overall performance differed from the Hub-baseline's, we also carried out a permutation test of each model's overall SRSS. Under the null hypothesis that a model and the Hub-baseline perform equally well, their scores are exchangeable: swapping the two models' scores should not systematically change the SRSS. We defined each combination of jurisdiction and nowcast date as an exchange unit. In each of `r format(n_perm, big.mark = ",")` permutations, each unit was selected independently with probability 0.5, and within the selected units the model's and the Hub-baseline's scores were swapped for every target date on which both were scored. Swapping all target dates of a unit together preserves the correlation across horizons within a nowcast date. We then recomputed the SRSS using the full pairwise comparison across all models, as for the point estimates and the bootstrap. The two-sided p-value is the proportion of permutations in which the absolute log SRSS was at least as large as the observed absolute log SRSS, computed as $(1 + k)/(1 + n)$ for $k$ such permutations out of $n$, so that it is never zero (the smallest attainable p-value is `r format(signif(1 / (1 + n_perm), 1), scientific = FALSE)`). We report unadjusted p-values and Bonferroni-adjusted p-values (multiplied by the number of models tested within each region and score, capped at 1), matching the families of the simultaneous confidence intervals (Table S2). In California, which is a single jurisdiction, the exchange units are the nowcast dates. CADPH-CATaMaran was kept in the pairwise comparison but not tested, because it submitted on only 2 nowcast dates.
 
 The permutation test and the bootstrap address different questions. The bootstrap estimates how much the SRSS would vary had the evaluation covered a different set of nowcast dates from the same season, whereas the permutation test asks whether, among the forecasts actually made, a model's scores are more consistently better or worse than the Hub-baseline's than would be expected if the two models were interchangeable. Unlike the moving block bootstrap, the permutation test treats the exchange units as independent. It therefore does not account for correlation in relative performance between nowcast dates, for example a model performing worse than the Hub-baseline over several consecutive weeks during the emergence of a new variant, nor for correlation across jurisdictions within a nowcast date. As acknowledged for a similar permutation test comparing infectious disease forecasting methods [@Ray2018], the p-values may therefore overstate the evidence for a difference in performance, and a model can have a small p-value even when its bootstrap confidence interval includes 1. We therefore treat the bootstrap confidence intervals as the primary measure of uncertainty and the permutation tests as complementary.
 
@@ -173,6 +173,37 @@ knitr::kable(
   )
 )
 ```
+
+```{r}
+#| label: perm-ci-agreement
+#| echo: false
+agree <- merge(
+  perm_overall,
+  ci_overall[, c("region", "score_type", "model", "ci_lower", "ci_upper")],
+  by = c("region", "score_type", "model")
+)
+agree$ci_excludes_1 <- agree$ci_lower > 1 | agree$ci_upper < 1
+agree$significant <- agree$p_bonferroni < 0.05
+ci_implies_p <- all(agree$significant[agree$ci_excludes_1])
+disagree <- agree[agree$significant & !agree$ci_excludes_1, ]
+disagree <- disagree[order(disagree$region != "US excluding CA"), ]
+unadj_only <- agree[
+  !agree$significant & agree$p_value < 0.05 & !agree$ci_excludes_1,
+]
+score_label <- c(brier_score = "Brier score", energy_score = "energy score")
+region_label <- c(
+  "US excluding CA" = "the U.S. excluding California", CA = "California"
+)
+describe <- function(x, p_col) {
+  knitr::combine_words(paste0(
+    x$model, " on the ", score_label[x$score_type], " in ",
+    region_label[x$region], " (p ",
+    ifelse(x[[p_col]] < 0.001, "< 0.001", paste("=", fmt(x[[p_col]]))), ")"
+  ))
+}
+```
+
+`r if (ci_implies_p) "Every model whose bootstrap confidence interval excluded 1 also had a Bonferroni-adjusted permutation p-value below 0.05." else "Not every model whose bootstrap confidence interval excluded 1 had a Bonferroni-adjusted permutation p-value below 0.05."` The reverse did not hold: `r describe(disagree, "p_bonferroni")` had Bonferroni-adjusted p-values below 0.05 although their confidence intervals included 1 (Table S2)`r if (nrow(unadj_only) > 0) paste0(", as did ", describe(unadj_only, "p_value"), " before adjustment") else ""`. This is expected given the different assumptions of the two methods. In both regions, UGA-multicast's higher energy scores relative to the Hub-baseline were concentrated in consecutive nowcast dates in January and early February 2025: in the U.S. excluding California, the four nowcast dates from 8 to 29 January accounted for nearly 90% of its total excess energy score over the Hub-baseline, and in California the nowcast dates from 15 January to 5 February accounted for over half. The permutation test treats each of these weeks, and each jurisdiction within them, as independent evidence of a difference. The block bootstrap instead resamples consecutive weeks together, so resamples containing more or fewer of these weeks give very different SRSS, which widens the confidence interval. The small p-values therefore indicate that, among the forecasts made during this evaluation, UGA-multicast's energy scores were consistently higher than the Hub-baseline's, while the confidence intervals indicate that the size of this difference depends strongly on which part of the season is evaluated. We therefore do not interpret these comparisons as robust evidence of a difference in performance.
 
 ![Fig. S29 Bootstrap distributions of the overall scaled relative skill (SRSS) of each model versus the Hub-baseline, for the U.S. excluding California (A, C) and California (B, D), on the Brier score (A, B) and energy score (C, D). Coloured points are the SRSS in each bootstrap resample (jittered horizontally); for California on the Brier score, only resamples in which every model was present are shown. Black points are the SRSS estimated from the original data and black error bars the Bonferroni simultaneous 95% confidence intervals reported in Table S2, constructed on the log scale. SRSS $<$ 1 indicates improved performance compared to the Hub-baseline; y-axis is on the log scale. Color indicates model.](../output/figs/overall_scores/supp/boot_srss_distributions.png)
 
