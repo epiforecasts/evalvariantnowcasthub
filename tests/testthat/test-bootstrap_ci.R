@@ -417,3 +417,16 @@ test_that("filter_full_roster keeps only draws with every model present", {
   expect_identical(nrow(kept_h), 4L)
   expect_false(any(kept_h$boot_id == 2 & kept_h$horizon == 0))
 })
+
+test_that("get_symmetric_log_limits has no minimum by default", {
+  expect_equal(get_symmetric_log_limits(c(0.95, 1.2)), c(1 / 1.2, 1.2))
+})
+
+test_that("get_log_breaks picks standard ratios within the limits", {
+  expect_identical(
+    get_log_breaks(c(1 / 2.6, 2.6)),
+    c(0.5, 0.67, 0.8, 1, 1.25, 1.5, 2)
+  )
+  # Narrow panels also get 0.9 and 1.1
+  expect_identical(get_log_breaks(c(1 / 1.2, 1.2)), c(0.9, 1, 1.1))
+})

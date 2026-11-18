@@ -2,22 +2,22 @@ fig_overall_targets <- list(
   # Separate CA scores and other scores
   tar_target(
     name = su_scores_ca,
-    command = su_scores_all |>
+    command = su_scores_all |> # nolint
       filter(location == "CA")
   ),
   tar_target(
     name = su_scores_ep,
-    command = su_scores_all |>
+    command = su_scores_all |> # nolint
       filter(location != "CA")
   ),
   tar_target(
     name = coverage_summarised_ca,
-    command = coverage_summarised |>
+    command = coverage_summarised |> # nolint
       filter(location == "CA")
   ),
   tar_target(
     name = coverage_summarised_ep,
-    command = coverage_summarised |>
+    command = coverage_summarised |> # nolint
       filter(location != "CA")
   ),
   # Overall score figures----------------------------------------------
@@ -160,7 +160,7 @@ fig_overall_targets <- list(
       scores_obj = su_scores_ca,
       rel_skill_plot = FALSE,
       score_type = "energy_score",
-    )
+    ) # nolint
   ),
   tar_target(
     name = rel_skill_energy_horizon_ca,
@@ -171,21 +171,55 @@ fig_overall_targets <- list(
     )
   ),
   ## Overall
+  # Relative skill panels use the same per-panel axes as the version with
+  # bootstrap confidence bands (ylim_srss_* in fig_overall_ci_targets.R)
   tar_target(
     name = overall_scores_fig,
     command = get_overall_scores_figure(
       a = bar_chart_brier_overall,
-      b = rel_skill_brier_overall,
+      b = replace_y_axis(
+        rel_skill_brier_overall,
+        ylim = ylim_srss_brier_ep,
+        y_breaks = get_log_breaks(ylim_srss_brier_ep)
+      ),
       c = bar_chart_brier_overall_ca,
-      d = rel_skill_brier_overall_ca,
+      d = replace_y_axis(
+        rel_skill_brier_overall_ca,
+        ylim = ylim_srss_brier_ca,
+        y_breaks = get_log_breaks(ylim_srss_brier_ca)
+      ),
       e = bar_chart_energy_overall,
-      f = rel_skill_energy_overall,
+      f = replace_y_axis(
+        rel_skill_energy_overall,
+        ylim = ylim_srss_energy_ep,
+        y_breaks = get_log_breaks(ylim_srss_energy_ep)
+      ),
       g = bar_chart_energy_overall_ca,
-      h = rel_skill_energy_overall_ca,
-      i = rel_skill_brier_horizon,
-      j = rel_skill_brier_horizon_ca,
-      k = rel_skill_energy_horizon,
-      l = rel_skill_energy_horizon_ca,
+      h = replace_y_axis(
+        rel_skill_energy_overall_ca,
+        ylim = ylim_srss_energy_ca,
+        y_breaks = get_log_breaks(ylim_srss_energy_ca)
+      ),
+      i = replace_y_axis(
+        rel_skill_brier_horizon,
+        ylim = ylim_srss_horizon_brier_ep,
+        y_breaks = get_log_breaks(ylim_srss_horizon_brier_ep)
+      ),
+      j = replace_y_axis(
+        rel_skill_brier_horizon_ca,
+        ylim = ylim_srss_horizon_brier_ca,
+        y_breaks = get_log_breaks(ylim_srss_horizon_brier_ca)
+      ),
+      k = replace_y_axis(
+        rel_skill_energy_horizon,
+        ylim = ylim_srss_horizon_energy_ep,
+        y_breaks = get_log_breaks(ylim_srss_horizon_energy_ep)
+      ),
+      l = replace_y_axis(
+        rel_skill_energy_horizon_ca,
+        ylim = ylim_srss_horizon_energy_ca,
+        y_breaks = get_log_breaks(ylim_srss_horizon_energy_ca)
+      ),
       plot_name = "overall_score_comparison"
     )
   ),
@@ -281,9 +315,11 @@ fig_overall_targets <- list(
   tar_target(
     name = by_loc_figure_sammler,
     command = get_by_loc_figure_smaller(
+      # nolint start
       # a = bar_chart_brier_location,
       a = rel_skill_brier_location,
       # c = bar_chart_energy_location,
+      # nolint end
       b = rel_skill_energy_location,
       c = plot_seq_counts_by_loc,
       plot_name = "by_location_smaller"

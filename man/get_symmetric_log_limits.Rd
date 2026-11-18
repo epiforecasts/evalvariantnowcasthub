@@ -4,21 +4,21 @@
 \alias{get_symmetric_log_limits}
 \title{Symmetric log-scale axis limits covering all plotted values}
 \usage{
-get_symmetric_log_limits(values, min_limit)
+get_symmetric_log_limits(values, min_limit = 1)
 }
 \arguments{
 \item{values}{Numeric vector of plotted values (estimates and band
 limits). Values that are not positive and finite are ignored.}
 
-\item{min_limit}{Minimum upper limit, greater than 1.}
+\item{min_limit}{Optional minimum upper limit. Default 1, i.e. no
+minimum.}
 }
 \value{
 Numeric vector of length 2.
 }
 \description{
 Returns limits \code{c(1 / m, m)}, symmetric about 1 on the log scale, where
-\code{m} is the larger of \code{min_limit} and the furthest value from 1 (on the log
-scale) among \code{values}. Used so that panels sharing an axis show every
-estimate and confidence band in full, with the original fixed limits
-kept as a minimum range.
+\code{m} is the furthest value from 1 (on the log scale) among \code{values}, or
+\code{min_limit} if larger. Used so that a panel shows every estimate and
+confidence band in full; ggplot2's default expansion adds a margin.
 }

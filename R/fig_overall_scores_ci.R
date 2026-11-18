@@ -121,18 +121,35 @@ get_panel_srss_values <- function(p) {
 #' Symmetric log-scale axis limits covering all plotted values
 #'
 #' Returns limits `c(1 / m, m)`, symmetric about 1 on the log scale, where
-#' `m` is the larger of `min_limit` and the furthest value from 1 (on the log
-#' scale) among `values`. Used so that panels sharing an axis show every
-#' estimate and confidence band in full, with the original fixed limits
-#' kept as a minimum range.
+#' `m` is the furthest value from 1 (on the log scale) among `values`, or
+#' `min_limit` if larger. Used so that a panel shows every estimate and
+#' confidence band in full; ggplot2's default expansion adds a margin.
 #'
 #' @param values Numeric vector of plotted values (estimates and band
 #'   limits). Values that are not positive and finite are ignored.
-#' @param min_limit Minimum upper limit, greater than 1.
+#' @param min_limit Optional minimum upper limit. Default 1, i.e. no
+#'   minimum.
 #' @returns Numeric vector of length 2.
 #' @autoglobal
-get_symmetric_log_limits <- function(values, min_limit) {
+get_symmetric_log_limits <- function(values, min_limit = 1) {
   values <- values[is.finite(values) & values > 0]
   m <- max(min_limit, values, 1 / values)
   c(1 / m, m)
+}
+
+#' Axis breaks for a log-scale relative skill panel
+#'
+#' Chooses breaks from a standard set of ratios that fall within `limits`,
+#' so panels with different ranges get readable labels. Narrow panels also
+#' get 0.9 and 1.1; wide panels drop them to avoid crowding.
+#'
+#' @param limits Numeric vector of length 2, the axis limits.
+#' @returns Numeric vector of breaks.
+#' @autoglobal
+get_log_breaks <- function(limits) {
+  candidates <- c(0.25, 0.33, 0.5, 0.67, 0.8, 1, 1.25, 1.5, 2, 3, 4)
+  if (max(limits) < 1.3) {
+    candidates <- sort(c(candidates, 0.9, 1.1))
+  }
+  candidates[candidates >= min(limits) & candidates <= max(limits)]
 }
