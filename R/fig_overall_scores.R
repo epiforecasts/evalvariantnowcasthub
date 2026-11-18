@@ -582,16 +582,21 @@ get_plot_horizon <- function(scores_obj,
   }
 
   if (isTRUE(rel_skill_plot)) {
-    rel_skill <- get_relative_skill(
-      scores_obj,
-      score_type = score_type,
-      by = c("target_date", "nowcast_date")
-    ) |>
-      mutate(horizon = as.integer(target_date - nowcast_date))
-
-    rel_skill_summarised <- rel_skill |>
-      scoringutils::summarise_scores(by = c("model", "horizon")) |>
-      filter(model != "Hub-baseline")
+    # Pairwise comparisons within each horizon, consistent with the overall,
+    # location and nowcast date stratifications
+    rel_skill_summarised <- scores_obj |>
+      ungroup() |>
+      filter(!is.na(!!sym(score_type))) |>
+      mutate(horizon = as.integer(target_date - nowcast_date)) |>
+      scoringutils::get_pairwise_comparisons(
+        baseline = "Hub-baseline",
+        metric = score_type,
+        by = "horizon"
+      ) |>
+      filter(
+        model != "Hub-baseline",
+        compare_against == "Hub-baseline"
+      )
 
     p <- ggplot(rel_skill_summarised) +
       geom_line(
