@@ -238,31 +238,52 @@ test_that("an identity resample reproduces the original SRSS", {
   )
 })
 
-test_that("resampling daily SRSS equals recomputing it on the resample", {
-  scores <- toy_brier_scores()
+test_that("SRSS by horizon is a ratio of mean scores within each horizon", {
+  scores <- add_horizon(toy_brier_scores())
+  srss <- get_srss(scores, "brier_score", by = "horizon")
+
+  df <- as.data.frame(scores)
+  expect_named(srss, c("horizon", "model", "estimate"))
+  expect_identical(sort(srss$horizon), c(-1L, 0L))
+  # With two models, SRSS within a horizon is the ratio of mean scores
+  for (h in c(-1L, 0L)) {
+    in_h <- df$horizon == h
+    expect_equal(
+      srss$estimate[srss$horizon == h],
+      mean(df$brier_score[in_h & df$model == "model_a"]) /
+        mean(df$brier_score[in_h & df$model == "Hub-baseline"]),
+      tolerance = 1e-12
+    )
+  }
+})
+
+test_that("bootstrapping SRSS by horizon re-runs the comparison per resample", {
+  scores <- add_horizon(toy_brier_scores())
   # Date 1 drawn twice, date 3 once, date 2 not at all
   boot_dates <- data.frame(
     boot_id = 1L, position = 1:3, nowcast_date = weekly_dates[c(1, 1, 3)]
   )
-  shortcut <- get_bootstrap_srss_by_horizon(
-    scores, boot_dates, "brier_score"
-  )
   # Duplicated forecasts give tied pairs in scoringutils' (unused) Wilcoxon
   # p-values; silence only that warning
-  full <- withCallingHandlers(
-    get_resampled_scores(scores, boot_dates, 1) |>
-      get_daily_srss("brier_score") |>
-      get_srss_by_horizon("brier_score"),
-    warning = function(w) {
+  quiet_ties <- function(expr) {
+    withCallingHandlers(expr, warning = function(w) {
       if (grepl("exact p-value with ties", conditionMessage(w), fixed = TRUE)) {
         invokeRestart("muffleWarning")
       }
-    }
-  )
+    })
+  }
+  boot <- quiet_ties(get_bootstrap_srss(
+    scores, boot_dates, "brier_score",
+    by = "horizon"
+  ))
+  direct <- quiet_ties(get_srss(
+    get_resampled_scores(scores, boot_dates, 1), "brier_score",
+    by = "horizon"
+  ))
 
-  expect_named(shortcut, c("boot_id", "model", "horizon", "estimate"))
-  expect_identical(shortcut$horizon, full$horizon)
-  expect_equal(shortcut$estimate, full$estimate, tolerance = 1e-12)
+  expect_named(boot, c("boot_id", "horizon", "model", "estimate"))
+  expect_identical(boot$horizon, direct$horizon)
+  expect_equal(boot$estimate, direct$estimate, tolerance = 1e-12)
 })
 
 test_that("get_n_overlapping_dates counts dates shared with the baseline", {
@@ -274,6 +295,21 @@ test_that("get_n_overlapping_dates counts dates shared with the baseline", {
 
   expect_identical(n_dates$model, "model_a")
   expect_identical(n_dates$n_overlapping_dates, 2L)
+})
+
+test_that("get_n_overlapping_dates counts shared dates per horizon", {
+  scores <- add_horizon(toy_brier_scores())
+  # model_a misses horizon 0 on nowcast date 1
+  scores <- scores[!(scores$model == "model_a" &
+    scores$nowcast_date == weekly_dates[1] & scores$horizon == 0), ]
+  by_h <- get_n_overlapping_dates(scores, "brier_score", by = "horizon")
+  overall <- get_n_overlapping_dates(scores, "brier_score")
+
+  expect_named(by_h, c("horizon", "model", "n_overlapping_dates"))
+  expect_identical(by_h$n_overlapping_dates[by_h$horizon == -1], 3L)
+  expect_identical(by_h$n_overlapping_dates[by_h$horizon == 0], 2L)
+  # The overall count is unchanged: date 1 is still shared at horizon -1
+  expect_identical(overall$n_overlapping_dates, 3L)
 })
 
 test_that("format_ci_table labels and orders the columns", {
@@ -370,4 +406,61 @@ test_that("filter_min_overlap keeps rows with enough overlapping dates", {
   expect_identical(kept$model, c("a", "a"))
   expect_identical(kept$location, c("CA", "NY"))
   expect_identical(kept$n_overlapping_dates, c(10L, 6L))
+})
+
+test_that("get_symmetric_log_limits keeps a minimum and covers all values", {
+  # Within the minimum range: the minimum is returned
+  expect_equal(get_symmetric_log_limits(c(0.9, 1.2), 1.7), c(1 / 1.7, 1.7))
+  # A band reaching 2.66 widens the range symmetrically
+  expect_equal(get_symmetric_log_limits(c(0.95, 2.66), 1.7), c(1 / 2.66, 2.66))
+  # A low bound of 0.25 widens it to 4 on both sides
+  expect_equal(get_symmetric_log_limits(c(0.25, 1.1), 1.7), c(0.25, 4))
+  # Non-finite and non-positive values are ignored
+  expect_equal(
+    get_symmetric_log_limits(c(1.1, NA, Inf, 0), 1.7),
+    c(1 / 1.7, 1.7)
+  )
+})
+
+test_that("filter_full_roster keeps only draws with every model present", {
+  estimates <- data.frame(
+    model = c("a", "b", "c"), estimate = 1, stringsAsFactors = FALSE
+  )
+  # Draw 2 is missing model c; draw 3 has c with a non-finite estimate
+  boot <- data.frame(
+    boot_id = c(1, 1, 1, 2, 2, 3, 3, 3),
+    model = c("a", "b", "c", "a", "b", "a", "b", "c"),
+    estimate = c(1, 1, 1, 1, 1, 1, 1, NaN),
+    stringsAsFactors = FALSE
+  )
+  kept <- filter_full_roster(boot, estimates)
+  expect_identical(unique(kept$boot_id), 1)
+
+  # Within groups, the roster is checked per group
+  est_h <- data.frame(
+    horizon = c(0, 0, 1), model = c("a", "b", "a"),
+    stringsAsFactors = FALSE
+  )
+  boot_h <- data.frame(
+    boot_id = c(1, 1, 1, 2, 2), horizon = c(0, 0, 1, 0, 1),
+    model = c("a", "b", "a", "a", "a"), estimate = 1,
+    stringsAsFactors = FALSE
+  )
+  kept_h <- filter_full_roster(boot_h, est_h, by = "horizon")
+  # Draw 2 lacks b at horizon 0, so only its horizon 1 row is kept
+  expect_identical(nrow(kept_h), 4L)
+  expect_false(any(kept_h$boot_id == 2 & kept_h$horizon == 0))
+})
+
+test_that("get_symmetric_log_limits has no minimum by default", {
+  expect_equal(get_symmetric_log_limits(c(0.95, 1.2)), c(1 / 1.2, 1.2))
+})
+
+test_that("get_log_breaks picks standard ratios within the limits", {
+  expect_identical(
+    get_log_breaks(c(1 / 2.6, 2.6)),
+    c(0.5, 0.67, 0.8, 1, 1.25, 1.5, 2)
+  )
+  # Narrow panels also get 0.9 and 1.1
+  expect_identical(get_log_breaks(c(1 / 1.2, 1.2)), c(0.9, 1, 1.1))
 })

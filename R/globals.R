@@ -54,14 +54,12 @@ utils::globalVariables(c(
   "boot_id", # <get_bootstrap_srss>
   "model", # <get_bootstrap_srss>
   "estimate", # <get_bootstrap_srss>
-  "target_date", # <get_daily_srss>
-  "nowcast_date", # <get_daily_srss>
-  "model", # <get_srss_by_horizon>
-  "horizon", # <get_srss_by_horizon>
-  "boot_id", # <get_bootstrap_srss_by_horizon>
-  "model", # <get_bootstrap_srss_by_horizon>
-  "horizon", # <get_bootstrap_srss_by_horizon>
-  "estimate", # <get_bootstrap_srss_by_horizon>
+  "model", # <filter_full_roster>
+  "estimate", # <filter_full_roster>
+  "n_present", # <filter_full_roster>
+  "n_models", # <filter_full_roster>
+  "target_date", # <add_horizon>
+  "nowcast_date", # <add_horizon>
   "model", # <get_n_overlapping_dates>
   "n_overlapping_dates", # <filter_min_overlap>
   "log_scale", # <format_ci_table>
@@ -166,6 +164,7 @@ utils::globalVariables(c(
   "target_date", # <get_plot_horizon>
   "nowcast_date", # <get_plot_horizon>
   "model", # <get_plot_horizon>
+  "compare_against", # <get_plot_horizon>
   "horizon", # <get_plot_horizon>
   "total_seq", # <get_plot_seq_counts_loc>
   "location", # <get_plot_seq_counts_loc>
