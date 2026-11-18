@@ -27,6 +27,43 @@ utils::globalVariables(c(
   "model_id", # <get_plot_scores_t>
   "scored", # <get_plot_scores_t>
   "model", # <get_plot_rel_skill_overall>
+  "model", # <get_plot_bootstrap_resamples>
+  "boot_id", # <get_plot_bootstrap_resamples>
+  "nowcast_date", # <get_plot_bootstrap_resamples>
+  "estimate", # <get_plot_bootstrap_resamples>
+  "lower", # <get_plot_bootstrap_resamples>
+  "upper", # <get_plot_bootstrap_resamples>
+  "boot_id", # <get_plot_bootstrap_dates>
+  "nowcast_date", # <get_plot_bootstrap_dates>
+  "model", # <get_plot_bootstrap_srss>
+  "estimate", # <get_plot_bootstrap_srss>
+  "lower", # <get_plot_bootstrap_srss>
+  "upper", # <get_plot_bootstrap_srss>
+  "horizon", # <get_plot_srss_horizon_ci>
+  "lower", # <get_plot_srss_horizon_ci>
+  "upper", # <get_plot_srss_horizon_ci>
+  "model", # <get_plot_srss_horizon_ci>
+  "estimate", # <get_plot_srss_horizon_ci>
+  "nowcast_date", # <get_mean_score_by_model>
+  "boot_id", # <get_bootstrap_mean_scores>
+  "model", # <get_bootstrap_mean_scores>
+  "estimate", # <get_bootstrap_mean_scores>
+  "estimate", # <get_bonferroni_ci>
+  "model", # <get_srss>
+  "compare_against", # <get_srss>
+  "boot_id", # <get_bootstrap_srss>
+  "model", # <get_bootstrap_srss>
+  "estimate", # <get_bootstrap_srss>
+  "model", # <filter_full_roster>
+  "estimate", # <filter_full_roster>
+  "n_present", # <filter_full_roster>
+  "n_models", # <filter_full_roster>
+  "target_date", # <add_horizon>
+  "nowcast_date", # <add_horizon>
+  "model", # <get_n_overlapping_dates>
+  "log_scale", # <format_ci_table>
+  "lower", # <format_ci_table>
+  "upper", # <format_ci_table>
   "location", # <get_clean_variant_data>
   "abbreviation", # <get_clean_variant_data>
   "clade", # <get_clean_variant_data>
@@ -160,6 +197,13 @@ utils::globalVariables(c(
   "n_seq", # <get_distrib_rel_skill_by_model>
   "model", # <get_distrib_rel_skill_by_model>
   "compare_against", # <get_distrib_rel_skill_by_model>
+  "model", # <add_ci_errorbars>
+  "lower", # <add_ci_errorbars>
+  "upper", # <add_ci_errorbars>
+  "horizon", # <add_ci_ribbons>
+  "lower", # <add_ci_ribbons>
+  "upper", # <add_ci_ribbons>
+  "model", # <add_ci_ribbons>
   "model_id", # <prepare_submission_data>
   "location", # <prepare_submission_data>
   "nowcast_date", # <prepare_submission_data>
