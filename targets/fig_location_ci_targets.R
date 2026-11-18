@@ -5,9 +5,11 @@
 # (width 0.9); relative skill points and their (model-coloured) error bars
 # are dodged side by side (width 0.7) so each model's band is readable.
 # Rows without a band (fewer than min_dates_ci nowcast dates) keep their bar
-# or point without an error bar. Absolute score bands are drawn truncated at
-# 0 (a mean score cannot be negative; a band reaching 0 means the mean is
-# poorly determined); the CSV keeps the untruncated values.
+# or point without an error bar. The smaller figure drops the sequence-count
+# panel; locations stay ordered by total sequences. Absolute score bands are
+# drawn truncated at 0 (a mean score cannot be negative; a band reaching 0
+# means the mean is poorly determined); the CSV keeps the untruncated
+# values.
 fig_location_ci_targets <- list(
   # Relative skill axes: symmetric about 1 on the log scale and just wide
   # enough for each panel's estimates and bands (as for the overall CI
@@ -69,7 +71,7 @@ fig_location_ci_targets <- list(
   ),
   tar_target(
     name = by_loc_smaller_ci_fig,
-    command = get_by_loc_figure_smaller(
+    command = get_by_loc_ci_figure(
       a = add_ci_errorbars_by_location(
         rel_skill_brier_location, ci_srss_brier_loc,
         dodge_width = loc_srss_dodge_width, dodge_points = TRUE,
@@ -84,7 +86,6 @@ fig_location_ci_targets <- list(
         ylim = loc_srss_ylim_energy,
         y_breaks = get_log_breaks(loc_srss_ylim_energy)
       ),
-      c = plot_seq_counts_by_loc,
       plot_name = "by_location_smaller_ci"
     )
   )
