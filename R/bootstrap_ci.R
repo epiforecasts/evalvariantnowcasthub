@@ -234,8 +234,9 @@ get_bonferroni_ci <- function(estimates,
 #' @param by Optional character vector of columns to run separate
 #'   tournaments within, passed to
 #'   [scoringutils::get_pairwise_comparisons()]. Default `NULL` gives one
-#'   overall tournament.
-#' @importFrom dplyr filter select all_of
+#'   overall tournament. Groups with fewer than two models are dropped, as
+#'   no comparison can be made in them.
+#' @importFrom dplyr filter select all_of distinct count across semi_join
 #' @importFrom rlang sym
 #' @returns Data frame with columns `by` (if given), `model` and `estimate`
 #'   (the SRSS), one row per group and model other than the baseline.
@@ -246,8 +247,23 @@ get_srss <- function(scores,
                      by = NULL) {
   score_type <- rlang::arg_match(score_type)
   srss_col <- glue::glue("{score_type}_scaled_relative_skill")
+  scores <- filter(scores, !is.na(!!sym(score_type)))
+  if (length(by) > 0) {
+    # A group with fewer than two models (e.g. a location left with only
+    # the baseline in a bootstrap resample) has no comparison to make, and
+    # scoringutils would stop the whole call; drop such groups instead
+    enough_models <- as.data.frame(scores) |>
+      distinct(across(all_of(c(by, "model")))) |>
+      count(across(all_of(by)), name = "n_models") |>
+      filter(n_models >= 2)
+    scores <- semi_join(scores, enough_models, by = by)
+  }
+  if (nrow(scores) == 0) {
+    return(data.frame(
+      model = character(0), estimate = numeric(0), stringsAsFactors = FALSE
+    ))
+  }
   scores |>
-    filter(!is.na(!!sym(score_type))) |>
     scoringutils::get_pairwise_comparisons(
       baseline = baseline,
       metric = score_type,
@@ -343,8 +359,9 @@ add_horizon <- function(scores_obj) {
 #' Number of nowcast dates each model shares with the baseline
 #'
 #' Counts the nowcast dates on which both a model and the baseline have
-#' scores, i.e. the dates contributing to their pairwise comparison,
-#' overall or within the groups in `by` (e.g. per location).
+#' scores for at least one common target date, i.e. the dates contributing
+#' to their pairwise comparison, overall or within the groups in `by` (e.g.
+#' per location).
 #'
 #' @inheritParams get_srss
 #' @param scores_obj Scoringutils scores object.
@@ -361,16 +378,17 @@ get_n_overlapping_dates <- function(scores_obj,
                                     baseline = "Hub-baseline",
                                     by = NULL) {
   score_type <- rlang::arg_match(score_type)
-  dates <- as.data.frame(scores_obj) |>
+  keys <- c(by, "nowcast_date", "target_date")
+  forecasts <- as.data.frame(scores_obj) |>
     filter(!is.na(!!sym(score_type))) |>
-    distinct(across(all_of(c(by, "model", "nowcast_date"))))
-  baseline_dates <- filter(dates, model == baseline)
-  dates |>
+    distinct(across(all_of(c("model", keys))))
+  baseline_forecasts <- filter(forecasts, model == baseline)
+  # A nowcast date only contributes to the pairwise ratio through target
+  # dates scored for both models, so match on the target date too
+  forecasts |>
     filter(model != baseline) |>
-    inner_join(
-      select(baseline_dates, all_of(c(by, "nowcast_date"))),
-      by = c(by, "nowcast_date")
-    ) |>
+    inner_join(select(baseline_forecasts, all_of(keys)), by = keys) |>
+    distinct(across(all_of(c(by, "model", "nowcast_date")))) |>
     count(across(all_of(c(by, "model"))), name = "n_overlapping_dates")
 }
 

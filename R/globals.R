@@ -49,6 +49,7 @@ utils::globalVariables(c(
   "model", # <get_bootstrap_mean_scores>
   "estimate", # <get_bootstrap_mean_scores>
   "estimate", # <get_bonferroni_ci>
+  "n_models", # <get_srss>
   "model", # <get_srss>
   "compare_against", # <get_srss>
   "boot_id", # <get_bootstrap_srss>
