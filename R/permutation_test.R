@@ -1,122 +1,183 @@
-#' Total scores of a model and the baseline by nowcast date
+#' Pair a model's and the baseline's scores for permutation
 #'
-#' Restricts to the forecasts (location, target date and nowcast date)
-#' scored for both `model` and `baseline`, and sums each model's scores within
-#' each nowcast date. These per-date totals are the units swapped in
-#' [get_permutation_test()].
+#' Finds the forecasts (location, target date and nowcast date) scored for
+#' both `model` and `baseline`, and labels each with its exchange unit (by
+#' default a location and nowcast date). These are the scores swapped
+#' between the two models in [get_permutation_srss()].
 #'
 #' @param scores_obj Scoringutils scores object.
 #' @param score_type Character string indicating which score metric to use.
 #' @param model Character string naming the model to compare.
 #' @param baseline Character string naming the baseline model.
-#' @importFrom dplyr filter select inner_join group_by summarise
-#' @importFrom rlang sym
-#' @returns Data frame with columns `nowcast_date`, `model_total`,
-#'   `baseline_total` and `n_forecasts`, one row per nowcast date with at
-#'   least one shared forecast.
+#' @param unit Character vector of columns defining the exchange unit: all
+#'   shared forecasts within a unit are swapped together.
+#' @importFrom dplyr inner_join group_indices group_by across all_of
+#' @returns Data frame with one row per shared forecast and columns
+#'   `row_model` and `row_baseline` (row indices into `scores_obj`) and
+#'   `unit_id` (integer exchange unit).
 #' @autoglobal
-get_paired_date_totals <- function(scores_obj,
-                                   score_type = c(
-                                     "brier_score",
-                                     "energy_score"
-                                   ),
-                                   model,
-                                   baseline = "Hub-baseline") {
+get_swap_pairs <- function(scores_obj,
+                           score_type = c("brier_score", "energy_score"),
+                           model,
+                           baseline = "Hub-baseline",
+                           unit = c("location", "nowcast_date")) {
   score_type <- rlang::arg_match(score_type)
   keys <- c("location", "target_date", "nowcast_date")
-  scores <- as.data.frame(scores_obj) |>
-    filter(!is.na(!!sym(score_type)))
-  pick <- function(m) {
-    scores[scores$model == m, c(keys, score_type)] |>
-      setNames(c(keys, "score"))
-  }
-  inner_join(pick(model), pick(baseline),
+  scores <- as.data.frame(scores_obj)[, c("model", keys, score_type)]
+  scores$row <- seq_len(nrow(scores))
+  scores <- scores[!is.na(scores[[score_type]]), ]
+  pick <- function(m) scores[scores$model == m, c(keys, "row")]
+  paired <- inner_join(pick(model), pick(baseline),
     by = keys, suffix = c("_model", "_baseline")
-  ) |>
-    group_by(nowcast_date) |>
-    summarise(
-      model_total = sum(score_model),
-      baseline_total = sum(score_baseline),
-      n_forecasts = dplyr::n(),
-      .groups = "drop"
-    )
+  )
+  paired$unit_id <- group_by(paired, across(all_of(unit))) |>
+    group_indices()
+  paired[, c("row_model", "row_baseline", "unit_id")]
 }
 
-#' Permutation test of a model against the baseline
+#' Permutation distribution of a model's scaled relative skill
 #'
-#' Tests whether a model's scores differ from the baseline's, using the
-#' ratio of their mean scores on the forecasts both submitted. Under the
-#' null hypothesis the two models are exchangeable, so within each nowcast
-#' date their scores can be swapped. Each permutation swaps the model's and
-#' baseline's totals on a random subset of nowcast dates, keeping all
-#' locations and target dates of a nowcast date together (preserving
-#' correlation across locations and horizons within a date). The
-#' two-sided p-value is the proportion of permutations whose absolute log
-#' ratio is at least as large as the observed one, computed as
-#' `(1 + count) / (1 + n_perm)` so it is never zero.
+#' Under the null hypothesis that a model and the baseline are exchangeable,
+#' their scores can be swapped within any exchange unit. Each permutation
+#' swaps the two models' scores on every shared forecast in a random subset
+#' of units (each unit swapped with probability 0.5), then re-runs the full
+#' pairwise tournament ([get_srss()]) including all other models, and
+#' records the model's scaled relative skill.
 #'
-#' @param date_totals Data frame from [get_paired_date_totals()].
+#' @inheritParams get_swap_pairs
 #' @param n_perm Integer number of random permutations.
-#' @returns Data frame with one row and columns `n_dates` (nowcast dates
-#'   with shared forecasts), `ratio` (model mean score / baseline mean
-#'   score on the shared forecasts), `p_value` and `n_perm`.
+#' @returns Data frame with columns `perm_id`, `model` and `estimate`.
 #' @autoglobal
-get_permutation_test <- function(date_totals, n_perm = 1e5) {
-  m <- date_totals$model_total
-  b <- date_totals$baseline_total
-  observed <- abs(log(sum(m) / sum(b)))
-  # Each row of `swap` flips the model and baseline totals on the nowcast
-  # dates where it is 1; the swapped totals are sum(m) + swap %*% (b - m)
-  # and sum(b) - swap %*% (b - m)
-  swap <- matrix(
-    stats::rbinom(n_perm * length(m), 1, 0.5),
-    nrow = n_perm
-  )
-  shift <- as.vector(swap %*% (b - m))
-  permuted <- abs(log((sum(m) + shift) / (sum(b) - shift)))
-  n_extreme <- sum(permuted >= observed - 1e-12)
+get_permutation_srss <- function(scores_obj,
+                                 score_type = c(
+                                   "brier_score",
+                                   "energy_score"
+                                 ),
+                                 model,
+                                 baseline = "Hub-baseline",
+                                 unit = c("location", "nowcast_date"),
+                                 n_perm = 2000) {
+  score_type <- rlang::arg_match(score_type)
+  paired <- get_swap_pairs(scores_obj, score_type, model, baseline, unit)
+  original <- scores_obj[[score_type]]
+  n_units <- max(paired$unit_id)
+  target_model <- model
+  estimates <- vapply(seq_len(n_perm), function(i) {
+    swapped_units <- which(stats::rbinom(n_units, 1, 0.5) == 1)
+    swap <- paired[paired$unit_id %in% swapped_units, ]
+    permuted <- original
+    permuted[swap$row_model] <- original[swap$row_baseline]
+    permuted[swap$row_baseline] <- original[swap$row_model]
+    perm_scores <- scores_obj
+    perm_scores[[score_type]] <- permuted
+    srss <- get_srss(perm_scores, score_type, baseline)
+    srss$estimate[srss$model == target_model]
+  }, numeric(1))
   data.frame(
-    n_dates = length(m),
-    ratio = sum(m) / sum(b),
-    p_value = (1 + n_extreme) / (1 + n_perm),
-    n_perm = n_perm
+    perm_id = seq_len(n_perm),
+    model = model,
+    estimate = estimates,
+    stringsAsFactors = FALSE
   )
 }
 
-#' Permutation tests of each model against the baseline
+#' Permutation distributions for every model against the baseline
 #'
-#' Runs [get_permutation_test()] for every model other than the baseline,
-#' and adds a Bonferroni adjustment across the models tested (one family per
-#' region and score type, as for the simultaneous confidence bands).
+#' Runs [get_permutation_srss()] for every model other than the baseline and
+#' `exclude`. Excluded models stay in the tournament (so the other models'
+#' SRSS match the reported estimates) but are not tested.
 #'
-#' @inheritParams get_paired_date_totals
-#' @inheritParams get_permutation_test
+#' @inheritParams get_permutation_srss
 #' @param exclude Character vector of models not to test (e.g. models with
 #'   too few nowcast dates for a meaningful test).
-#' @importFrom dplyr bind_rows mutate
-#' @returns Data frame with columns `model`, `n_dates`, `ratio`,
-#'   `p_value`, `p_bonferroni`, `n_tests` and `n_perm`.
+#' @importFrom dplyr bind_rows
+#' @returns Data frame with columns `perm_id`, `model` and `estimate`.
 #' @autoglobal
-get_permutation_tests <- function(scores_obj,
-                                  score_type = c(
-                                    "brier_score",
-                                    "energy_score"
-                                  ),
-                                  baseline = "Hub-baseline",
-                                  exclude = NULL,
-                                  n_perm = 1e5) {
+get_permutation_srss_all <- function(scores_obj,
+                                     score_type = c(
+                                       "brier_score",
+                                       "energy_score"
+                                     ),
+                                     baseline = "Hub-baseline",
+                                     exclude = NULL,
+                                     unit = c("location", "nowcast_date"),
+                                     n_perm = 2000) {
   score_type <- rlang::arg_match(score_type)
   scored <- as.data.frame(scores_obj)
   scored <- scored[!is.na(scored[[score_type]]), ]
-  models <- setdiff(unique(scored$model), c(baseline, exclude))
-  tests <- lapply(sort(models), function(m) {
-    totals <- get_paired_date_totals(scores_obj, score_type, m, baseline)
-    cbind(model = m, get_permutation_test(totals, n_perm))
-  })
-  bind_rows(tests) |>
-    mutate(
-      p_bonferroni = pmin(1, p_value * length(models)),
-      n_tests = length(models),
-      .after = p_value
+  models <- sort(setdiff(unique(scored$model), c(baseline, exclude)))
+  lapply(models, function(m) {
+    get_permutation_srss(
+      scores_obj, score_type, m, baseline, unit, n_perm
     )
+  }) |>
+    bind_rows()
+}
+
+#' Permutation p-values for the scaled relative skill
+#'
+#' Two-sided p-value for each model: the proportion of permutations whose
+#' absolute log SRSS is at least as large as the observed one, computed as
+#' `(1 + count) / (1 + n_perm)` so it is never zero. Also gives a Bonferroni
+#' adjustment across the models tested (one family per region and score
+#' type, as for the simultaneous confidence bands).
+#'
+#' @param estimates Observed SRSS with columns `model` and `estimate`, e.g.
+#'   from [get_srss()]. Models absent from `perm_estimates` are dropped.
+#' @param perm_estimates Permutation estimates from
+#'   [get_permutation_srss_all()].
+#' @importFrom dplyr inner_join group_by summarise mutate n select
+#' @returns Data frame with columns `model`, `estimate`, `p_value`,
+#'   `p_bonferroni`, `n_tests` and `n_perm`.
+#' @autoglobal
+get_permutation_pvalues <- function(estimates, perm_estimates) {
+  pvals <- perm_estimates |>
+    inner_join(
+      select(estimates, model, observed = estimate),
+      by = "model"
+    ) |>
+    group_by(model) |>
+    summarise(
+      n_extreme = sum(
+        abs(log(estimate)) >= abs(log(unique(observed))) - 1e-12
+      ),
+      n_perm = n(),
+      estimate = unique(observed),
+      .groups = "drop"
+    ) |>
+    mutate(p_value = (1 + n_extreme) / (1 + n_perm))
+  n_tests <- nrow(pvals)
+  pvals |>
+    mutate(
+      p_bonferroni = pmin(1, p_value * n_tests),
+      n_tests = n_tests
+    ) |>
+    select(model, estimate, p_value, p_bonferroni, n_tests, n_perm) |>
+    as.data.frame()
+}
+
+#' Format permutation p-values as a results table
+#'
+#' Computes the p-values for one region and score type with
+#' [get_permutation_pvalues()] and labels them for combining into one table.
+#'
+#' @inheritParams get_permutation_pvalues
+#' @param region Character string naming the region, e.g.
+#'   `"US excluding CA"`.
+#' @param score_type Character string naming the score.
+#' @param unit Character vector of columns defining the exchange unit.
+#' @importFrom dplyr mutate
+#' @returns Data frame with columns `region`, `score_type`, the columns of
+#'   [get_permutation_pvalues()] and `exchange_unit`.
+#' @autoglobal
+format_perm_table <- function(estimates, perm_estimates, region, score_type,
+                              unit) {
+  get_permutation_pvalues(estimates, perm_estimates) |>
+    mutate(
+      region = region,
+      score_type = score_type,
+      exchange_unit = paste(unit, collapse = " x "),
+      .before = 1
+    ) |>
+    dplyr::relocate(exchange_unit, .after = dplyr::last_col())
 }
