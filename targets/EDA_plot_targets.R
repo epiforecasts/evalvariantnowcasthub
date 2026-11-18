@@ -125,7 +125,7 @@ eda_plot_targets <- list(
   tar_target(
     name = plot_boot_srss_brier_ep,
     command = get_plot_bootstrap_srss(
-      boot_estimates = boot_srss_brier_ep,
+      boot_estimates = boot_srss_brier_ep_full,
       ci = ci_srss_brier_ep,
       score_type = "brier_score",
       title = "US excluding CA: SRSS (Brier score)",
@@ -144,7 +144,7 @@ eda_plot_targets <- list(
   tar_target(
     name = plot_boot_srss_energy_ep,
     command = get_plot_bootstrap_srss(
-      boot_estimates = boot_srss_energy_ep,
+      boot_estimates = boot_srss_energy_ep_full,
       ci = ci_srss_energy_ep,
       score_type = "energy_score",
       title = "US excluding CA: SRSS (energy score)",
@@ -163,7 +163,7 @@ eda_plot_targets <- list(
   tar_target(
     name = plot_boot_srss_brier_ca,
     command = get_plot_bootstrap_srss(
-      boot_estimates = boot_srss_brier_ca,
+      boot_estimates = boot_srss_brier_ca_full,
       ci = ci_srss_brier_ca,
       score_type = "brier_score",
       title = "CA: SRSS (Brier score)",
@@ -182,7 +182,7 @@ eda_plot_targets <- list(
   tar_target(
     name = plot_boot_srss_energy_ca,
     command = get_plot_bootstrap_srss(
-      boot_estimates = boot_srss_energy_ca,
+      boot_estimates = boot_srss_energy_ca_full,
       ci = ci_srss_energy_ca,
       score_type = "energy_score",
       title = "CA: SRSS (energy score)",

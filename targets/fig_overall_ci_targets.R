@@ -2,30 +2,85 @@
 # Same panels as overall_score_comparison (fig_overall_targets.R), with
 # Bonferroni simultaneous bands from bootstrap_targets.R added: error bars
 # on the absolute score bars and SRSS points (A-H) and ribbons on the SRSS
-# by horizon lines (I-L). The SRSS and horizon y axes are widened to show
-# the full bands: SRSS panels share limits; horizon panels use per-region
-# limits because the CA bands are much wider than the US ones. SRSS markers
-# are smaller than in the original so narrow bands stay visible.
+# by horizon lines (I-L). Each relative skill panel has its own y axis,
+# just wide enough for its estimates and bands. SRSS markers are smaller
+# than in the original so narrow bands stay visible.
 fig_overall_ci_targets <- list(
+  # Per-panel axis limits for the relative skill panels (B, D, F, H, I-L),
+  # symmetric about 1 on the log scale and just wide enough for the panel's
+  # estimates and bands. Shared with the main overall score figure
+  # (overall_scores_fig) so the two figures use the same axes.
   tar_target(
-    name = srss_ylim,
-    command = c(1 / 1.7, 1.7)
+    name = ylim_srss_brier_ep,
+    command = get_symmetric_log_limits(
+      c(
+        get_ci_values(ci_srss_brier_ep),
+        get_panel_srss_values(rel_skill_brier_overall)
+      )
+    )
   ),
   tar_target(
-    name = srss_breaks,
-    command = c(0.6, 0.8, 1.0, 1.25, 1.5)
+    name = ylim_srss_brier_ca,
+    command = get_symmetric_log_limits(
+      c(
+        get_ci_values(ci_srss_brier_ca),
+        get_panel_srss_values(rel_skill_brier_overall_ca)
+      )
+    )
   ),
   tar_target(
-    name = horizon_ylim_ep,
-    command = c(1 / 1.7, 1.7)
+    name = ylim_srss_energy_ep,
+    command = get_symmetric_log_limits(
+      c(
+        get_ci_values(ci_srss_energy_ep),
+        get_panel_srss_values(rel_skill_energy_overall)
+      )
+    )
   ),
   tar_target(
-    name = horizon_ylim_ca,
-    command = c(1 / 2.8, 2.8)
+    name = ylim_srss_energy_ca,
+    command = get_symmetric_log_limits(
+      c(
+        get_ci_values(ci_srss_energy_ca),
+        get_panel_srss_values(rel_skill_energy_overall_ca)
+      )
+    )
   ),
   tar_target(
-    name = horizon_breaks_ca,
-    command = c(0.5, 0.67, 1.0, 1.5, 2.0, 2.5)
+    name = ylim_srss_horizon_brier_ep,
+    command = get_symmetric_log_limits(
+      c(
+        get_ci_values(ci_srss_horizon_brier_ep),
+        get_panel_srss_values(rel_skill_brier_horizon)
+      )
+    )
+  ),
+  tar_target(
+    name = ylim_srss_horizon_brier_ca,
+    command = get_symmetric_log_limits(
+      c(
+        get_ci_values(ci_srss_horizon_brier_ca),
+        get_panel_srss_values(rel_skill_brier_horizon_ca)
+      )
+    )
+  ),
+  tar_target(
+    name = ylim_srss_horizon_energy_ep,
+    command = get_symmetric_log_limits(
+      c(
+        get_ci_values(ci_srss_horizon_energy_ep),
+        get_panel_srss_values(rel_skill_energy_horizon)
+      )
+    )
+  ),
+  tar_target(
+    name = ylim_srss_horizon_energy_ca,
+    command = get_symmetric_log_limits(
+      c(
+        get_ci_values(ci_srss_horizon_energy_ca),
+        get_panel_srss_values(rel_skill_energy_horizon_ca)
+      )
+    )
   ),
   tar_target(
     name = srss_point_size,
@@ -37,42 +92,50 @@ fig_overall_ci_targets <- list(
       a = add_ci_errorbars(bar_chart_brier_overall, ci_abs_brier_ep),
       b = add_ci_errorbars(
         rel_skill_brier_overall, ci_srss_brier_ep,
-        ylim = srss_ylim, y_breaks = srss_breaks,
+        ylim = ylim_srss_brier_ep,
+        y_breaks = get_log_breaks(ylim_srss_brier_ep),
         point_size = srss_point_size
       ),
       c = add_ci_errorbars(bar_chart_brier_overall_ca, ci_abs_brier_ca),
       d = add_ci_errorbars(
         rel_skill_brier_overall_ca, ci_srss_brier_ca,
-        ylim = srss_ylim, y_breaks = srss_breaks,
+        ylim = ylim_srss_brier_ca,
+        y_breaks = get_log_breaks(ylim_srss_brier_ca),
         point_size = srss_point_size
       ),
       e = add_ci_errorbars(bar_chart_energy_overall, ci_abs_energy_ep),
       f = add_ci_errorbars(
         rel_skill_energy_overall, ci_srss_energy_ep,
-        ylim = srss_ylim, y_breaks = srss_breaks,
+        ylim = ylim_srss_energy_ep,
+        y_breaks = get_log_breaks(ylim_srss_energy_ep),
         point_size = srss_point_size
       ),
       g = add_ci_errorbars(bar_chart_energy_overall_ca, ci_abs_energy_ca),
       h = add_ci_errorbars(
         rel_skill_energy_overall_ca, ci_srss_energy_ca,
-        ylim = srss_ylim, y_breaks = srss_breaks,
+        ylim = ylim_srss_energy_ca,
+        y_breaks = get_log_breaks(ylim_srss_energy_ca),
         point_size = srss_point_size
       ),
       i = add_ci_ribbons(
         rel_skill_brier_horizon, ci_srss_horizon_brier_ep,
-        ylim = horizon_ylim_ep, y_breaks = srss_breaks
+        ylim = ylim_srss_horizon_brier_ep,
+        y_breaks = get_log_breaks(ylim_srss_horizon_brier_ep)
       ),
       j = add_ci_ribbons(
         rel_skill_brier_horizon_ca, ci_srss_horizon_brier_ca,
-        ylim = horizon_ylim_ca, y_breaks = horizon_breaks_ca
+        ylim = ylim_srss_horizon_brier_ca,
+        y_breaks = get_log_breaks(ylim_srss_horizon_brier_ca)
       ),
       k = add_ci_ribbons(
         rel_skill_energy_horizon, ci_srss_horizon_energy_ep,
-        ylim = horizon_ylim_ep, y_breaks = srss_breaks
+        ylim = ylim_srss_horizon_energy_ep,
+        y_breaks = get_log_breaks(ylim_srss_horizon_energy_ep)
       ),
       l = add_ci_ribbons(
         rel_skill_energy_horizon_ca, ci_srss_horizon_energy_ca,
-        ylim = horizon_ylim_ca, y_breaks = horizon_breaks_ca
+        ylim = ylim_srss_horizon_energy_ca,
+        y_breaks = get_log_breaks(ylim_srss_horizon_energy_ca)
       ),
       plot_name = "overall_score_comparison_ci"
     )

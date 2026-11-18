@@ -284,80 +284,60 @@ get_bootstrap_srss <- function(scores_obj,
     select(boot_id, all_of(by), model, estimate)
 }
 
-#' Daily scaled relative skill for each forecast
+#' Keep bootstrap draws with the full model roster
 #'
-#' Computes the scaled relative skill within each target date and nowcast
-#' date, as in the relative skill by horizon panels of
-#' [get_plot_horizon()], and adds the horizon in days.
+#' The scaled relative skill of a model depends on every model in the
+#' pairwise tournament, not only on the model and the baseline. A resample
+#' that contains none of a sparsely submitting model's dates drops that model
+#' from the tournament, so the other models' SRSS in that draw describe a
+#' different tournament from the reported estimate (#135). This keeps only
+#' the draws (within each `by` group) in which every model of the original
+#' tournament is present, so the bootstrap describes the same tournament as
+#' the point estimate.
 #'
-#' @inheritParams get_srss
-#' @param scores_obj Scoringutils scores object.
+#' @param boot_estimates Bootstrap estimates with columns `boot_id`, `by`,
+#'   `model` and `estimate`, e.g. from [get_bootstrap_srss()].
+#' @param estimates Estimates from the original data for the full
+#'   tournament (before removing any models from the reported table), with
+#'   columns `by` and `model`, e.g. from [get_srss()].
+#' @param by Optional character vector of grouping columns, e.g.
+#'   `"horizon"`, within which the roster is checked.
+#' @importFrom dplyr semi_join group_by summarise filter n_distinct across
+#'   all_of inner_join
+#' @returns `boot_estimates` restricted to full-roster draws.
+#' @autoglobal
+filter_full_roster <- function(boot_estimates, estimates, by = NULL) {
+  roster <- estimates |>
+    group_by(across(all_of(by))) |>
+    summarise(n_models = n_distinct(model), .groups = "drop")
+  present <- boot_estimates |>
+    filter(is.finite(estimate)) |>
+    semi_join(estimates, by = c(by, "model")) |>
+    group_by(across(all_of(c("boot_id", by)))) |>
+    summarise(n_present = n_distinct(model), .groups = "drop")
+  full <- if (length(by) == 0) {
+    filter(present, n_present == roster$n_models)
+  } else {
+    present |>
+      inner_join(roster, by = by) |>
+      filter(n_present == n_models)
+  }
+  semi_join(boot_estimates, full, by = c("boot_id", by))
+}
+
+#' Add the horizon to a scores object
+#'
+#' Adds `horizon`, the target date minus the nowcast date in days, so that
+#' scores can be summarised by horizon, e.g. with
+#' `get_srss(by = "horizon")` as in [get_plot_horizon()].
+#'
+#' @param scores_obj Scoringutils scores object with `target_date` and
+#'   `nowcast_date` columns.
 #' @importFrom dplyr mutate
-#' @returns Scores object with the added relative skill columns and
-#'   `horizon`.
+#' @returns `scores_obj` with an added integer `horizon` column.
 #' @autoglobal
-get_daily_srss <- function(scores_obj, score_type) {
-  get_relative_skill(
-    scores_obj,
-    score_type = score_type,
-    by = c("target_date", "nowcast_date")
-  ) |>
-    mutate(horizon = as.integer(target_date - nowcast_date))
-}
-
-#' Scaled relative skill by horizon
-#'
-#' Averages the daily scaled relative skill from [get_daily_srss()] over
-#' all rows for each model and horizon, matching
-#' `summarise_scores(by = c("model", "horizon"))` in [get_plot_horizon()].
-#'
-#' @param daily_srss Output of [get_daily_srss()], or a resample of it from
-#'   [get_resampled_scores()].
-#' @inheritParams get_srss
-#' @importFrom dplyr filter group_by summarise
-#' @importFrom rlang sym
-#' @returns Data frame with columns `model`, `horizon` and `estimate`.
-#' @autoglobal
-get_srss_by_horizon <- function(daily_srss,
-                                score_type = c("brier_score", "energy_score"),
-                                baseline = "Hub-baseline") {
-  score_type <- rlang::arg_match(score_type)
-  srss_col <- glue::glue("{score_type}_scaled_relative_skill")
-  as.data.frame(daily_srss) |>
-    filter(model != baseline) |>
-    group_by(model, horizon) |>
-    summarise(estimate = mean(!!sym(srss_col)), .groups = "drop")
-}
-
-#' Bootstrap the scaled relative skill by horizon
-#'
-#' Each daily tournament in [get_daily_srss()] only uses forecasts from one
-#' nowcast date, and the bootstrap resamples whole nowcast dates, so the
-#' daily scaled relative skill of a forecast is the same in every resample
-#' that contains it (copies of a nowcast date copy every model, leaving the
-#' ratios unchanged). The daily values are therefore computed once and
-#' re-averaged over the rows of each resample, which is equivalent to, and
-#' much faster than, recomputing the tournaments.
-#'
-#' @inheritParams get_resampled_scores
-#' @inheritParams get_srss
-#' @importFrom dplyr bind_rows mutate select
-#' @returns Data frame with columns `boot_id`, `model`, `horizon` and
-#'   `estimate`.
-#' @autoglobal
-get_bootstrap_srss_by_horizon <- function(scores_obj,
-                                          boot_dates,
-                                          score_type,
-                                          baseline = "Hub-baseline") {
-  daily_srss <- get_daily_srss(scores_obj, score_type)
-  boot_ids <- unique(boot_dates$boot_id)
-  boot_estimates <- lapply(boot_ids, function(b) {
-    get_resampled_scores(daily_srss, boot_dates, b) |>
-      get_srss_by_horizon(score_type, baseline) |>
-      mutate(boot_id = b)
-  })
-  bind_rows(boot_estimates) |>
-    select(boot_id, model, horizon, estimate)
+add_horizon <- function(scores_obj) {
+  mutate(scores_obj, horizon = as.integer(target_date - nowcast_date))
 }
 
 #' Number of nowcast dates each model shares with the baseline
