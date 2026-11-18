@@ -13,7 +13,7 @@
     "name": "R",
     "url": "https://r-project.org"
   },
-  "runtimePlatform": "R version 4.6.1 (2026-06-24)",
+  "runtimePlatform": "R version 4.6.2 (2026-10-29)",
   "author": [
     {
       "@type": "Person",
@@ -187,6 +187,7 @@
       "@type": "SoftwareApplication",
       "identifier": "dplyr",
       "name": "dplyr",
+      "version": ">= 1.1.1",
       "provider": {
         "@id": "https://cran.r-project.org",
         "@type": "Organization",
@@ -311,6 +312,18 @@
     },
     "14": {
       "@type": "SoftwareApplication",
+      "identifier": "fs",
+      "name": "fs",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=fs"
+    },
+    "15": {
+      "@type": "SoftwareApplication",
       "identifier": "rlang",
       "name": "rlang",
       "provider": {
@@ -321,7 +334,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=rlang"
     },
-    "15": {
+    "16": {
       "@type": "SoftwareApplication",
       "identifier": "cowplot",
       "name": "cowplot",
@@ -333,7 +346,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=cowplot"
     },
-    "16": {
+    "17": {
       "@type": "SoftwareApplication",
       "identifier": "lubridate",
       "name": "lubridate",
@@ -345,7 +358,19 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=lubridate"
     },
-    "17": {
+    "18": {
+      "@type": "SoftwareApplication",
+      "identifier": "patchwork",
+      "name": "patchwork",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=patchwork"
+    },
+    "19": {
       "@type": "SoftwareApplication",
       "identifier": "tidybayes",
       "name": "tidybayes",
@@ -359,7 +384,7 @@
     },
     "SystemRequirements": null
   },
-  "fileSize": "6208.374KB",
+  "fileSize": "6313.965KB",
   "releaseNotes": "https://github.com/epiforecasts/evalvariantnowcasthub/blob/main/NEWS.md",
   "readme": "https://github.com/epiforecasts/evalvariantnowcasthub/blob/main/README.md"
 }
