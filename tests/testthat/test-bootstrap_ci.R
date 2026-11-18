@@ -464,3 +464,7 @@ test_that("get_log_breaks picks standard ratios within the limits", {
   # Narrow panels also get 0.9 and 1.1
   expect_identical(get_log_breaks(c(1 / 1.2, 1.2)), c(0.9, 1, 1.1))
 })
+
+test_that("get_log_breaks uses coarse breaks for very wide ranges", {
+  expect_identical(get_log_breaks(c(1 / 15, 15)), c(0.1, 0.2, 0.5, 1, 2, 5, 10))
+})

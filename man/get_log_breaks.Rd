@@ -15,5 +15,6 @@ Numeric vector of breaks.
 \description{
 Chooses breaks from a standard set of ratios that fall within \code{limits},
 so panels with different ranges get readable labels. Narrow panels also
-get 0.9 and 1.1; wide panels drop them to avoid crowding.
+get 0.9 and 1.1; very wide panels (e.g. by location) use a coarser set
+to avoid crowding.
 }

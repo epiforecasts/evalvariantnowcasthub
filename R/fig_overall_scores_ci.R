@@ -227,7 +227,8 @@ get_symmetric_log_limits <- function(values, min_limit = 1) {
 #'
 #' Chooses breaks from a standard set of ratios that fall within `limits`,
 #' so panels with different ranges get readable labels. Narrow panels also
-#' get 0.9 and 1.1; wide panels drop them to avoid crowding.
+#' get 0.9 and 1.1; very wide panels (e.g. by location) use a coarser set
+#' to avoid crowding.
 #'
 #' @param limits Numeric vector of length 2, the axis limits.
 #' @returns Numeric vector of breaks.
@@ -236,6 +237,9 @@ get_log_breaks <- function(limits) {
   candidates <- c(0.25, 0.33, 0.5, 0.67, 0.8, 1, 1.25, 1.5, 2, 3, 4)
   if (max(limits) < 1.3) {
     candidates <- sort(c(candidates, 0.9, 1.1))
+  }
+  if (max(limits) >= 5) {
+    candidates <- c(0.1, 0.2, 0.5, 1, 2, 5, 10, 20)
   }
   candidates[candidates >= min(limits) & candidates <= max(limits)]
 }

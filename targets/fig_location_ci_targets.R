@@ -7,21 +7,28 @@
 # Rows without a band (fewer than min_dates_ci nowcast dates) keep their bar
 # or point without an error bar. Absolute score bands are drawn truncated at
 # 0 (a mean score cannot be negative; a band reaching 0 means the mean is
-# poorly determined); the CSV keeps the untruncated values. Relative skill
-# axes are widened to show the full bands, keeping them symmetric about 1 on
-# the log scale.
+# poorly determined); the CSV keeps the untruncated values.
 fig_location_ci_targets <- list(
+  # Relative skill axes: symmetric about 1 on the log scale and just wide
+  # enough for each panel's estimates and bands (as for the overall CI
+  # figure)
   tar_target(
     name = loc_srss_ylim_brier,
-    command = c(1 / 15, 15)
+    command = get_symmetric_log_limits(
+      c(
+        get_ci_values(ci_srss_brier_loc),
+        get_panel_srss_values(rel_skill_brier_location)
+      )
+    )
   ),
   tar_target(
     name = loc_srss_ylim_energy,
-    command = c(1 / 9, 9)
-  ),
-  tar_target(
-    name = loc_srss_breaks,
-    command = c(0.1, 0.33, 1, 3, 10)
+    command = get_symmetric_log_limits(
+      c(
+        get_ci_values(ci_srss_energy_loc),
+        get_panel_srss_values(rel_skill_energy_location)
+      )
+    )
   ),
   tar_target(
     name = loc_srss_dodge_width,
@@ -42,7 +49,8 @@ fig_location_ci_targets <- list(
         rel_skill_brier_location, ci_srss_brier_loc,
         dodge_width = loc_srss_dodge_width, dodge_points = TRUE,
         point_size = loc_srss_point_size,
-        ylim = loc_srss_ylim_brier, y_breaks = loc_srss_breaks
+        ylim = loc_srss_ylim_brier,
+        y_breaks = get_log_breaks(loc_srss_ylim_brier)
       ),
       c = add_ci_errorbars_by_location(
         bar_chart_energy_location, ci_abs_energy_loc,
@@ -52,7 +60,8 @@ fig_location_ci_targets <- list(
         rel_skill_energy_location, ci_srss_energy_loc,
         dodge_width = loc_srss_dodge_width, dodge_points = TRUE,
         point_size = loc_srss_point_size,
-        ylim = loc_srss_ylim_energy, y_breaks = loc_srss_breaks
+        ylim = loc_srss_ylim_energy,
+        y_breaks = get_log_breaks(loc_srss_ylim_energy)
       ),
       e = plot_seq_counts_by_loc,
       plot_name = "by_location_ci"
@@ -65,13 +74,15 @@ fig_location_ci_targets <- list(
         rel_skill_brier_location, ci_srss_brier_loc,
         dodge_width = loc_srss_dodge_width, dodge_points = TRUE,
         point_size = loc_srss_point_size,
-        ylim = loc_srss_ylim_brier, y_breaks = loc_srss_breaks
+        ylim = loc_srss_ylim_brier,
+        y_breaks = get_log_breaks(loc_srss_ylim_brier)
       ),
       b = add_ci_errorbars_by_location(
         rel_skill_energy_location, ci_srss_energy_loc,
         dodge_width = loc_srss_dodge_width, dodge_points = TRUE,
         point_size = loc_srss_point_size,
-        ylim = loc_srss_ylim_energy, y_breaks = loc_srss_breaks
+        ylim = loc_srss_ylim_energy,
+        y_breaks = get_log_breaks(loc_srss_ylim_energy)
       ),
       c = plot_seq_counts_by_loc,
       plot_name = "by_location_smaller_ci"
