@@ -57,7 +57,6 @@ utils::globalVariables(c(
   "target_date", # <add_horizon>
   "nowcast_date", # <add_horizon>
   "model", # <get_n_overlapping_dates>
-  "nowcast_date", # <get_n_overlapping_dates>
   "log_scale", # <format_ci_table>
   "lower", # <format_ci_table>
   "upper", # <format_ci_table>

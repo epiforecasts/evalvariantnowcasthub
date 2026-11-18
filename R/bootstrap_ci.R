@@ -293,32 +293,35 @@ add_horizon <- function(scores_obj) {
 #' Number of nowcast dates each model shares with the baseline
 #'
 #' Counts the nowcast dates on which both a model and the baseline have
-#' scores, i.e. the dates contributing to their pairwise comparison.
+#' scores, i.e. the dates contributing to their pairwise comparison,
+#' overall or within the groups in `by` (e.g. per location).
 #'
 #' @inheritParams get_srss
 #' @param scores_obj Scoringutils scores object.
-#' @importFrom dplyr filter distinct inner_join count select
+#' @importFrom dplyr filter distinct inner_join count select all_of across
 #' @importFrom rlang sym
-#' @returns Data frame with columns `model` and `n_overlapping_dates`.
+#' @returns Data frame with columns `by` (if given), `model` and
+#'   `n_overlapping_dates`.
 #' @autoglobal
 get_n_overlapping_dates <- function(scores_obj,
                                     score_type = c(
                                       "brier_score",
                                       "energy_score"
                                     ),
-                                    baseline = "Hub-baseline") {
+                                    baseline = "Hub-baseline",
+                                    by = NULL) {
   score_type <- rlang::arg_match(score_type)
   dates <- as.data.frame(scores_obj) |>
     filter(!is.na(!!sym(score_type))) |>
-    distinct(model, nowcast_date)
+    distinct(across(all_of(c(by, "model", "nowcast_date"))))
   baseline_dates <- filter(dates, model == baseline)
   dates |>
     filter(model != baseline) |>
     inner_join(
-      select(baseline_dates, nowcast_date),
-      by = "nowcast_date"
+      select(baseline_dates, all_of(c(by, "nowcast_date"))),
+      by = c(by, "nowcast_date")
     ) |>
-    count(model, name = "n_overlapping_dates")
+    count(across(all_of(c(by, "model"))), name = "n_overlapping_dates")
 }
 
 #' Format confidence bands as a results table
@@ -333,17 +336,19 @@ get_n_overlapping_dates <- function(scores_obj,
 #' @param score_type Character string naming the score.
 #' @param metric Character string naming the metric, e.g.
 #'   `"mean score"` or `"SRSS"`.
-#' @param n_dates Optional data frame with column `model` and a count of
-#'   nowcast dates to add, e.g. from [get_n_overlapping_dates()].
+#' @param n_dates Optional data frame with column `model` (and any grouping
+#'   columns shared with `ci`, e.g. `location`) and a count of nowcast dates
+#'   to add, e.g. from [get_n_overlapping_dates()].
 #' @importFrom dplyr mutate rename select any_of left_join
 #' @returns Data frame with columns `region`, `score_type`, `metric`,
-#'   `model`, `horizon` (if present), `estimate`, `ci_lower`, `ci_upper`,
+#'   `location` and `model`, `horizon` (if present), `estimate`, `ci_lower`,
+#'   `ci_upper`,
 #'   the nowcast date count, `n_comparisons`, `crit_value`, `alpha`,
 #'   `scale`, `boot_sd` and `n_boot`.
 #' @autoglobal
 format_ci_table <- function(ci, region, score_type, metric, n_dates = NULL) {
   if (!is.null(n_dates)) {
-    ci <- left_join(ci, n_dates, by = "model")
+    ci <- left_join(ci, n_dates, by = intersect(names(ci), names(n_dates)))
   }
   ci |>
     mutate(
@@ -354,7 +359,8 @@ format_ci_table <- function(ci, region, score_type, metric, n_dates = NULL) {
     ) |>
     rename(ci_lower = lower, ci_upper = upper) |>
     select(any_of(c(
-      "region", "score_type", "metric", "model", "horizon", "estimate",
+      "region", "score_type", "metric", "location", "model", "horizon",
+      "estimate",
       "ci_lower", "ci_upper", "n_nowcast_dates", "n_overlapping_dates",
       "n_comparisons", "crit_value", "alpha", "scale", "boot_sd", "n_boot"
     )))

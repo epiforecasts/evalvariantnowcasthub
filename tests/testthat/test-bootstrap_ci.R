@@ -297,6 +297,21 @@ test_that("get_n_overlapping_dates counts dates shared with the baseline", {
   expect_identical(n_dates$n_overlapping_dates, 2L)
 })
 
+test_that("get_n_overlapping_dates counts shared dates per horizon", {
+  scores <- add_horizon(toy_brier_scores())
+  # model_a misses horizon 0 on nowcast date 1
+  scores <- scores[!(scores$model == "model_a" &
+    scores$nowcast_date == weekly_dates[1] & scores$horizon == 0), ]
+  by_h <- get_n_overlapping_dates(scores, "brier_score", by = "horizon")
+  overall <- get_n_overlapping_dates(scores, "brier_score")
+
+  expect_named(by_h, c("horizon", "model", "n_overlapping_dates"))
+  expect_identical(by_h$n_overlapping_dates[by_h$horizon == -1], 3L)
+  expect_identical(by_h$n_overlapping_dates[by_h$horizon == 0], 2L)
+  # The overall count is unchanged: date 1 is still shared at horizon -1
+  expect_identical(overall$n_overlapping_dates, 3L)
+})
+
 test_that("format_ci_table labels and orders the columns", {
   ci <- data.frame(
     model = c("a", "b"), estimate = c(1, 2), boot_sd = 0.1, n_boot = 4L,

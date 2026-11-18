@@ -347,28 +347,40 @@ bootstrap_targets <- list(
         region = "US excluding CA",
         score_type = "brier_score",
         metric = "SRSS",
-        n_dates = get_n_overlapping_dates(su_scores_ep, "brier_score")
+        n_dates = get_n_overlapping_dates(
+          add_horizon(su_scores_ep), "brier_score",
+          by = "horizon"
+        )
       ),
       format_ci_table(
         ci = ci_srss_horizon_energy_ep,
         region = "US excluding CA",
         score_type = "energy_score",
         metric = "SRSS",
-        n_dates = get_n_overlapping_dates(su_scores_ep, "energy_score")
+        n_dates = get_n_overlapping_dates(
+          add_horizon(su_scores_ep), "energy_score",
+          by = "horizon"
+        )
       ),
       format_ci_table(
         ci = ci_srss_horizon_brier_ca,
         region = "CA",
         score_type = "brier_score",
         metric = "SRSS",
-        n_dates = get_n_overlapping_dates(su_scores_ca, "brier_score")
+        n_dates = get_n_overlapping_dates(
+          add_horizon(su_scores_ca), "brier_score",
+          by = "horizon"
+        )
       ),
       format_ci_table(
         ci = ci_srss_horizon_energy_ca,
         region = "CA",
         score_type = "energy_score",
         metric = "SRSS",
-        n_dates = get_n_overlapping_dates(su_scores_ca, "energy_score")
+        n_dates = get_n_overlapping_dates(
+          add_horizon(su_scores_ca), "energy_score",
+          by = "horizon"
+        )
       )
     )
   ),
