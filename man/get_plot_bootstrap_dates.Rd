@@ -7,6 +7,7 @@
 get_plot_bootstrap_dates(
   boot_dates,
   plot_name,
+  n_show = 50,
   output_fp = file.path("output", "figs", "eda"),
   save = TRUE
 )
@@ -17,6 +18,8 @@ get_plot_bootstrap_dates(
 
 \item{plot_name}{Character string indicating name of plot.}
 
+\item{n_show}{Integer number of resamples to show in the heatmap.}
+
 \item{output_fp}{Character string indicating directory to save file.}
 
 \item{save}{Boolean indicating whether or not to save the plot.}
@@ -25,10 +28,11 @@ get_plot_bootstrap_dates(
 patchwork object
 }
 \description{
-Condensed overview of all moving block bootstrap resamples. The top
-panel is a heatmap with one row per resample and one column per nowcast
-date, coloured by the number of copies of that date in the resample
-(blank if not drawn). The bottom panel shows the total number of times
-each nowcast date was drawn across all resamples, with a dashed line at
-the number expected if every date were equally likely.
+Overview of the moving block bootstrap resamples. The top panel is a
+heatmap of the first \code{n_show} resamples, with one row per resample and
+one column per nowcast date, coloured by the number of copies of that
+date in the resample (blank if not drawn), so the blocks of consecutive
+dates are visible. The bottom panel shows the total number of times each
+nowcast date was drawn across all resamples, with a dashed line at the
+number expected if every date were equally likely.
 }

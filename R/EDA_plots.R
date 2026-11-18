@@ -415,31 +415,36 @@ get_plot_bootstrap_resamples <- function(scores_obj,
 
 #' Plot the nowcast dates in every bootstrap resample
 #'
-#' Condensed overview of all moving block bootstrap resamples. The top
-#' panel is a heatmap with one row per resample and one column per nowcast
-#' date, coloured by the number of copies of that date in the resample
-#' (blank if not drawn). The bottom panel shows the total number of times
-#' each nowcast date was drawn across all resamples, with a dashed line at
-#' the number expected if every date were equally likely.
+#' Overview of the moving block bootstrap resamples. The top panel is a
+#' heatmap of the first `n_show` resamples, with one row per resample and
+#' one column per nowcast date, coloured by the number of copies of that
+#' date in the resample (blank if not drawn), so the blocks of consecutive
+#' dates are visible. The bottom panel shows the total number of times each
+#' nowcast date was drawn across all resamples, with a dashed line at the
+#' number expected if every date were equally likely.
 #'
 #' @param boot_dates Data frame of resampled nowcast dates, as returned by
 #'   [get_block_bootstrap_dates()].
+#' @param n_show Integer number of resamples to show in the heatmap.
 #' @param plot_name Character string indicating name of plot.
 #' @param output_fp Character string indicating directory to save file.
 #' @param save Boolean indicating whether or not to save the plot.
 #' @importFrom ggplot2 ggplot aes geom_tile geom_col geom_hline
 #'   scale_fill_viridis_c scale_y_reverse labs ggsave
-#' @importFrom dplyr count
+#' @importFrom dplyr count filter
 #' @returns patchwork object
 #' @autoglobal
 get_plot_bootstrap_dates <- function(boot_dates,
                                      plot_name,
+                                     n_show = 50,
                                      output_fp = file.path(
                                        "output", "figs", "eda"
                                      ),
                                      save = TRUE) {
   n_boot <- length(unique(boot_dates$boot_id))
-  copies <- count(boot_dates, boot_id, nowcast_date)
+  copies <- boot_dates |>
+    filter(boot_id <= n_show) |>
+    count(boot_id, nowcast_date)
   totals <- count(boot_dates, nowcast_date)
 
   p_heatmap <- ggplot(copies) +
@@ -447,13 +452,19 @@ get_plot_bootstrap_dates <- function(boot_dates,
     scale_fill_viridis_c(name = "Copies in\nresample") +
     scale_y_reverse(expand = c(0, 0)) +
     get_plot_theme(dates = TRUE) +
-    labs(x = "", y = "Resample (boot_id)")
+    labs(
+      x = "", y = "Resample",
+      title = glue::glue("First {n_show} of {n_boot} resamples")
+    )
 
   p_totals <- ggplot(totals) +
     geom_col(aes(x = nowcast_date, y = n), fill = "gray40") +
     geom_hline(yintercept = n_boot, linetype = "dashed") +
     get_plot_theme(dates = TRUE) +
-    labs(x = "Nowcast date", y = "Total draws")
+    labs(
+      x = "Nowcast date", y = "Total draws",
+      title = glue::glue("All {n_boot} resamples")
+    )
 
   p <- patchwork::wrap_plots(
     p_heatmap, p_totals,
@@ -472,14 +483,13 @@ get_plot_bootstrap_dates <- function(boot_dates,
 #' Plot the bootstrap distribution of the scaled relative skill
 #'
 #' Shows the overall scaled relative skill (SRSS) of each model against the
-#' baseline in every bootstrap resample, with the original estimate and its
-#' Bonferroni simultaneous band on the log scale (black), as used for the
-#' results. For comparison, the band built on the raw scale from the same
-#' resamples is drawn alongside in grey. The y axis is log10, as in the
-#' relative skill panels of the overall score figure.
+#' baseline in every bootstrap resample (jittered points), with the
+#' original-data estimate (black point) and its Bonferroni simultaneous band
+#' as reported (black error bar). The y axis is log10, as in the relative
+#' skill panels of the overall score figure.
 #'
 #' @param boot_estimates Bootstrap SRSS, as returned by
-#'   [get_bootstrap_srss()].
+#'   [get_bootstrap_srss()] (or its full-roster subset).
 #' @param ci Log-scale confidence bands, as returned by
 #'   [get_bonferroni_ci()] with `log_scale = TRUE`.
 #' @param score_type Character string indicating which score metric to use.
@@ -489,7 +499,7 @@ get_plot_bootstrap_dates <- function(boot_dates,
 #' @param save Boolean indicating whether or not to save the plot.
 #' @importFrom ggplot2 ggplot aes geom_jitter geom_errorbar geom_point
 #'   geom_hline scale_color_manual scale_y_continuous labs ggsave theme
-#'   element_blank position_nudge
+#'   element_blank guides guide_legend
 #' @importFrom dplyr filter
 #' @returns ggplot object
 #' @autoglobal
@@ -508,12 +518,9 @@ get_plot_bootstrap_srss <- function(boot_estimates,
   score_type <- rlang::arg_match(score_type)
   label <- ifelse(score_type == "brier_score", "Brier score", "Energy score")
   model_colors <- plot_components()$model_colors
-  boot_estimates <- filter(boot_estimates, model %in% ci$model)
-  ci_raw <- get_bonferroni_ci(
-    estimates = ci[, c("model", "estimate")],
-    boot_estimates = boot_estimates,
-    alpha = ci$alpha[1],
-    log_scale = FALSE
+  boot_estimates <- filter(
+    boot_estimates,
+    model %in% ci$model, is.finite(estimate), estimate > 0
   )
 
   p <- ggplot() +
@@ -521,18 +528,13 @@ get_plot_bootstrap_srss <- function(boot_estimates,
     geom_jitter(
       data = boot_estimates,
       aes(x = model, y = estimate, color = model),
-      width = 0.15, alpha = 0.4, size = 1
+      width = 0.15, alpha = 0.3, size = 0.8
     ) +
     geom_errorbar(
       data = ci, aes(x = model, ymin = lower, ymax = upper),
       width = 0.3
     ) +
-    geom_errorbar(
-      data = ci_raw, aes(x = model, ymin = lower, ymax = upper),
-      width = 0.15, color = "gray60",
-      position = position_nudge(x = 0.3)
-    ) +
-    geom_point(data = ci, aes(x = model, y = estimate), size = 3) +
+    geom_point(data = ci, aes(x = model, y = estimate), size = 2.5) +
     scale_color_manual(values = model_colors) +
     scale_y_continuous(trans = "log10") +
     get_plot_theme() +
@@ -541,9 +543,9 @@ get_plot_bootstrap_srss <- function(boot_estimates,
       x = "",
       y = glue::glue("Scaled relative skill\n({label})"),
       color = "Model",
-      title = title,
-      subtitle = "Black: log-scale band (used). Grey: raw-scale band."
-    )
+      title = title
+    ) +
+    guides(color = guide_legend(override.aes = list(size = 3, alpha = 1)))
 
   if (isTRUE(save)) {
     dir_create(output_fp, recurse = TRUE)
@@ -552,6 +554,57 @@ get_plot_bootstrap_srss <- function(boot_estimates,
     )
   }
   return(p)
+}
+
+#' Combine the bootstrap SRSS distribution plots into one figure
+#'
+#' Arranges the four plots from [get_plot_bootstrap_srss()] (U.S. excluding
+#' California and California, Brier and energy scores) in a 2 x 2 grid with
+#' a shared legend.
+#'
+#' @param a,b,c,d ggplot objects for the four panels, in reading order.
+#' @param plot_name Character string indicating name of plot.
+#' @param output_fp Character string indicating directory to save file.
+#' @importFrom patchwork wrap_plots plot_annotation
+#' @importFrom ggplot2 theme element_text ggsave
+#' @returns patchwork object
+#' @autoglobal
+get_boot_srss_figure <- function(a, b, c, d,
+                                 plot_name,
+                                 output_fp = file.path(
+                                   "output", "figs", "overall_scores", "supp"
+                                 )) {
+  # The panels show different sets of models, so patchwork can't merge
+  # their legends. Keep the legend of the first panel that shows every
+  # model, and hide the others
+  panels <- list(a, b, c, d)
+  panel_models <- lapply(
+    panels, function(p) unique(as.character(p$layers[[2]]$data$model))
+  )
+  all_models <- unique(unlist(panel_models))
+  keep <- which(vapply(
+    panel_models, function(m) all(all_models %in% m), logical(1)
+  ))[1]
+  if (is.na(keep)) {
+    keep <- 1
+  }
+  panels[-keep] <- lapply(
+    panels[-keep], function(p) p + theme(legend.position = "none")
+  )
+  combined_fig <- wrap_plots(panels, ncol = 2, guides = "collect") +
+    plot_annotation(
+      tag_levels = "A",
+      theme = theme(
+        legend.position = "top",
+        plot.tag = element_text(size = 14, face = "bold")
+      )
+    )
+  dir_create(output_fp, recurse = TRUE)
+  ggsave(
+    file.path(output_fp, glue::glue("{plot_name}.png")),
+    plot = combined_fig, width = 12, height = 9, dpi = 300
+  )
+  return(combined_fig)
 }
 
 #' Plot the scaled relative skill by horizon with confidence bands

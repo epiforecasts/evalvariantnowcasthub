@@ -16,7 +16,7 @@ get_plot_bootstrap_srss(
 }
 \arguments{
 \item{boot_estimates}{Bootstrap SRSS, as returned by
-\code{\link[=get_bootstrap_srss]{get_bootstrap_srss()}}.}
+\code{\link[=get_bootstrap_srss]{get_bootstrap_srss()}} (or its full-roster subset).}
 
 \item{ci}{Log-scale confidence bands, as returned by
 \code{\link[=get_bonferroni_ci]{get_bonferroni_ci()}} with \code{log_scale = TRUE}.}
@@ -36,9 +36,8 @@ ggplot object
 }
 \description{
 Shows the overall scaled relative skill (SRSS) of each model against the
-baseline in every bootstrap resample, with the original estimate and its
-Bonferroni simultaneous band on the log scale (black), as used for the
-results. For comparison, the band built on the raw scale from the same
-resamples is drawn alongside in grey. The y axis is log10, as in the
-relative skill panels of the overall score figure.
+baseline in every bootstrap resample (jittered points), with the
+original-data estimate (black point) and its Bonferroni simultaneous band
+as reported (black error bar). The y axis is log10, as in the relative
+skill panels of the overall score figure.
 }

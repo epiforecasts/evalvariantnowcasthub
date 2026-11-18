@@ -336,18 +336,6 @@
     },
     "16": {
       "@type": "SoftwareApplication",
-      "identifier": "scales",
-      "name": "scales",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=scales"
-    },
-    "17": {
-      "@type": "SoftwareApplication",
       "identifier": "cowplot",
       "name": "cowplot",
       "provider": {
@@ -358,7 +346,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=cowplot"
     },
-    "18": {
+    "17": {
       "@type": "SoftwareApplication",
       "identifier": "lubridate",
       "name": "lubridate",
@@ -370,7 +358,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=lubridate"
     },
-    "19": {
+    "18": {
       "@type": "SoftwareApplication",
       "identifier": "patchwork",
       "name": "patchwork",
@@ -382,7 +370,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=patchwork"
     },
-    "20": {
+    "19": {
       "@type": "SoftwareApplication",
       "identifier": "tidybayes",
       "name": "tidybayes",
@@ -396,7 +384,7 @@
     },
     "SystemRequirements": null
   },
-  "fileSize": "6334.595KB",
+  "fileSize": "6313.965KB",
   "releaseNotes": "https://github.com/epiforecasts/evalvariantnowcasthub/blob/main/NEWS.md",
   "readme": "https://github.com/epiforecasts/evalvariantnowcasthub/blob/main/README.md"
 }
