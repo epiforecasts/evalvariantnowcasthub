@@ -167,6 +167,7 @@ utils::globalVariables(c(
   "target_date", # <get_plot_horizon>
   "nowcast_date", # <get_plot_horizon>
   "model", # <get_plot_horizon>
+  "compare_against", # <get_plot_horizon>
   "horizon", # <get_plot_horizon>
   "total_seq", # <get_plot_seq_counts_loc>
   "location", # <get_plot_seq_counts_loc>
