@@ -128,7 +128,7 @@ eda_plot_targets <- list(
       boot_estimates = boot_srss_brier_ep_full,
       ci = ci_srss_brier_ep,
       score_type = "brier_score",
-      title = "US excluding CA: SRSS (Brier score)",
+      title = "US excluding CA, Brier score",
       plot_name = "boot_srss_brier_ep"
     )
   ),
@@ -147,7 +147,7 @@ eda_plot_targets <- list(
       boot_estimates = boot_srss_energy_ep_full,
       ci = ci_srss_energy_ep,
       score_type = "energy_score",
-      title = "US excluding CA: SRSS (energy score)",
+      title = "US excluding CA, energy score",
       plot_name = "boot_srss_energy_ep"
     )
   ),
@@ -166,7 +166,7 @@ eda_plot_targets <- list(
       boot_estimates = boot_srss_brier_ca_full,
       ci = ci_srss_brier_ca,
       score_type = "brier_score",
-      title = "CA: SRSS (Brier score)",
+      title = "CA, Brier score",
       plot_name = "boot_srss_brier_ca"
     )
   ),
@@ -185,7 +185,7 @@ eda_plot_targets <- list(
       boot_estimates = boot_srss_energy_ca_full,
       ci = ci_srss_energy_ca,
       score_type = "energy_score",
-      title = "CA: SRSS (energy score)",
+      title = "CA, energy score",
       plot_name = "boot_srss_energy_ca"
     )
   ),
@@ -196,6 +196,18 @@ eda_plot_targets <- list(
       score_type = "energy_score",
       title = "CA: SRSS by horizon (energy score)",
       plot_name = "srss_horizon_ci_energy_ca"
+    )
+  ),
+  # Bootstrap SRSS distributions for the supplement: US ex-CA and CA, Brier
+  # and energy scores
+  tar_target(
+    name = plot_boot_srss_combined,
+    command = get_boot_srss_figure(
+      a = plot_boot_srss_brier_ep,
+      b = plot_boot_srss_brier_ca,
+      c = plot_boot_srss_energy_ep,
+      d = plot_boot_srss_energy_ca,
+      plot_name = "boot_srss_distributions"
     )
   )
 )
