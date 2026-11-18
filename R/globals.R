@@ -242,5 +242,9 @@ utils::globalVariables(c(
   "90", # <get_plot_coverage_by_loc>
   "50", # <get_plot_coverage_by_loc>
   "interval_label", # <get_plot_coverage_by_loc>
+  "nowcast_date", # <get_paired_date_totals>
+  "score_model", # <get_paired_date_totals>
+  "score_baseline", # <get_paired_date_totals>
+  "p_value", # <get_permutation_tests>
   NULL
 ))
