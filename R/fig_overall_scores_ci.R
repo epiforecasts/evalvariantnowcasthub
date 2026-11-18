@@ -93,3 +93,46 @@ replace_y_axis <- function(p, ylim = NULL, y_breaks = NULL) {
   }
   p
 }
+
+#' Values plotted in a confidence band table
+#'
+#' @param ci Confidence bands, as returned by [get_bonferroni_ci()].
+#' @returns Numeric vector of the estimates and band limits.
+#' @autoglobal
+get_ci_values <- function(ci) {
+  c(ci$estimate, ci$lower, ci$upper)
+}
+
+#' Scaled relative skill values plotted in a panel
+#'
+#' Extracts the scaled relative skill plotted in a relative skill panel,
+#' including models shown without a band.
+#'
+#' @param p ggplot object from [get_plot_overall()] or [get_plot_horizon()]
+#'   with `rel_skill_plot = TRUE`.
+#' @returns Numeric vector of the plotted scaled relative skill values.
+#' @autoglobal
+get_panel_srss_values <- function(p) {
+  panel_data <- as.data.frame(p$data)
+  srss_col <- grep("_scaled_relative_skill$", names(panel_data), value = TRUE)
+  panel_data[[srss_col[1]]]
+}
+
+#' Symmetric log-scale axis limits covering all plotted values
+#'
+#' Returns limits `c(1 / m, m)`, symmetric about 1 on the log scale, where
+#' `m` is the larger of `min_limit` and the furthest value from 1 (on the log
+#' scale) among `values`. Used so that panels sharing an axis show every
+#' estimate and confidence band in full, with the original fixed limits
+#' kept as a minimum range.
+#'
+#' @param values Numeric vector of plotted values (estimates and band
+#'   limits). Values that are not positive and finite are ignored.
+#' @param min_limit Minimum upper limit, greater than 1.
+#' @returns Numeric vector of length 2.
+#' @autoglobal
+get_symmetric_log_limits <- function(values, min_limit) {
+  values <- values[is.finite(values) & values > 0]
+  m <- max(min_limit, values, 1 / values)
+  c(1 / m, m)
+}

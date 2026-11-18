@@ -374,6 +374,20 @@ test_that("mean scores and bootstraps keep the by columns", {
   expect_equal(boot_abs$estimate, means$estimate, tolerance = 1e-12)
 })
 
+test_that("get_symmetric_log_limits keeps a minimum and covers all values", {
+  # Within the minimum range: the minimum is returned
+  expect_equal(get_symmetric_log_limits(c(0.9, 1.2), 1.7), c(1 / 1.7, 1.7))
+  # A band reaching 2.66 widens the range symmetrically
+  expect_equal(get_symmetric_log_limits(c(0.95, 2.66), 1.7), c(1 / 2.66, 2.66))
+  # A low bound of 0.25 widens it to 4 on both sides
+  expect_equal(get_symmetric_log_limits(c(0.25, 1.1), 1.7), c(0.25, 4))
+  # Non-finite and non-positive values are ignored
+  expect_equal(
+    get_symmetric_log_limits(c(1.1, NA, Inf, 0), 1.7),
+    c(1 / 1.7, 1.7)
+  )
+})
+
 test_that("filter_full_roster keeps only draws with every model present", {
   estimates <- data.frame(
     model = c("a", "b", "c"), estimate = 1, stringsAsFactors = FALSE

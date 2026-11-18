@@ -3,13 +3,27 @@
 # Bonferroni simultaneous bands from bootstrap_targets.R added: error bars
 # on the absolute score bars and SRSS points (A-H) and ribbons on the SRSS
 # by horizon lines (I-L). The SRSS and horizon y axes are widened to show
-# the full bands: SRSS panels share limits; horizon panels use per-region
+# the full bands (computed from the bands, with the old fixed limits as a
+# minimum): SRSS panels share limits; horizon panels use per-region
 # limits because the CA bands are much wider than the US ones. SRSS markers
 # are smaller than in the original so narrow bands stay visible.
 fig_overall_ci_targets <- list(
+  # Shared axis limits, symmetric about 1 on the log scale: the fixed
+  # limits are a minimum, expanded to show every estimate and band in the
+  # panels sharing the axis
   tar_target(
     name = srss_ylim,
-    command = c(1 / 1.7, 1.7)
+    command = get_symmetric_log_limits(
+      values = c(
+        get_ci_values(ci_srss_brier_ep), get_ci_values(ci_srss_brier_ca),
+        get_ci_values(ci_srss_energy_ep), get_ci_values(ci_srss_energy_ca),
+        get_panel_srss_values(rel_skill_brier_overall),
+        get_panel_srss_values(rel_skill_brier_overall_ca),
+        get_panel_srss_values(rel_skill_energy_overall),
+        get_panel_srss_values(rel_skill_energy_overall_ca)
+      ),
+      min_limit = 1.7
+    )
   ),
   tar_target(
     name = srss_breaks,
@@ -17,11 +31,27 @@ fig_overall_ci_targets <- list(
   ),
   tar_target(
     name = horizon_ylim_ep,
-    command = c(1 / 1.7, 1.7)
+    command = get_symmetric_log_limits(
+      values = c(
+        get_ci_values(ci_srss_horizon_brier_ep),
+        get_ci_values(ci_srss_horizon_energy_ep),
+        get_panel_srss_values(rel_skill_brier_horizon),
+        get_panel_srss_values(rel_skill_energy_horizon)
+      ),
+      min_limit = 1.7
+    )
   ),
   tar_target(
     name = horizon_ylim_ca,
-    command = c(1 / 2.8, 2.8)
+    command = get_symmetric_log_limits(
+      values = c(
+        get_ci_values(ci_srss_horizon_brier_ca),
+        get_ci_values(ci_srss_horizon_energy_ca),
+        get_panel_srss_values(rel_skill_brier_horizon_ca),
+        get_panel_srss_values(rel_skill_energy_horizon_ca)
+      ),
+      min_limit = 2.8
+    )
   ),
   tar_target(
     name = horizon_breaks_ca,
