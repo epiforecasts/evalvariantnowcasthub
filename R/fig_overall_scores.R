@@ -145,6 +145,27 @@ get_plot_by_location <- function(scores_obj,
   return(p)
 }
 
+#' Order plotting data so that some models are drawn last
+#'
+#' Models with few points (e.g. CADPH-CATaMaran, scored on 2 nowcast dates)
+#' can be hidden under other models with nearly identical values. This
+#' sorts the rows so those models come last (points are drawn in row order)
+#' and adds a `draw_order` factor to use as the line `group`, so their lines
+#' are also drawn on top. Legend order is unaffected because colours and
+#' shapes still map to `model`.
+#'
+#' @param data Data frame with a `model` column.
+#' @param models Character vector of models to draw last.
+#' @returns `data` as a data frame, sorted, with a `draw_order` column.
+#' @autoglobal
+draw_models_last <- function(data, models = "CADPH-CATaMaran") {
+  data <- as.data.frame(data)
+  present <- sort(unique(data$model))
+  levels_order <- c(setdiff(present, models), intersect(models, present))
+  data$draw_order <- factor(data$model, levels = levels_order)
+  data[order(data$draw_order), ]
+}
+
 #' Brier/Energy Relative/Overall by nowcast date
 #'
 #' @param scores_obj Scoringutils scores object
@@ -186,7 +207,8 @@ get_plot_by_nowcast_date <- function(scores_obj,
       filter(
         model != "Hub-baseline",
         compare_against == "Hub-baseline"
-      )
+      ) |>
+      draw_models_last()
 
     p <- ggplot(rel_skill) +
       geom_point(
@@ -206,7 +228,8 @@ get_plot_by_nowcast_date <- function(scores_obj,
           y = !!sym(glue::glue(
             "{score_type}_scaled_relative_skill"
           )),
-          color = model
+          color = model,
+          group = draw_order
         )
       ) +
       geom_hline(yintercept = 1, linetype = "dashed", color = "gray50") +
@@ -237,7 +260,8 @@ get_plot_by_nowcast_date <- function(scores_obj,
   } else {
     scores_sum <- scores_obj |>
       filter(!is.na(score_type)) |>
-      scoringutils::summarise_scores(by = c("model", "nowcast_date"))
+      scoringutils::summarise_scores(by = c("model", "nowcast_date")) |>
+      draw_models_last()
     p <- ggplot(scores_sum) +
       geom_point(
         aes(
@@ -256,7 +280,8 @@ get_plot_by_nowcast_date <- function(scores_obj,
           y = !!sym(glue::glue(
             "{score_type}"
           )),
-          color = model
+          color = model,
+          group = draw_order
         )
       ) +
       scale_color_manual(

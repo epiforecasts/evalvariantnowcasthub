@@ -153,6 +153,7 @@ utils::globalVariables(c(
   "model", # <get_plot_by_nowcast_date>
   "compare_against", # <get_plot_by_nowcast_date>
   "nowcast_date", # <get_plot_by_nowcast_date>
+  "draw_order", # <get_plot_by_nowcast_date>
   "model_id", # <get_plot_coverage_overall>
   "interval_range", # <get_plot_coverage_overall>
   "interval_coverage", # <get_plot_coverage_overall>
