@@ -153,6 +153,7 @@ utils::globalVariables(c(
   "model", # <get_plot_by_nowcast_date>
   "compare_against", # <get_plot_by_nowcast_date>
   "nowcast_date", # <get_plot_by_nowcast_date>
+  "draw_order", # <get_plot_by_nowcast_date>
   "model_id", # <get_plot_coverage_overall>
   "interval_range", # <get_plot_coverage_overall>
   "interval_coverage", # <get_plot_coverage_overall>
@@ -243,5 +244,13 @@ utils::globalVariables(c(
   "90", # <get_plot_coverage_by_loc>
   "50", # <get_plot_coverage_by_loc>
   "interval_label", # <get_plot_coverage_by_loc>
+  "model", # <get_permutation_pvalues>
+  "estimate", # <get_permutation_pvalues>
+  "observed", # <get_permutation_pvalues>
+  "n_extreme", # <get_permutation_pvalues>
+  "n_perm", # <get_permutation_pvalues>
+  "p_value", # <get_permutation_pvalues>
+  "p_bonferroni", # <get_permutation_pvalues>
+  "exchange_unit", # <format_perm_table>
   NULL
 ))
