@@ -124,9 +124,11 @@ load_data_targets <- list(
       clades_w_display_name = clades_w_display_name
     )
   ),
-  # Scores corresponding to the nowcast dates we will evaluate
+  # Hub scores corresponding to the nowcast dates we will evaluate. The
+  # `scores` used in the analysis add our rescoring of the CADPH-CATaMaran
+  # submissions that failed Hub scoring (#150; targets/hub_rescore_targets.R)
   tar_target(
-    name = scores,
+    name = scores_hub,
     command = read_tsv(scores_fp) |>
       filter(
         nowcast_date >= min(nowcast_dates),

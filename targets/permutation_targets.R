@@ -18,15 +18,13 @@ permutation_targets <- list(
     command = c("location", "nowcast_date"),
     format = "rds"
   ),
-  # Permutation SRSS for every model except CADPH-CATaMaran (2 CA nowcast
-  # dates, as for the CIs), which stays in the tournament
+  # Permutation SRSS for every model against Hub-baseline
   ## US excluding CA (~23 min for Brier, ~8 min for energy)
   tar_target(
     name = perm_srss_brier_ep,
     command = get_permutation_srss_all(
       scores_obj = su_scores_ep,
       score_type = "brier_score",
-      exclude = "CADPH-CATaMaran",
       unit = perm_unit,
       n_perm = n_perm
     )
@@ -36,7 +34,6 @@ permutation_targets <- list(
     command = get_permutation_srss_all(
       scores_obj = su_scores_ep,
       score_type = "energy_score",
-      exclude = "CADPH-CATaMaran",
       unit = perm_unit,
       n_perm = n_perm
     )
@@ -47,7 +44,6 @@ permutation_targets <- list(
     command = get_permutation_srss_all(
       scores_obj = su_scores_ca,
       score_type = "brier_score",
-      exclude = "CADPH-CATaMaran",
       unit = perm_unit,
       n_perm = n_perm
     )
@@ -57,7 +53,6 @@ permutation_targets <- list(
     command = get_permutation_srss_all(
       scores_obj = su_scores_ca,
       score_type = "energy_score",
-      exclude = "CADPH-CATaMaran",
       unit = perm_unit,
       n_perm = n_perm
     )

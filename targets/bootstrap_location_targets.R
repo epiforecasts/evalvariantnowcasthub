@@ -3,14 +3,9 @@
 # all locations together (su_scores_all, CA included) as in
 # get_plot_by_location(). Each table (one per metric and score type) is one
 # Bonferroni family covering every location x model row.
-# Rows with fewer nowcast dates than one bootstrap block (for SRSS: dates
-# shared with the baseline) get no band: the bootstrap could only reweight
-# those few weeks. This also excludes CADPH-CATaMaran (2 dates), as in #131.
+# Rows with fewer nowcast dates than one bootstrap block get no band
+# (min_dates_ci, see bootstrap_targets.R).
 bootstrap_location_targets <- list(
-  tar_target(
-    name = min_dates_ci,
-    command = boot_block_length
-  ),
   # Absolute scores: mean score by location and model----------------------
   tar_target(
     name = boot_abs_brier_loc,

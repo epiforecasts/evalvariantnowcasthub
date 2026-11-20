@@ -16,9 +16,10 @@ draw_models_last(data, models = "CADPH-CATaMaran")
 \code{drawn_last} columns.
 }
 \description{
-Models with few points (e.g. CADPH-CATaMaran, scored on 2 nowcast dates)
-can be hidden under other models with nearly identical values. This
-sorts the rows so those models come last (points are drawn in row order)
+Models with few points (e.g. CADPH-CATaMaran, California only, from
+April 2025) can be hidden under other models with nearly identical
+values. This sorts the rows so those models come last (points are drawn in
+row order)
 and adds a \code{draw_order} factor to use as the line \code{group}, so their lines
 are also drawn on top, and a logical \code{drawn_last} column for redrawing
 those models' points above every line. Legend order is unaffected because

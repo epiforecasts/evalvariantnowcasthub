@@ -8,7 +8,8 @@ plot_model_submission_heatmap(
   submission_data,
   seq_counts_by_loc,
   model_id,
-  plot_components
+  plot_components,
+  rescored = NULL
 )
 }
 \arguments{
@@ -17,6 +18,10 @@ plot_model_submission_heatmap(
 \item{model_id}{Model ID to plot}
 
 \item{plot_components}{List containing theme and color information}
+
+\item{rescored}{Optional data frame with columns model_id, location and
+nowcast_date: submissions that failed Hub scoring and were scored for
+this analysis (#150). Their tiles are outlined in black.}
 }
 \value{
 ggplot2 object
