@@ -273,6 +273,11 @@ utils::globalVariables(c(
   "model_id", # <get_errored_submissions>
   "nowcast_date", # <get_errored_submissions>
   "model_output_file", # <get_errored_submissions>
+  "model_id", # <add_rescored_scores>
+  "nowcast_date", # <add_rescored_scores>
+  "status", # <add_rescored_scores>
+  "location", # <add_rescored_scores>
+  "target_date", # <add_rescored_scores>
   "model", # <get_permutation_pvalues>
   "estimate", # <get_permutation_pvalues>
   "observed", # <get_permutation_pvalues>

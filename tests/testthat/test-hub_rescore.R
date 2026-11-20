@@ -151,3 +151,25 @@ test_that("check_only_model_errored allows only the named model", {
   expect_invisible(check_only_model_errored(ok, model = "A"))
   expect_error(check_only_model_errored(ok, model = "B"), "A")
 })
+
+test_that("add_rescored_scores replaces only the errored rows", {
+  hub <- rbind(
+    hub_like(),
+    data.frame(
+      model_id = "m2", nowcast_date = as.Date("2025-04-02"),
+      target_date = as.Date(NA), location = NA_character_,
+      brier_point = NA_real_, brier_dist = NA_real_, energy = NA_real_,
+      scored = NA, status = "error", stringsAsFactors = FALSE
+    )
+  )
+  rescored <- transform(hub_like(c(0.5, 0.6)), model_id = "m2")
+  out <- add_rescored_scores(hub, rescored)
+  expect_identical(nrow(out), 4L)
+  expect_false(any(out$status == "error"))
+  expect_identical(out$status[out$model_id == "m2"], rep("rescored", 2))
+  expect_identical(out$brier_point[out$model_id == "m1"], c(0.1, 0.2))
+  expect_error(
+    add_rescored_scores(hub, hub_like()),
+    "only an error row"
+  )
+})

@@ -30,7 +30,7 @@ hub_rescore_targets <- list(
   # CADPH-CATaMaran's nowcast dates in our period, and those that errored
   tar_target(
     name = catamaran_dates,
-    command = get_model_scoring_status(scores, model = "CADPH-CATaMaran")
+    command = get_model_scoring_status(scores_hub, model = "CADPH-CATaMaran")
   ),
   # Mean-only California models the Hub scored on the same dates, to check
   # that our copy of the Hub's code reproduces its scores
@@ -84,7 +84,7 @@ hub_rescore_targets <- list(
     name = hub_check_summary,
     command = check_hub_reproduction(
       rescored = hub_check_scores,
-      hub_scores = scores
+      hub_scores = scores_hub
     ),
     error = "stop"
   ),
@@ -115,7 +115,7 @@ hub_rescore_targets <- list(
   # non-zero row; any other duplication stops the pipeline.
   tar_target(
     name = hub_check_only_catamaran_errored,
-    command = check_only_model_errored(scores, model = "CADPH-CATaMaran"),
+    command = check_only_model_errored(scores_hub, model = "CADPH-CATaMaran"),
     format = "rds",
     error = "stop"
   ),
@@ -157,5 +157,30 @@ hub_rescore_targets <- list(
         model_output_files = catamaran_errored_files$model_output_file
       )
     }
+  ),
+  # Step 5: score the cleaned submissions and add them to our scores-------
+  tar_target(
+    name = catamaran_rescored,
+    command = {
+      force(catamaran_dedup_local)
+      score_hub_submission(
+        hub_path = hub_rescore_dedup_root,
+        model_output_file = catamaran_errored_files$model_output_file,
+        nowcast_date = catamaran_errored_files$nowcast_date,
+        scoring_fp = hub_scoring_fp
+      )
+    },
+    pattern = map(catamaran_errored_files),
+    error = "stop"
+  ),
+  # The Hub's scores, with the errored CADPH-CATaMaran rows replaced by
+  # our scores (status "rescored"); used throughout the analysis
+  tar_target(
+    name = scores,
+    command = add_rescored_scores(
+      scores_hub = scores_hub,
+      rescored = catamaran_rescored
+    ),
+    error = "stop"
   )
 )

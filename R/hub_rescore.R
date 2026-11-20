@@ -415,3 +415,37 @@ get_errored_submissions <- function(hub_files, status_by_date,
     dplyr::select(model_id, nowcast_date, model_output_file)
   return(submissions)
 }
+
+#' Replace errored Hub scores with our rescoring
+#'
+#' Drops the Hub's `error` rows for the submissions in `rescored` and adds
+#' our scores for them, with status "rescored". Stops unless every
+#' rescored submission had an `error` row in the Hub's scores and no Hub
+#' scores.
+#'
+#' @param scores_hub Scores read from the Hub's `scores.tsv`.
+#' @param rescored Scores from [score_hub_submission()] for submissions
+#'   that failed Hub scoring.
+#' @returns `scores_hub` with the errored rows replaced.
+#' @autoglobal
+add_rescored_scores <- function(scores_hub, rescored) {
+  submissions <- dplyr::distinct(rescored, model_id, nowcast_date)
+  hub_rows <- dplyr::semi_join(
+    scores_hub, submissions,
+    by = c("model_id", "nowcast_date")
+  )
+  n_errored <- nrow(dplyr::distinct(
+    dplyr::filter(hub_rows, status == "error"), model_id, nowcast_date
+  ))
+  if (n_errored != nrow(submissions) || any(hub_rows$status != "error")) {
+    cli::cli_abort(
+      "Rescored submissions must each have only an error row in the Hub."
+    )
+  }
+  rescored$status <- "rescored"
+  combined <- scores_hub |>
+    dplyr::anti_join(submissions, by = c("model_id", "nowcast_date")) |>
+    dplyr::bind_rows(rescored[names(scores_hub)]) |>
+    dplyr::arrange(nowcast_date, model_id, location, target_date)
+  return(combined)
+}
