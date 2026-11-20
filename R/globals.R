@@ -260,6 +260,19 @@ utils::globalVariables(c(
   "model_id", # <get_hub_check_submissions>
   "nowcast_date", # <get_hub_check_submissions>
   "model_output_file", # <get_hub_check_submissions>
+  "value", # <remove_zero_duplicates>
+  ".n_rows", # <remove_zero_duplicates>
+  ".n_nonzero", # <remove_zero_duplicates>
+  "value", # <check_zero_duplicates_removed>
+  "location", # <check_zero_duplicates_removed>
+  "target_date", # <check_zero_duplicates_removed>
+  "output_type", # <check_zero_duplicates_removed>
+  "output_type_id", # <check_zero_duplicates_removed>
+  "status", # <check_only_model_errored>
+  "model_id", # <check_only_model_errored>
+  "model_id", # <get_errored_submissions>
+  "nowcast_date", # <get_errored_submissions>
+  "model_output_file", # <get_errored_submissions>
   "model", # <get_permutation_pvalues>
   "estimate", # <get_permutation_pvalues>
   "observed", # <get_permutation_pvalues>

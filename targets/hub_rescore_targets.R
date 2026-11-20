@@ -108,5 +108,54 @@ hub_rescore_targets <- list(
     },
     format = "rds",
     error = "stop"
+  ),
+  # Step 4: remove the zero-valued duplicate rows-------------------------
+  # Only from CADPH-CATaMaran's errored submissions. Only rows with value
+  # exactly 0 are dropped, and only where the same clade also has a single
+  # non-zero row; any other duplication stops the pipeline.
+  tar_target(
+    name = hub_check_only_catamaran_errored,
+    command = check_only_model_errored(scores, model = "CADPH-CATaMaran"),
+    format = "rds",
+    error = "stop"
+  ),
+  tar_target(
+    name = catamaran_errored_files,
+    command = get_errored_submissions(
+      hub_files = hub_files,
+      status_by_date = catamaran_dates,
+      model = "CADPH-CATaMaran"
+    )
+  ),
+  tar_target(
+    name = hub_rescore_dedup_root,
+    command = file.path("output", "data", "hub_rescore_dedup")
+  ),
+  tar_target(
+    name = catamaran_dedup_local,
+    command = {
+      force(hub_files_local)
+      force(hub_check_only_catamaran_errored)
+      write_deduplicated_submission(
+        src_root = hub_rescore_root,
+        dest_root = hub_rescore_dedup_root,
+        model_output_file = catamaran_errored_files$model_output_file,
+        nowcast_date = catamaran_errored_files$nowcast_date
+      )
+    },
+    pattern = map(catamaran_errored_files),
+    format = "file",
+    error = "stop"
+  ),
+  # The removed rows, for the record
+  tar_target(
+    name = catamaran_removed_rows,
+    command = {
+      force(hub_files_local)
+      get_removed_zero_duplicates(
+        src_root = hub_rescore_root,
+        model_output_files = catamaran_errored_files$model_output_file
+      )
+    }
   )
 )

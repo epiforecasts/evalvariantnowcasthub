@@ -81,3 +81,73 @@ test_that("check_hub_reproduction stops on differences", {
     "Rows differ"
   )
 })
+
+submission <- function(clades, values, target_dates = "2025-04-01") {
+  data.frame(
+    nowcast_date = as.Date("2025-04-23"),
+    location = "CA",
+    target_date = as.Date(target_dates),
+    output_type = "mean",
+    output_type_id = NA_character_,
+    clade = clades,
+    value = values,
+    stringsAsFactors = FALSE
+  )
+}
+
+test_that("remove_zero_duplicates drops only zero-valued duplicates", {
+  x <- submission(
+    clades = c("24A", "24A", "24D", "24D", "25A", "other"),
+    values = c(0.3, 0, 0, 0.2, 0.5, 0)
+  )
+  out <- remove_zero_duplicates(x)
+  expect_identical(out$cleaned$clade, c("24A", "24D", "25A", "other"))
+  expect_identical(out$cleaned$value, c(0.3, 0.2, 0.5, 0))
+  expect_identical(out$removed$clade, c("24A", "24D"))
+  expect_true(all(out$removed$value == 0))
+  expect_invisible(check_zero_duplicates_removed(x, out$cleaned))
+})
+
+test_that("remove_zero_duplicates leaves clean submissions unchanged", {
+  x <- submission(c("24A", "25A"), c(0.4, 0.6))
+  out <- remove_zero_duplicates(x)
+  expect_identical(out$cleaned, x)
+  expect_identical(nrow(out$removed), 0L)
+})
+
+test_that("remove_zero_duplicates stops when it is unclear what to keep", {
+  expect_error(
+    remove_zero_duplicates(submission(c("24A", "24A"), c(0.3, 0.2))),
+    "exactly one non-zero"
+  )
+  expect_error(
+    remove_zero_duplicates(submission(c("24A", "24A"), c(0, 0))),
+    "exactly one non-zero"
+  )
+  expect_error(
+    remove_zero_duplicates(submission(c("24A", "24A", "24A"), c(0.3, 0, 0.3))),
+    "exactly one non-zero"
+  )
+  expect_error(
+    remove_zero_duplicates(submission(c("24A", "25A"), c(NA, 1))),
+    "missing values"
+  )
+})
+
+test_that("check_zero_duplicates_removed catches bad de-duplication", {
+  x <- submission(c("24A", "24A", "25A"), c(0.4, 0, 0.6))
+  expect_error(check_zero_duplicates_removed(x, x), "remain")
+  expect_error(
+    check_zero_duplicates_removed(x, x[c(2, 3), ]),
+    "other than zero rows"
+  )
+})
+
+test_that("check_only_model_errored allows only the named model", {
+  ok <- data.frame(
+    model_id = c("A", "B"), status = c("error", "success"),
+    stringsAsFactors = FALSE
+  )
+  expect_invisible(check_only_model_errored(ok, model = "A"))
+  expect_error(check_only_model_errored(ok, model = "B"), "A")
+})
