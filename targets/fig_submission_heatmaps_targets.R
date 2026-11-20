@@ -14,7 +14,8 @@ fig_submission_heatmaps_targets <- list(
     command = create_per_model_heatmap_fig(
       submission_presence_data,
       seq_counts_by_loc,
-      plot_components()
+      plot_components(),
+      rescored = distinct(catamaran_rescored, model_id, location, nowcast_date)
     )
   ),
   # Create summary heatmap figure

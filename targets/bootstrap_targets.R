@@ -10,6 +10,13 @@ bootstrap_targets <- list(
     name = boot_block_length,
     command = 3 * floor(length(nowcast_dates)^(1 / 4))
   ),
+  # Rows with fewer nowcast dates than one bootstrap block (for SRSS: dates
+  # shared with the baseline) get no band: the bootstrap could only reweight
+  # those few weeks.
+  tar_target(
+    name = min_dates_ci,
+    command = boot_block_length
+  ),
   # Significance level for the Bonferroni simultaneous bands
   tar_target(
     name = ci_alpha,
@@ -27,8 +34,6 @@ bootstrap_targets <- list(
   # Absolute scores: mean score by model over all rows-------------------
   # Bootstrap estimates (one row per resample and model) are kept as
   # targets so the bootstrap distributions can be inspected.
-  # CADPH-CATaMaran has only 2 CA nowcast dates, too few to bootstrap, so
-  # it is excluded from the CA tables.
   ## US excluding CA
   tar_target(
     name = boot_abs_brier_ep,
@@ -41,7 +46,10 @@ bootstrap_targets <- list(
   tar_target(
     name = ci_abs_brier_ep,
     command = get_bonferroni_ci(
-      estimates = get_mean_score_by_model(su_scores_ep, "brier_score"),
+      estimates = filter(
+        get_mean_score_by_model(su_scores_ep, "brier_score"),
+        n_nowcast_dates >= min_dates_ci
+      ),
       boot_estimates = boot_abs_brier_ep,
       alpha = ci_alpha
     )
@@ -57,7 +65,10 @@ bootstrap_targets <- list(
   tar_target(
     name = ci_abs_energy_ep,
     command = get_bonferroni_ci(
-      estimates = get_mean_score_by_model(su_scores_ep, "energy_score"),
+      estimates = filter(
+        get_mean_score_by_model(su_scores_ep, "energy_score"),
+        n_nowcast_dates >= min_dates_ci
+      ),
       boot_estimates = boot_abs_energy_ep,
       alpha = ci_alpha
     )
@@ -76,7 +87,7 @@ bootstrap_targets <- list(
     command = get_bonferroni_ci(
       estimates = filter(
         get_mean_score_by_model(su_scores_ca, "brier_score"),
-        model != "CADPH-CATaMaran"
+        n_nowcast_dates >= min_dates_ci
       ),
       boot_estimates = boot_abs_brier_ca,
       alpha = ci_alpha
@@ -95,7 +106,7 @@ bootstrap_targets <- list(
     command = get_bonferroni_ci(
       estimates = filter(
         get_mean_score_by_model(su_scores_ca, "energy_score"),
-        model != "CADPH-CATaMaran"
+        n_nowcast_dates >= min_dates_ci
       ),
       boot_estimates = boot_abs_energy_ca,
       alpha = ci_alpha
@@ -104,12 +115,11 @@ bootstrap_targets <- list(
   # Scaled relative skill (SRSS) vs Hub-baseline, overall------------------
   # The *_full targets keep only bootstrap draws in which every model of the
   # original tournament is present (filter_full_roster()), so the bands
-  # describe the same tournament as the reported SRSS. This matters for CA
-  # Brier, where draws without CADPH-CATaMaran's 2 dates drop it from the
-  # tournament and shift the other models' SRSS.
-  # Full pairwise tournament on each resample. CADPH-CATaMaran stays in the
-  # CA tournaments, so the other models' SRSS match the figure, but is
-  # excluded from the CA tables. Bands are built on the log scale.
+  # describe the same tournament as the reported SRSS: a draw that misses
+  # all of a sparse model's nowcast dates drops it from the tournament and
+  # shifts the other models' SRSS.
+  # Full pairwise tournament on each resample. Bands are built on the log
+  # scale.
   ## US excluding CA
   tar_target(
     name = boot_srss_brier_ep,
@@ -129,7 +139,11 @@ bootstrap_targets <- list(
   tar_target(
     name = ci_srss_brier_ep,
     command = get_bonferroni_ci(
-      estimates = get_srss(su_scores_ep, "brier_score"),
+      estimates = filter_min_overlap(
+        estimates = get_srss(su_scores_ep, "brier_score"),
+        n_dates = get_n_overlapping_dates(su_scores_ep, "brier_score"),
+        min_dates = min_dates_ci
+      ),
       boot_estimates = boot_srss_brier_ep_full,
       alpha = ci_alpha,
       log_scale = TRUE
@@ -153,7 +167,11 @@ bootstrap_targets <- list(
   tar_target(
     name = ci_srss_energy_ep,
     command = get_bonferroni_ci(
-      estimates = get_srss(su_scores_ep, "energy_score"),
+      estimates = filter_min_overlap(
+        estimates = get_srss(su_scores_ep, "energy_score"),
+        n_dates = get_n_overlapping_dates(su_scores_ep, "energy_score"),
+        min_dates = min_dates_ci
+      ),
       boot_estimates = boot_srss_energy_ep_full,
       alpha = ci_alpha,
       log_scale = TRUE
@@ -178,9 +196,10 @@ bootstrap_targets <- list(
   tar_target(
     name = ci_srss_brier_ca,
     command = get_bonferroni_ci(
-      estimates = filter(
-        get_srss(su_scores_ca, "brier_score"),
-        model != "CADPH-CATaMaran"
+      estimates = filter_min_overlap(
+        estimates = get_srss(su_scores_ca, "brier_score"),
+        n_dates = get_n_overlapping_dates(su_scores_ca, "brier_score"),
+        min_dates = min_dates_ci
       ),
       boot_estimates = boot_srss_brier_ca_full,
       alpha = ci_alpha,
@@ -205,9 +224,10 @@ bootstrap_targets <- list(
   tar_target(
     name = ci_srss_energy_ca,
     command = get_bonferroni_ci(
-      estimates = filter(
-        get_srss(su_scores_ca, "energy_score"),
-        model != "CADPH-CATaMaran"
+      estimates = filter_min_overlap(
+        estimates = get_srss(su_scores_ca, "energy_score"),
+        n_dates = get_n_overlapping_dates(su_scores_ca, "energy_score"),
+        min_dates = min_dates_ci
       ),
       boot_estimates = boot_srss_energy_ca_full,
       alpha = ci_alpha,
@@ -241,9 +261,16 @@ bootstrap_targets <- list(
   tar_target(
     name = ci_srss_horizon_brier_ep,
     command = get_bonferroni_ci(
-      estimates = get_srss(
-        add_horizon(su_scores_ep), "brier_score",
-        by = "horizon"
+      estimates = filter_min_overlap(
+        estimates = get_srss(
+          add_horizon(su_scores_ep), "brier_score",
+          by = "horizon"
+        ),
+        n_dates = get_n_overlapping_dates(
+          add_horizon(su_scores_ep), "brier_score",
+          by = "horizon"
+        ),
+        min_dates = min_dates_ci
       ),
       boot_estimates = boot_srss_horizon_brier_ep_full,
       alpha = ci_alpha,
@@ -274,9 +301,16 @@ bootstrap_targets <- list(
   tar_target(
     name = ci_srss_horizon_energy_ep,
     command = get_bonferroni_ci(
-      estimates = get_srss(
-        add_horizon(su_scores_ep), "energy_score",
-        by = "horizon"
+      estimates = filter_min_overlap(
+        estimates = get_srss(
+          add_horizon(su_scores_ep), "energy_score",
+          by = "horizon"
+        ),
+        n_dates = get_n_overlapping_dates(
+          add_horizon(su_scores_ep), "energy_score",
+          by = "horizon"
+        ),
+        min_dates = min_dates_ci
       ),
       boot_estimates = boot_srss_horizon_energy_ep_full,
       alpha = ci_alpha,
@@ -308,9 +342,16 @@ bootstrap_targets <- list(
   tar_target(
     name = ci_srss_horizon_brier_ca,
     command = get_bonferroni_ci(
-      estimates = filter(
-        get_srss(add_horizon(su_scores_ca), "brier_score", by = "horizon"),
-        model != "CADPH-CATaMaran"
+      estimates = filter_min_overlap(
+        estimates = get_srss(
+          add_horizon(su_scores_ca), "brier_score",
+          by = "horizon"
+        ),
+        n_dates = get_n_overlapping_dates(
+          add_horizon(su_scores_ca), "brier_score",
+          by = "horizon"
+        ),
+        min_dates = min_dates_ci
       ),
       boot_estimates = boot_srss_horizon_brier_ca_full,
       alpha = ci_alpha,
@@ -341,9 +382,16 @@ bootstrap_targets <- list(
   tar_target(
     name = ci_srss_horizon_energy_ca,
     command = get_bonferroni_ci(
-      estimates = filter(
-        get_srss(add_horizon(su_scores_ca), "energy_score", by = "horizon"),
-        model != "CADPH-CATaMaran"
+      estimates = filter_min_overlap(
+        estimates = get_srss(
+          add_horizon(su_scores_ca), "energy_score",
+          by = "horizon"
+        ),
+        n_dates = get_n_overlapping_dates(
+          add_horizon(su_scores_ca), "energy_score",
+          by = "horizon"
+        ),
+        min_dates = min_dates_ci
       ),
       boot_estimates = boot_srss_horizon_energy_ca_full,
       alpha = ci_alpha,
@@ -390,29 +438,25 @@ bootstrap_targets <- list(
         ci = ci_srss_brier_ep,
         region = "US excluding CA",
         score_type = "brier_score",
-        metric = "SRSS",
-        n_dates = get_n_overlapping_dates(su_scores_ep, "brier_score")
+        metric = "SRSS"
       ),
       format_ci_table(
         ci = ci_srss_energy_ep,
         region = "US excluding CA",
         score_type = "energy_score",
-        metric = "SRSS",
-        n_dates = get_n_overlapping_dates(su_scores_ep, "energy_score")
+        metric = "SRSS"
       ),
       format_ci_table(
         ci = ci_srss_brier_ca,
         region = "CA",
         score_type = "brier_score",
-        metric = "SRSS",
-        n_dates = get_n_overlapping_dates(su_scores_ca, "brier_score")
+        metric = "SRSS"
       ),
       format_ci_table(
         ci = ci_srss_energy_ca,
         region = "CA",
         score_type = "energy_score",
-        metric = "SRSS",
-        n_dates = get_n_overlapping_dates(su_scores_ca, "energy_score")
+        metric = "SRSS"
       )
     )
   ),
@@ -423,41 +467,25 @@ bootstrap_targets <- list(
         ci = ci_srss_horizon_brier_ep,
         region = "US excluding CA",
         score_type = "brier_score",
-        metric = "SRSS",
-        n_dates = get_n_overlapping_dates(
-          add_horizon(su_scores_ep), "brier_score",
-          by = "horizon"
-        )
+        metric = "SRSS"
       ),
       format_ci_table(
         ci = ci_srss_horizon_energy_ep,
         region = "US excluding CA",
         score_type = "energy_score",
-        metric = "SRSS",
-        n_dates = get_n_overlapping_dates(
-          add_horizon(su_scores_ep), "energy_score",
-          by = "horizon"
-        )
+        metric = "SRSS"
       ),
       format_ci_table(
         ci = ci_srss_horizon_brier_ca,
         region = "CA",
         score_type = "brier_score",
-        metric = "SRSS",
-        n_dates = get_n_overlapping_dates(
-          add_horizon(su_scores_ca), "brier_score",
-          by = "horizon"
-        )
+        metric = "SRSS"
       ),
       format_ci_table(
         ci = ci_srss_horizon_energy_ca,
         region = "CA",
         score_type = "energy_score",
-        metric = "SRSS",
-        n_dates = get_n_overlapping_dates(
-          add_horizon(su_scores_ca), "energy_score",
-          by = "horizon"
-        )
+        metric = "SRSS"
       )
     )
   ),
