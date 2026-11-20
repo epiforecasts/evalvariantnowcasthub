@@ -244,6 +244,22 @@ utils::globalVariables(c(
   "90", # <get_plot_coverage_by_loc>
   "50", # <get_plot_coverage_by_loc>
   "interval_label", # <get_plot_coverage_by_loc>
+  "model_id", # <score_hub_submission>
+  "target_date", # <score_hub_submission>
+  "location", # <score_hub_submission>
+  "brier_point", # <score_hub_submission>
+  "brier_dist", # <score_hub_submission>
+  "energy", # <score_hub_submission>
+  "scored", # <score_hub_submission>
+  "status", # <score_hub_submission>
+  "model_id", # <check_hub_reproduction>
+  "nowcast_date", # <check_hub_reproduction>
+  "model_id", # <get_model_scoring_status>
+  "nowcast_date", # <get_model_scoring_status>
+  "status", # <get_model_scoring_status>
+  "model_id", # <get_hub_check_submissions>
+  "nowcast_date", # <get_hub_check_submissions>
+  "model_output_file", # <get_hub_check_submissions>
   "model", # <get_permutation_pvalues>
   "estimate", # <get_permutation_pvalues>
   "observed", # <get_permutation_pvalues>
