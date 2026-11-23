@@ -207,3 +207,115 @@ test_that("sample_id_model shares draws across models and centres on the fit", {
     tolerance = 1e-12
   )
 })
+
+test_that("draw_id_daily_n spreads or scatters the weekly volume", {
+  expect_identical(draw_id_daily_n(350), rep(50, 42))
+  expect_identical(draw_id_daily_n(7), rep(1, 42))
+  set.seed(5)
+  low <- draw_id_daily_n(0.5)
+  expect_identical(sum(low), 3)
+  expect_true(all(low %in% c(0, 1)))
+  expect_identical(sum(draw_id_daily_n(4)), 24)
+  expect_error(draw_id_daily_n(10), "multiples of 7")
+})
+
+test_that("draw_id_observations draws N_t sequences on each day", {
+  theta <- get_mlr_theta(true_intercept, true_growth, 1:42)
+  set.seed(6)
+  n_day <- c(rep(0, 20), rep(5, 22))
+  counts <- draw_id_observations(theta, n_day)
+  expect_identical(dim(counts), dim(theta))
+  expect_identical(unname(rowSums(counts)), n_day)
+})
+
+test_that("score_id_brier matches the Hub's formula and its expansion", {
+  theta_bar <- matrix(c(0.5, 0.3, 0.2, 0.1, 0.1, 0.8), 2, byrow = TRUE)
+  counts <- matrix(c(3, 1, 1, 0, 0, 0), 2, byrow = TRUE)
+  score <- score_id_brier(theta_bar, counts)
+  n <- 5
+  hub <- 0.5 / n * sum(
+    counts[1, ] * (theta_bar[1, ] - 1)^2 + (n - counts[1, ]) * theta_bar[1, ]^2
+  )
+  p_hat <- counts[1, ] / n
+  expansion <- 0.5 * (sum(theta_bar[1, ]^2) - 2 * sum(theta_bar[1, ] * p_hat) +
+    1)
+  expect_equal(score[1], hub, tolerance = 1e-12)
+  expect_equal(score[1], expansion, tolerance = 1e-12)
+  expect_true(is.na(score[2]))
+})
+
+test_that("Brier differences match their analytic mean and variance", {
+  # Analytic mean and variance of the daily Brier difference between two
+  # models under multinomial observations, as derived in #141
+  theta <- c(0.5, 0.3, 0.2)
+  theta_a <- c(0.4, 0.35, 0.25)
+  theta_b <- theta
+  d <- theta_a - theta_b
+  n <- 20
+  set.seed(7)
+  counts <- t(stats::rmultinom(20000, n, theta))
+  diffs <- score_id_brier(matrix(theta_a, 20000, 3, byrow = TRUE), counts) -
+    score_id_brier(matrix(theta_b, 20000, 3, byrow = TRUE), counts)
+  mean_analytic <- 0.5 * (sum((theta_a - theta)^2) - sum((theta_b - theta)^2))
+  var_analytic <- (sum(theta * d^2) - sum(theta * d)^2) / n
+  expect_lt(
+    abs(mean(diffs) - mean_analytic), 4 * sqrt(var_analytic / 20000)
+  )
+  expect_equal(stats::var(diffs), var_analytic, tolerance = 0.05)
+})
+
+test_that("score_id_energy equals es_sample and scoringutils", {
+  set.seed(8)
+  samples <- array(
+    stats::rexp(10 * 3 * 3), c(10, 3, 3)
+  )
+  samples <- samples / as.vector(apply(samples, c(1, 2), sum))
+  pred <- draw_id_predictive(samples, n = 15, n_per_sample = 20)
+  counts <- rbind(c(5, 5, 5), c(0, 0, 0), c(1, 2, 12))
+  score <- score_id_energy(pred, counts)
+  expect_true(is.na(score[2]))
+  for (j in c(1, 3)) {
+    expect_equal(
+      score[j],
+      scoringRules::es_sample(y = counts[j, ], dat = pred$draws[[j]]),
+      tolerance = 1e-10
+    )
+  }
+  # scoringutils wraps the same function
+  dat <- pred$draws[[3]]
+  su <- scoringutils::energy_score_multivariate(
+    observed = counts[3, ],
+    predicted = dat,
+    mv_group_id = rep(1, 3)
+  )
+  expect_equal(unname(su), score[3], tolerance = 1e-10)
+})
+
+test_that("run_id_replicates scores every model on shared observations", {
+  ex <- id_truth_example()
+  tr <- get_id_training_counts(ex$data, ex$fit, ex$nowcast)
+  targets <- ex$nowcast + (-31:10)
+  fits <- lapply(c(0, 0.5), function(e) {
+    fit_id_model(tr, ex$fit, rising_clade = "c", eps = e)
+  })
+  samples <- lapply(fits, sample_id_model,
+    vcov = fits[[1]]$vcov, t0 = ex$fit$t0, target_dates = targets,
+    n_samples = 10
+  )
+  truth_theta <- get_id_truth_theta(ex$fit, targets)
+  out <- run_id_replicates(samples, truth_theta, rate = 70, n_reps = 5)
+  expect_identical(nrow(out), 10L)
+  expect_true(all(out$n_days_scored == 42))
+  srss <- get_id_srss(out)
+  expect_identical(nrow(srss), 5L)
+  expect_true(all(srss$eps == 0.5))
+  expect_equal(
+    srss$srss_brier,
+    out$brier[out$eps == 0.5] / out$brier[out$eps == 0],
+    tolerance = 1e-12
+  )
+  low <- run_id_replicates(samples, truth_theta, rate = 0.5, n_reps = 5)
+  expect_true(all(low$n_days_scored == 3))
+  summary <- summarise_id_expected_srss(out)
+  expect_identical(nrow(summary), 2L)
+})

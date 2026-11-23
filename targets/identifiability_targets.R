@@ -149,5 +149,34 @@ identifiability_targets <- list(
       nowcast_date = id_nowcast_date,
       plot_name = "models"
     )
+  ),
+  # Observations and scoring (step 3)--------------------------------------
+  # True proportions on the 42 scoring days, from which observations are
+  # drawn: C_t ~ Multinomial(N_t, theta_t), fresh in every replicate
+  tar_target(
+    name = id_truth_theta,
+    command = get_id_truth_theta(id_truth_fit, id_target_dates)
+  ),
+  # Sanity check before Loop A: with a shared covariance the true model
+  # should win in expectation, so the expected SRSS should be >= 1 for every
+  # eps at large N, on both scores. Run at the top of the Loop A grid
+  # (350/week, 50/day) and at a much larger volume (7,000/week, 1,000/day).
+  tar_target(
+    name = id_sanity_rates,
+    command = c(350, 7000)
+  ),
+  tar_target(
+    name = id_sanity_scores,
+    command = run_id_replicates(
+      model_samples = id_model_samples,
+      truth_theta = id_truth_theta,
+      rate = id_sanity_rates,
+      n_reps = 200
+    ),
+    pattern = map(id_sanity_rates)
+  ),
+  tar_target(
+    name = id_sanity_summary,
+    command = summarise_id_expected_srss(id_sanity_scores)
   )
 )
