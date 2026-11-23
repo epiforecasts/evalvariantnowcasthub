@@ -178,5 +178,68 @@ identifiability_targets <- list(
   tar_target(
     name = id_sanity_summary,
     command = summarise_id_expected_srss(id_sanity_scores)
+  ),
+  # Loop A (step 4)----------------------------------------------------------
+  # Each volume in id_rate_grid (sequences per week) is one branch: each
+  # model's predictive count draws are made once, then each replicate draws
+  # one observation set from the truth and scores every model against it.
+  # ~4 min per branch (~50 min in total).
+  tar_target(
+    name = id_n_reps_a,
+    command = 1000
+  ),
+  tar_target(
+    name = id_loop_a_scores,
+    command = run_id_replicates(
+      model_samples = id_model_samples,
+      truth_theta = id_truth_theta,
+      rate = id_rate_grid,
+      n_reps = id_n_reps_a
+    ),
+    pattern = map(id_rate_grid)
+  ),
+  # SRSS median and 95% range across replicates, expected SRSS and
+  # P(true model wins), each with Monte Carlo SEs, and detectability
+  tar_target(
+    name = id_loop_a_summary,
+    command = summarise_id_srss(id_loop_a_scores)
+  ),
+  tar_target(
+    name = id_loop_a_min_detectable,
+    command = get_id_min_detectable(id_loop_a_summary)
+  ),
+  tar_target(
+    name = csv_id_loop_a_summary,
+    command = save_table_csv(id_loop_a_summary, "identifiability_loop_a"),
+    format = "file"
+  ),
+  tar_target(
+    name = csv_id_loop_a_min_detectable,
+    command = save_table_csv(
+      id_loop_a_min_detectable, "identifiability_loop_a_min_detectable"
+    ),
+    format = "file"
+  ),
+  tar_target(
+    name = plot_id_loop_a_srss,
+    command = get_plot_id_srss_vs_n(
+      srss_summary = id_loop_a_summary,
+      plot_name = "loop_a_srss"
+    )
+  ),
+  tar_target(
+    name = plot_id_loop_a_min_detectable,
+    command = get_plot_id_min_detectable(
+      min_detectable = id_loop_a_min_detectable,
+      eps_grid = id_eps_grid,
+      plot_name = "loop_a_min_detectable"
+    )
+  ),
+  tar_target(
+    name = plot_id_loop_a_p_true_wins,
+    command = get_plot_id_p_true_wins(
+      srss_summary = id_loop_a_summary,
+      plot_name = "loop_a_p_true_wins"
+    )
   )
 )

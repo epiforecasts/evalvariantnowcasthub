@@ -294,6 +294,21 @@ utils::globalVariables(c(
   "upper", # <get_plot_id_models>
   "eps_f", # <get_plot_id_models>
   "theta", # <get_plot_id_models>
+  "rate", # <summarise_id_srss>
+  "eps", # <summarise_id_srss>
+  "rate", # <get_plot_id_srss_vs_n>
+  "median", # <get_plot_id_srss_vs_n>
+  "abs_eps", # <get_plot_id_srss_vs_n>
+  "lower", # <get_plot_id_srss_vs_n>
+  "upper", # <get_plot_id_srss_vs_n>
+  "rate", # <get_plot_id_min_detectable>
+  "y", # <get_plot_id_min_detectable>
+  "direction", # <get_plot_id_min_detectable>
+  "detected", # <get_plot_id_min_detectable>
+  "rate", # <get_plot_id_p_true_wins>
+  "p_true_wins", # <get_plot_id_p_true_wins>
+  "abs_eps", # <get_plot_id_p_true_wins>
+  "p_true_wins_se", # <get_plot_id_p_true_wins>
   "model", # <get_permutation_pvalues>
   "estimate", # <get_permutation_pvalues>
   "observed", # <get_permutation_pvalues>

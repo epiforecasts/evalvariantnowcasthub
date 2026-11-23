@@ -946,3 +946,286 @@ summarise_id_expected_srss <- function(replicate_scores) {
   }
   do.call(rbind, out)
 }
+
+#' Summarise the SRSS across replicates for each volume and eps
+#'
+#' For each volume (sequences per week), score and misspecified model: the
+#' median and 2.5-97.5% range of the SRSS across replicates (the headline),
+#' the expected SRSS with its Monte Carlo SE ([summarise_id_expected_srss()]),
+#' the proportion of replicates in which the true model wins with its Monte
+#' Carlo SE, and whether the misspecification is detectable: the 95% range of
+#' SRSS excludes 1, i.e. the true model wins in at least 97.5% of
+#' replicates (#141).
+#'
+#' @param replicate_scores Output of [run_id_replicates()], for any number
+#'   of volumes.
+#' @returns Data frame with one row per rate, score and eps.
+#' @autoglobal
+summarise_id_srss <- function(replicate_scores) {
+  srss <- get_id_srss(replicate_scores)
+  long <- rbind(
+    data.frame(
+      srss[, c("rate", "replicate", "eps")],
+      score = "brier", srss = srss$srss_brier, stringsAsFactors = FALSE
+    ),
+    data.frame(
+      srss[, c("rate", "replicate", "eps")],
+      score = "energy", srss = srss$srss_energy, stringsAsFactors = FALSE
+    )
+  )
+  ranges <- long |>
+    dplyr::summarise(
+      median = stats::median(srss),
+      lower = stats::quantile(srss, 0.025, names = FALSE),
+      upper = stats::quantile(srss, 0.975, names = FALSE),
+      .by = c(rate, score, eps)
+    )
+  expected <- summarise_id_expected_srss(replicate_scores)
+  out <- dplyr::left_join(ranges, expected, by = c("rate", "score", "eps"))
+  out$p_true_wins_se <- sqrt(
+    out$p_true_wins * (1 - out$p_true_wins) / out$n_reps
+  )
+  out$detectable <- out$lower > 1
+  # A 95% range entirely below 1 would mean the misspecified model reliably
+  # wins; this should not happen given the sanity check, so flag it
+  out$misspecified_wins <- out$upper < 1
+  dplyr::arrange(out, score, eps, rate)
+}
+
+#' Minimum detectable misspecification for each volume
+#'
+#' For each volume, score and direction of misspecification (eps < 0 or
+#' eps > 0), the smallest |eps| in the grid that is detectable and for which
+#' every larger |eps| in that direction is also detectable. `NA` when even
+#' the largest |eps| is not detectable.
+#'
+#' @param srss_summary Output of [summarise_id_srss()].
+#' @returns Data frame with columns `rate`, `score`, `direction` ("slower"
+#'   for eps < 0, "faster" for eps > 0) and `min_detectable_eps` (|eps|).
+#' @autoglobal
+get_id_min_detectable <- function(srss_summary) {
+  srss_summary$direction <- ifelse(srss_summary$eps < 0, "slower", "faster")
+  groups <- unique(srss_summary[, c("rate", "score", "direction")])
+  groups$min_detectable_eps <- NA_real_
+  for (i in seq_len(nrow(groups))) {
+    g <- srss_summary[
+      srss_summary$rate == groups$rate[i] &
+        srss_summary$score == groups$score[i] &
+        srss_summary$direction == groups$direction[i],
+    ]
+    g <- g[order(abs(g$eps), decreasing = TRUE), ]
+    # Walk down from the largest |eps| while every one is detectable
+    n_ok <- if (all(g$detectable)) nrow(g) else which(!g$detectable)[1] - 1
+    if (n_ok > 0) {
+      groups$min_detectable_eps[i] <- abs(g$eps[n_ok])
+    }
+  }
+  groups[order(groups$score, groups$direction, groups$rate), ]
+}
+
+#' Plot SRSS against sequencing volume (Loop A)
+#'
+#' Median SRSS (lines and points) and its 2.5-97.5% range across replicates
+#' (ribbons) against sequences per week on a log scale, with sequences per
+#' day on the top axis, coloured by |eps|. Panels by score (rows) and
+#' direction of the misspecification (columns).
+#'
+#' @param srss_summary Output of [summarise_id_srss()].
+#' @param plot_name Character string indicating name of plot.
+#' @param output_fp Character string indicating directory to save file.
+#' @param save Boolean indicating whether or not to save the plot.
+#' @importFrom ggplot2 ggplot aes geom_line geom_point geom_ribbon
+#'   geom_hline facet_grid labs ggsave scale_x_log10 sec_axis
+#'   scale_color_viridis_d scale_fill_viridis_d labeller
+#' @returns ggplot object
+#' @autoglobal
+get_plot_id_srss_vs_n <- function(srss_summary,
+                                  plot_name,
+                                  output_fp = file.path(
+                                    "output", "figs", "identifiability"
+                                  ),
+                                  save = TRUE) {
+  plot_df <- srss_summary
+  plot_df$abs_eps <- factor(
+    sprintf("%.0f%%", 100 * abs(plot_df$eps)),
+    levels = sprintf("%.0f%%", 100 * sort(unique(abs(plot_df$eps))))
+  )
+  plot_df$direction <- factor(
+    ifelse(plot_df$eps < 0, "25A growth too slow", "25A growth too fast"),
+    levels = c("25A growth too slow", "25A growth too fast")
+  )
+  plot_df$score <- factor(plot_df$score,
+    levels = c("brier", "energy"),
+    labels = c("Brier score", "Energy score")
+  )
+  p <- ggplot(plot_df, aes(x = rate, y = median, color = abs_eps)) +
+    geom_hline(yintercept = 1, linetype = "dashed") +
+    geom_ribbon(aes(ymin = lower, ymax = upper, fill = abs_eps),
+      alpha = 0.15, color = NA
+    ) +
+    geom_line() +
+    geom_point(size = 1) +
+    facet_grid(score ~ direction, scales = "free_y") +
+    scale_x_log10(sec.axis = sec_axis(~ . / 7, name = "Sequences per day")) +
+    scale_color_viridis_d(
+      name = "Misspecification\nsize", end = 0.9, direction = -1
+    ) +
+    scale_fill_viridis_d(end = 0.9, direction = -1, guide = "none") +
+    get_plot_theme() +
+    labs(
+      x = "Sequences per week (42 scoring days)",
+      y = "SRSS of misspecified vs true model",
+      title = "Loop A: SRSS of misspecified models vs sequencing volume",
+      subtitle = paste(
+        "Lines: median across replicates. Ribbons: 2.5-97.5% range.",
+        "Detectable when the range lies above 1."
+      )
+    )
+  if (isTRUE(save)) {
+    dir_create(output_fp, recurse = TRUE)
+    ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
+      plot = p, width = 11, height = 7
+    )
+  }
+  return(p)
+}
+
+#' Plot the minimum detectable misspecification against volume (Loop A)
+#'
+#' @param min_detectable Output of [get_id_min_detectable()].
+#' @param eps_grid Numeric vector of the eps values tested, to mark the
+#'   grid on the y-axis.
+#' @param plot_name Character string indicating name of plot.
+#' @param output_fp Character string indicating directory to save file.
+#' @param save Boolean indicating whether or not to save the plot.
+#' @importFrom ggplot2 ggplot aes geom_step geom_point labs ggsave
+#'   scale_x_log10 scale_y_continuous sec_axis scale_color_manual
+#'   facet_wrap
+#' @returns ggplot object
+#' @autoglobal
+get_plot_id_min_detectable <- function(min_detectable,
+                                       eps_grid,
+                                       plot_name,
+                                       output_fp = file.path(
+                                         "output", "figs", "identifiability"
+                                       ),
+                                       save = TRUE) {
+  plot_df <- min_detectable
+  plot_df$score <- factor(plot_df$score,
+    levels = c("brier", "energy"),
+    labels = c("Brier score", "Energy score")
+  )
+  plot_df$direction <- factor(
+    ifelse(plot_df$direction == "slower", "25A growth too slow",
+      "25A growth too fast"
+    ),
+    levels = c("25A growth too slow", "25A growth too fast")
+  )
+  plot_df$detected <- !is.na(plot_df$min_detectable_eps)
+  # Not detectable at any tested eps: plot above the grid
+  top <- 1.25 * max(abs(eps_grid))
+  plot_df$y <- ifelse(plot_df$detected, plot_df$min_detectable_eps, top)
+  breaks <- sort(unique(abs(eps_grid[eps_grid != 0])))
+  p <- ggplot(plot_df, aes(
+    x = rate, y = y, color = direction, linetype = direction
+  )) +
+    geom_step(data = plot_df[plot_df$detected, ], direction = "hv") +
+    geom_point(aes(shape = detected), size = 2) +
+    facet_wrap(~score) +
+    scale_x_log10(sec.axis = sec_axis(~ . / 7, name = "Sequences per day")) +
+    scale_y_continuous(
+      breaks = c(breaks, top),
+      labels = c(sprintf("%.0f%%", 100 * breaks), "none"),
+      limits = c(0, top)
+    ) +
+    scale_color_manual(values = c("#2166AC", "#B2182B"), name = NULL) +
+    ggplot2::scale_linetype_manual(values = c("solid", "dashed"), name = NULL) +
+    ggplot2::scale_shape_manual(
+      values = c(`TRUE` = 16, `FALSE` = 4),
+      labels = c(`TRUE` = "Detectable", `FALSE` = "None detectable"),
+      name = NULL
+    ) +
+    get_plot_theme() +
+    labs(
+      x = "Sequences per week (42 scoring days)",
+      y = "Minimum detectable misspecification",
+      title = "Loop A: smallest detectable error in 25A's growth advantage",
+      subtitle = paste(
+        "Smallest tested misspecification (and every larger one) at which",
+        "the true model wins in at least 97.5% of replicates"
+      )
+    )
+  if (isTRUE(save)) {
+    dir_create(output_fp, recurse = TRUE)
+    ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
+      plot = p, width = 11, height = 5
+    )
+  }
+  return(p)
+}
+
+#' Plot the probability that the true model wins against volume (Loop A)
+#'
+#' @param srss_summary Output of [summarise_id_srss()].
+#' @param plot_name Character string indicating name of plot.
+#' @param output_fp Character string indicating directory to save file.
+#' @param save Boolean indicating whether or not to save the plot.
+#' @importFrom ggplot2 ggplot aes geom_line geom_point geom_hline
+#'   geom_errorbar facet_grid labs ggsave scale_x_log10 sec_axis
+#'   scale_color_viridis_d
+#' @returns ggplot object
+#' @autoglobal
+get_plot_id_p_true_wins <- function(srss_summary,
+                                    plot_name,
+                                    output_fp = file.path(
+                                      "output", "figs", "identifiability"
+                                    ),
+                                    save = TRUE) {
+  plot_df <- srss_summary
+  plot_df$abs_eps <- factor(
+    sprintf("%.0f%%", 100 * abs(plot_df$eps)),
+    levels = sprintf("%.0f%%", 100 * sort(unique(abs(plot_df$eps))))
+  )
+  plot_df$direction <- factor(
+    ifelse(plot_df$eps < 0, "25A growth too slow", "25A growth too fast"),
+    levels = c("25A growth too slow", "25A growth too fast")
+  )
+  plot_df$score <- factor(plot_df$score,
+    levels = c("brier", "energy"),
+    labels = c("Brier score", "Energy score")
+  )
+  p <- ggplot(plot_df, aes(x = rate, y = p_true_wins, color = abs_eps)) +
+    geom_hline(yintercept = 0.5, linetype = "dotted") +
+    geom_hline(yintercept = 0.975, linetype = "dashed") +
+    geom_errorbar(
+      aes(
+        ymin = p_true_wins - 1.96 * p_true_wins_se,
+        ymax = p_true_wins + 1.96 * p_true_wins_se
+      ),
+      width = 0
+    ) +
+    geom_line() +
+    geom_point(size = 1) +
+    facet_grid(score ~ direction) +
+    scale_x_log10(sec.axis = sec_axis(~ . / 7, name = "Sequences per day")) +
+    scale_color_viridis_d(
+      name = "Misspecification\nsize", end = 0.9, direction = -1
+    ) +
+    get_plot_theme() +
+    labs(
+      x = "Sequences per week (42 scoring days)",
+      y = "P(true model has the lower score)",
+      title = "Loop A: probability the evaluation ranks the true model first",
+      subtitle = paste(
+        "Bars: 95% Monte Carlo interval. Dashed: 0.975 (detection",
+        "threshold); dotted: 0.5 (no better than chance)."
+      )
+    )
+  if (isTRUE(save)) {
+    dir_create(output_fp, recurse = TRUE)
+    ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
+      plot = p, width = 11, height = 7
+    )
+  }
+  return(p)
+}

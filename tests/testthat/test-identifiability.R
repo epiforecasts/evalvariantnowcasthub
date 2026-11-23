@@ -319,3 +319,31 @@ test_that("run_id_replicates scores every model on shared observations", {
   summary <- summarise_id_expected_srss(out)
   expect_identical(nrow(summary), 2L)
 })
+
+test_that("get_id_min_detectable needs every larger eps to be detectable", {
+  summary <- data.frame(
+    rate = 7, score = "brier",
+    eps = c(-0.5, -0.25, -0.1, 0.1, 0.25, 0.5),
+    detectable = c(TRUE, TRUE, FALSE, TRUE, FALSE, TRUE),
+    stringsAsFactors = FALSE
+  )
+  out <- get_id_min_detectable(summary)
+  expect_identical(out$min_detectable_eps[out$direction == "slower"], 0.25)
+  # +10% detectable but +25% not: the minimum is +50%
+  expect_identical(out$min_detectable_eps[out$direction == "faster"], 0.5)
+  none <- transform(summary, detectable = FALSE)
+  expect_true(all(is.na(get_id_min_detectable(none)$min_detectable_eps)))
+})
+
+test_that("summarise_id_srss flags detectability from the 95% range", {
+  scores <- data.frame(
+    rate = 7, replicate = rep(1:100, each = 2), eps = c(0, 0.5),
+    n_days_scored = 42,
+    brier = rep(c(1, 1.1), 100),
+    energy = c(rbind(rep(1, 100), seq(0.95, 1.2, length.out = 100)))
+  )
+  out <- summarise_id_srss(scores)
+  expect_true(out$detectable[out$score == "brier"])
+  expect_false(out$detectable[out$score == "energy"])
+  expect_identical(out$p_true_wins[out$score == "brier"], 1)
+})
