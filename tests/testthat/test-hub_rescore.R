@@ -134,6 +134,20 @@ test_that("remove_zero_duplicates stops when it is unclear what to keep", {
   )
 })
 
+test_that("check_zero_duplicates_removed ignores group order", {
+  # Removing the first row changes which target date appears first
+  x <- submission(
+    clades = c("24A", "24A", "25A", "24A", "25A"),
+    values = c(0, 0.4, 0.6, 0.3, 0.7),
+    target_dates = c(
+      "2025-04-01", "2025-04-02", "2025-04-02", "2025-04-01", "2025-04-01"
+    )
+  )
+  out <- remove_zero_duplicates(x)
+  expect_identical(nrow(out$removed), 1L)
+  expect_invisible(check_zero_duplicates_removed(x, out$cleaned))
+})
+
 test_that("check_zero_duplicates_removed catches bad de-duplication", {
   x <- submission(c("24A", "24A", "25A"), c(0.4, 0, 0.6))
   expect_error(check_zero_duplicates_removed(x, x), "remain")

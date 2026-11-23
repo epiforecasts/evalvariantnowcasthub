@@ -316,11 +316,14 @@ check_zero_duplicates_removed <- function(original, cleaned) {
     any(removed$value != 0)) {
     cli::cli_abort("De-duplication removed rows other than zero rows.")
   }
+  # Sorted so the comparison does not depend on row order: .by keeps groups
+  # in order of first appearance, which removing a row can change.
   totals <- function(x) {
     dplyr::summarise(x,
       total = sum(value),
       .by = c(location, target_date, output_type, output_type_id)
-    )
+    ) |>
+      dplyr::arrange(location, target_date, output_type, output_type_id)
   }
   if (!isTRUE(all.equal(totals(original), totals(cleaned)))) {
     cli::cli_abort("De-duplication changed the summed values.")
