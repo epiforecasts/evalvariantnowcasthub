@@ -174,13 +174,20 @@ hub_rescore_targets <- list(
     error = "stop"
   ),
   # The Hub's scores, with the errored CADPH-CATaMaran rows replaced by
-  # our scores (status "rescored"); used throughout the analysis
+  # our scores (status "rescored"); used throughout the analysis. Both
+  # reproduction checks are forced here so that they are upstream of scores:
+  # the rescored rows are only used once both checks have passed, even when
+  # building scores on its own (tar_make(names = scores)).
   tar_target(
     name = scores,
-    command = add_rescored_scores(
-      scores_hub = scores_hub,
-      rescored = catamaran_rescored
-    ),
+    command = {
+      force(hub_check_summary)
+      force(hub_check_errors)
+      add_rescored_scores(
+        scores_hub = scores_hub,
+        rescored = catamaran_rescored
+      )
+    },
     error = "stop"
   )
 )
