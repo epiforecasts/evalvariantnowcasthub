@@ -1066,7 +1066,12 @@ get_plot_id_srss_vs_n <- function(srss_summary,
     geom_line() +
     geom_point(size = 1) +
     facet_grid(score ~ direction, scales = "free_y") +
-    scale_x_log10(sec.axis = sec_axis(~ . / 7, name = "Sequences per day")) +
+    scale_x_log10(sec.axis = sec_axis(
+      ~ . / 7,
+      name = "Sequences per day",
+      breaks = c(0.1, 0.3, 1, 3, 10, 30),
+      labels = c("0.1", "0.3", "1", "3", "10", "30")
+    )) +
     scale_color_viridis_d(
       name = "Misspecification\nsize", end = 0.9, direction = -1
     ) +
@@ -1132,7 +1137,12 @@ get_plot_id_min_detectable <- function(min_detectable,
     geom_step(data = plot_df[plot_df$detected, ], direction = "hv") +
     geom_point(aes(shape = detected), size = 2) +
     facet_wrap(~score) +
-    scale_x_log10(sec.axis = sec_axis(~ . / 7, name = "Sequences per day")) +
+    scale_x_log10(sec.axis = sec_axis(
+      ~ . / 7,
+      name = "Sequences per day",
+      breaks = c(0.1, 0.3, 1, 3, 10, 30),
+      labels = c("0.1", "0.3", "1", "3", "10", "30")
+    )) +
     scale_y_continuous(
       breaks = c(breaks, top),
       labels = c(sprintf("%.0f%%", 100 * breaks), "none"),
@@ -1207,7 +1217,12 @@ get_plot_id_p_true_wins <- function(srss_summary,
     geom_line() +
     geom_point(size = 1) +
     facet_grid(score ~ direction) +
-    scale_x_log10(sec.axis = sec_axis(~ . / 7, name = "Sequences per day")) +
+    scale_x_log10(sec.axis = sec_axis(
+      ~ . / 7,
+      name = "Sequences per day",
+      breaks = c(0.1, 0.3, 1, 3, 10, 30),
+      labels = c("0.1", "0.3", "1", "3", "10", "30")
+    )) +
     scale_color_viridis_d(
       name = "Misspecification\nsize", end = 0.9, direction = -1
     ) +
