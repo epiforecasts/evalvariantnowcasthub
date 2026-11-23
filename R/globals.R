@@ -244,6 +244,40 @@ utils::globalVariables(c(
   "90", # <get_plot_coverage_by_loc>
   "50", # <get_plot_coverage_by_loc>
   "interval_label", # <get_plot_coverage_by_loc>
+  "model_id", # <score_hub_submission>
+  "target_date", # <score_hub_submission>
+  "location", # <score_hub_submission>
+  "brier_point", # <score_hub_submission>
+  "brier_dist", # <score_hub_submission>
+  "energy", # <score_hub_submission>
+  "scored", # <score_hub_submission>
+  "status", # <score_hub_submission>
+  "model_id", # <check_hub_reproduction>
+  "nowcast_date", # <check_hub_reproduction>
+  "model_id", # <get_model_scoring_status>
+  "nowcast_date", # <get_model_scoring_status>
+  "status", # <get_model_scoring_status>
+  "model_id", # <get_hub_check_submissions>
+  "nowcast_date", # <get_hub_check_submissions>
+  "model_output_file", # <get_hub_check_submissions>
+  "value", # <remove_zero_duplicates>
+  ".n_rows", # <remove_zero_duplicates>
+  ".n_nonzero", # <remove_zero_duplicates>
+  "value", # <check_zero_duplicates_removed>
+  "location", # <check_zero_duplicates_removed>
+  "target_date", # <check_zero_duplicates_removed>
+  "output_type", # <check_zero_duplicates_removed>
+  "output_type_id", # <check_zero_duplicates_removed>
+  "status", # <check_only_model_errored>
+  "model_id", # <check_only_model_errored>
+  "model_id", # <get_errored_submissions>
+  "nowcast_date", # <get_errored_submissions>
+  "model_output_file", # <get_errored_submissions>
+  "model_id", # <add_rescored_scores>
+  "nowcast_date", # <add_rescored_scores>
+  "status", # <add_rescored_scores>
+  "location", # <add_rescored_scores>
+  "target_date", # <add_rescored_scores>
   "model", # <get_permutation_pvalues>
   "estimate", # <get_permutation_pvalues>
   "observed", # <get_permutation_pvalues>

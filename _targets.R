@@ -67,7 +67,8 @@ config_targets <- list(
 # outputs and create datasets needed for figures
 data_targets <- list(
   load_data_targets,
-  clean_data_targets
+  clean_data_targets,
+  hub_rescore_targets
 )
 
 # Summarise and analyse the scores and predictions
