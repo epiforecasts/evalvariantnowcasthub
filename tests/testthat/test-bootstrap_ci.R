@@ -1,0 +1,500 @@
+weekly_dates <- seq(as.Date("2024-10-09"), by = "week", length.out = 35)
+
+test_that("get_block_bootstrap_dates returns N dates per resample", {
+  set.seed(1)
+  boot <- get_block_bootstrap_dates(weekly_dates, n_boot = 20, block_length = 6)
+
+  expect_named(boot, c("boot_id", "position", "nowcast_date"))
+  expect_identical(nrow(boot), 20L * 35L)
+  expect_true(all(table(boot$boot_id) == 35))
+  expect_true(all(boot$nowcast_date %in% weekly_dates))
+  # position uniquely identifies each draw within a resample
+  expect_false(anyDuplicated(boot[, c("boot_id", "position")]) > 0)
+})
+
+test_that("get_block_bootstrap_dates resamples blocks of consecutive dates", {
+  set.seed(1)
+  boot <- get_block_bootstrap_dates(weekly_dates, n_boot = 20, block_length = 6)
+
+  # Positions 1-6, 7-12, ... each come from one block of consecutive weeks;
+  # the final block of 6 is trimmed to 5 so each resample has 35 dates.
+  boot$block <- (boot$position - 1) %/% 6
+  steps <- tapply(
+    boot$nowcast_date,
+    list(boot$boot_id, boot$block),
+    function(d) unique(diff(d))
+  )
+  expect_true(all(unlist(steps) == 7))
+})
+
+test_that("get_block_bootstrap_dates is reproducible given a seed", {
+  set.seed(42)
+  boot1 <- get_block_bootstrap_dates(weekly_dates, n_boot = 5, block_length = 6)
+  set.seed(42)
+  boot2 <- get_block_bootstrap_dates(weekly_dates, n_boot = 5, block_length = 6)
+  expect_identical(boot1, boot2)
+})
+
+test_that("get_block_bootstrap_dates validates its inputs", {
+  expect_error(
+    get_block_bootstrap_dates(weekly_dates, n_boot = 5, block_length = 36),
+    "block_length"
+  )
+  expect_error(
+    get_block_bootstrap_dates(weekly_dates[-3], n_boot = 5, block_length = 6),
+    "evenly spaced"
+  )
+})
+
+# Small scores object: 2 models x 3 weekly nowcast dates x 2 locations
+toy_scores <- function() {
+  fc <- expand.grid(
+    model = c("model_a", "Hub-baseline"),
+    nowcast_date = weekly_dates[1:3],
+    location = c("CA", "NY"),
+    stringsAsFactors = FALSE
+  )
+  fc$observed <- 1
+  fc$predicted <- seq_len(nrow(fc)) / 10
+  scoringutils::score(scoringutils::as_forecast_point(fc))
+}
+
+test_that("get_resampled_scores copies rows once per position drawn", {
+  scores <- toy_scores()
+  # Date 1 drawn twice, date 2 once, date 3 not at all
+  boot_dates <- data.frame(
+    boot_id = 1L,
+    position = 1:3,
+    nowcast_date = weekly_dates[c(1, 1, 2)]
+  )
+  resample <- get_resampled_scores(scores, boot_dates, b = 1)
+
+  # 4 rows per date (2 models x 2 locations) x 3 positions
+  expect_identical(nrow(resample), 12L)
+  expect_identical(
+    as.vector(table(resample$nowcast_date)),
+    c(8L, 4L)
+  )
+  expect_s3_class(resample, "scores")
+  expect_true("position" %in% scoringutils::get_forecast_unit(resample))
+  # Copies of date 1 are distinct forecasts, not duplicates
+  expect_false(anyDuplicated(
+    as.data.frame(resample)[, scoringutils::get_forecast_unit(resample)]
+  ) > 0)
+})
+
+test_that("get_mean_score_by_model averages over all rows per model", {
+  scores <- toy_scores()
+  scores$ae_point[scores$model == "model_a"][1] <- NA
+  # Pretend ae_point is brier_score to use the function's score types
+  scores$brier_score <- scores$ae_point
+  means <- get_mean_score_by_model(scores, "brier_score")
+
+  df <- as.data.frame(scores)
+  expect_equal(
+    means$estimate[means$model == "model_a"],
+    mean(df$brier_score[df$model == "model_a"], na.rm = TRUE),
+    tolerance = 1e-12
+  )
+  expect_identical(means$n_nowcast_dates, c(3L, 3L))
+})
+
+test_that("an identity resample reproduces the original estimate", {
+  scores <- toy_scores()
+  scores$brier_score <- scores$ae_point
+  boot_dates <- data.frame(
+    boot_id = 1L,
+    position = 1:3,
+    nowcast_date = weekly_dates[1:3]
+  )
+  boot <- get_bootstrap_mean_scores(scores, boot_dates, "brier_score")
+  orig <- get_mean_score_by_model(scores, "brier_score")
+
+  expect_named(boot, c("boot_id", "model", "estimate"))
+  expect_equal(boot$estimate, orig$estimate, tolerance = 1e-12)
+})
+
+test_that("get_bonferroni_ci uses estimate +/- qnorm(1 - alpha/2P) * sd", {
+  estimates <- data.frame(
+    model = c("a", "b", "c"),
+    estimate = c(1, 2, 3),
+    stringsAsFactors = FALSE
+  )
+  boot_estimates <- data.frame(
+    boot_id = rep(1:4, times = 3),
+    model = rep(c("a", "b", "c"), each = 4),
+    estimate = c(0.9, 1.1, 1.0, 1.0, 1.8, 2.2, 2.0, 2.0, 3, 3, 3, NA),
+    stringsAsFactors = FALSE
+  )
+  ci <- get_bonferroni_ci(estimates, boot_estimates, alpha = 0.05)
+
+  crit <- qnorm(1 - 0.05 / (2 * 3))
+  expect_identical(ci$n_comparisons, rep(3L, 3))
+  expect_equal(ci$crit_value, rep(crit, 3), tolerance = 1e-12)
+  expect_equal(
+    ci$lower,
+    c(1, 2, 3) - crit * c(sd(c(0.9, 1.1, 1, 1)), sd(c(1.8, 2.2, 2, 2)), 0),
+    tolerance = 1e-12
+  )
+  expect_equal(ci$upper - ci$estimate, ci$estimate - ci$lower,
+    tolerance = 1e-12
+  )
+  # Resamples where a model has no estimate are not counted
+  expect_identical(ci$n_boot, c(4L, 4L, 3L))
+})
+
+test_that("log-scale bands are symmetric about the estimate on a log axis", {
+  estimates <- data.frame(
+    model = c("a", "b"),
+    estimate = c(0.8, 1.25),
+    stringsAsFactors = FALSE
+  )
+  boot_estimates <- data.frame(
+    boot_id = rep(1:4, times = 2),
+    model = rep(c("a", "b"), each = 4),
+    estimate = c(0.7, 0.9, 0.8, 0.85, 1.1, 1.4, 1.2, 1.3),
+    stringsAsFactors = FALSE
+  )
+  ci <- get_bonferroni_ci(estimates, boot_estimates,
+    alpha = 0.05, log_scale = TRUE
+  )
+
+  crit <- qnorm(1 - 0.05 / 4)
+  log_sd_a <- sd(log(c(0.7, 0.9, 0.8, 0.85)))
+  expect_equal(ci$lower[1], 0.8 * exp(-crit * log_sd_a), tolerance = 1e-12)
+  # Geometric symmetry: lower * upper == estimate^2
+  expect_equal(ci$lower * ci$upper, ci$estimate^2, tolerance = 1e-12)
+  expect_true(all(ci$lower > 0))
+  expect_true(all(ci$log_scale))
+})
+
+test_that("get_bonferroni_ci counts every row of a by-horizon table in P", {
+  estimates <- expand.grid(
+    model = c("a", "b"), horizon = 0:2, stringsAsFactors = FALSE
+  )
+  estimates$estimate <- 1
+  boot_estimates <- merge(
+    data.frame(boot_id = 1:3), estimates[, c("model", "horizon")]
+  )
+  boot_estimates$estimate <- rep_len(c(0.9, 1, 1.1), 18)
+  ci <- get_bonferroni_ci(estimates, boot_estimates,
+    alpha = 0.05, by = c("model", "horizon"), log_scale = TRUE
+  )
+
+  expect_identical(nrow(ci), 6L)
+  expect_identical(ci$n_comparisons, rep(6L, 6))
+  expect_false(anyNA(ci$boot_sd))
+})
+
+# Small Brier-type scores object with target dates, for SRSS tests:
+# 2 models x 3 weekly nowcast dates x 2 target dates x 2 locations
+toy_brier_scores <- function() {
+  fc <- expand.grid(
+    model = c("model_a", "Hub-baseline"),
+    nowcast_date = weekly_dates[1:3],
+    horizon = c(-1, 0),
+    location = c("CA", "NY"),
+    stringsAsFactors = FALSE
+  )
+  fc$target_date <- fc$nowcast_date + fc$horizon
+  fc$horizon <- NULL
+  fc$observed <- 1
+  set.seed(3)
+  fc$predicted <- runif(nrow(fc), 0.2, 0.8)
+  scores <- scoringutils::score(
+    scoringutils::as_forecast_point(fc),
+    metrics = list(
+      brier_score = function(observed, predicted) abs(observed - predicted)
+    )
+  )
+  scores
+}
+
+test_that("with two models SRSS is the ratio of mean scores", {
+  scores <- toy_brier_scores()
+  srss <- get_srss(scores, "brier_score")
+
+  df <- as.data.frame(scores)
+  expect_identical(srss$model, "model_a")
+  expect_equal(
+    srss$estimate,
+    mean(df$brier_score[df$model == "model_a"]) /
+      mean(df$brier_score[df$model == "Hub-baseline"]),
+    tolerance = 1e-12
+  )
+})
+
+test_that("an identity resample reproduces the original SRSS", {
+  scores <- toy_brier_scores()
+  boot_dates <- data.frame(
+    boot_id = 1L, position = 1:3, nowcast_date = weekly_dates[1:3]
+  )
+  boot <- get_bootstrap_srss(scores, boot_dates, "brier_score")
+
+  expect_named(boot, c("boot_id", "model", "estimate"))
+  expect_equal(
+    boot$estimate, get_srss(scores, "brier_score")$estimate,
+    tolerance = 1e-12
+  )
+})
+
+test_that("SRSS by horizon is a ratio of mean scores within each horizon", {
+  scores <- add_horizon(toy_brier_scores())
+  srss <- get_srss(scores, "brier_score", by = "horizon")
+
+  df <- as.data.frame(scores)
+  expect_named(srss, c("horizon", "model", "estimate"))
+  expect_identical(sort(srss$horizon), c(-1L, 0L))
+  # With two models, SRSS within a horizon is the ratio of mean scores
+  for (h in c(-1L, 0L)) {
+    in_h <- df$horizon == h
+    expect_equal(
+      srss$estimate[srss$horizon == h],
+      mean(df$brier_score[in_h & df$model == "model_a"]) /
+        mean(df$brier_score[in_h & df$model == "Hub-baseline"]),
+      tolerance = 1e-12
+    )
+  }
+})
+
+test_that("bootstrapping SRSS by horizon re-runs the comparison per resample", {
+  scores <- add_horizon(toy_brier_scores())
+  # Date 1 drawn twice, date 3 once, date 2 not at all
+  boot_dates <- data.frame(
+    boot_id = 1L, position = 1:3, nowcast_date = weekly_dates[c(1, 1, 3)]
+  )
+  # Duplicated forecasts give tied pairs in scoringutils' (unused) Wilcoxon
+  # p-values; silence only that warning
+  quiet_ties <- function(expr) {
+    withCallingHandlers(expr, warning = function(w) {
+      if (grepl("exact p-value with ties", conditionMessage(w), fixed = TRUE)) {
+        invokeRestart("muffleWarning")
+      }
+    })
+  }
+  boot <- quiet_ties(get_bootstrap_srss(
+    scores, boot_dates, "brier_score",
+    by = "horizon"
+  ))
+  direct <- quiet_ties(get_srss(
+    get_resampled_scores(scores, boot_dates, 1), "brier_score",
+    by = "horizon"
+  ))
+
+  expect_named(boot, c("boot_id", "horizon", "model", "estimate"))
+  expect_identical(boot$horizon, direct$horizon)
+  expect_equal(boot$estimate, direct$estimate, tolerance = 1e-12)
+})
+
+test_that("get_n_overlapping_dates counts dates shared with the baseline", {
+  scores <- toy_brier_scores()
+  # model_a misses nowcast date 1 entirely
+  scores <- scores[!(scores$model == "model_a" &
+    scores$nowcast_date == weekly_dates[1]), ]
+  n_dates <- get_n_overlapping_dates(scores, "brier_score")
+
+  expect_identical(n_dates$model, "model_a")
+  expect_identical(n_dates$n_overlapping_dates, 2L)
+})
+
+test_that("get_n_overlapping_dates counts shared dates per horizon", {
+  scores <- add_horizon(toy_brier_scores())
+  # model_a misses horizon 0 on nowcast date 1
+  scores <- scores[!(scores$model == "model_a" &
+    scores$nowcast_date == weekly_dates[1] & scores$horizon == 0), ]
+  by_h <- get_n_overlapping_dates(scores, "brier_score", by = "horizon")
+  overall <- get_n_overlapping_dates(scores, "brier_score")
+
+  expect_named(by_h, c("horizon", "model", "n_overlapping_dates"))
+  expect_identical(by_h$n_overlapping_dates[by_h$horizon == -1], 3L)
+  expect_identical(by_h$n_overlapping_dates[by_h$horizon == 0], 2L)
+  # The overall count is unchanged: date 1 is still shared at horizon -1
+  expect_identical(overall$n_overlapping_dates, 3L)
+})
+
+test_that("format_ci_table labels and orders the columns", {
+  ci <- data.frame(
+    model = c("a", "b"), estimate = c(1, 2), boot_sd = 0.1, n_boot = 4L,
+    lower = c(0.5, 1.5), upper = c(1.5, 2.5), n_comparisons = 2L,
+    crit_value = 2.24, alpha = 0.05, log_scale = TRUE,
+    stringsAsFactors = FALSE
+  )
+  n_dates <- data.frame(
+    model = c("a", "b"), n_overlapping_dates = c(30L, 35L),
+    stringsAsFactors = FALSE
+  )
+  table <- format_ci_table(ci, "CA", "brier_score", "SRSS", n_dates)
+
+  expect_named(table, c(
+    "region", "score_type", "metric", "model", "estimate", "ci_lower",
+    "ci_upper", "n_overlapping_dates", "n_comparisons", "crit_value",
+    "alpha", "scale", "boot_sd", "n_boot"
+  ))
+  expect_identical(table$scale, c("log", "log"))
+  expect_identical(table$n_overlapping_dates, c(30L, 35L))
+})
+
+test_that("get_srss with by runs a separate tournament per location", {
+  scores <- toy_brier_scores()
+  srss <- get_srss(scores, "brier_score", by = "location")
+
+  df <- as.data.frame(scores)
+  expect_named(srss, c("location", "model", "estimate"))
+  for (loc in c("CA", "NY")) {
+    in_loc <- df$location == loc
+    expect_equal(
+      srss$estimate[srss$location == loc],
+      mean(df$brier_score[in_loc & df$model == "model_a"]) /
+        mean(df$brier_score[in_loc & df$model == "Hub-baseline"]),
+      tolerance = 1e-12
+    )
+  }
+})
+
+test_that("mean scores and bootstraps keep the by columns", {
+  scores <- toy_brier_scores()
+  means <- get_mean_score_by_model(scores, "brier_score", by = "location")
+  expect_named(means, c("location", "model", "estimate", "n_nowcast_dates"))
+  expect_identical(nrow(means), 4L)
+
+  boot_dates <- data.frame(
+    boot_id = 1L, position = 1:3, nowcast_date = weekly_dates[1:3]
+  )
+  boot_abs <- get_bootstrap_mean_scores(
+    scores, boot_dates, "brier_score",
+    by = "location"
+  )
+  boot_srss <- get_bootstrap_srss(
+    scores, boot_dates, "brier_score",
+    by = "location"
+  )
+  expect_named(boot_abs, c("boot_id", "location", "model", "estimate"))
+  expect_named(boot_srss, c("boot_id", "location", "model", "estimate"))
+  # Identity resample reproduces the original estimates
+  expect_equal(boot_abs$estimate, means$estimate, tolerance = 1e-12)
+})
+
+test_that("log-scale bands drop bootstrap estimates with no log", {
+  estimates <- data.frame(
+    model = "a", estimate = 1.2, stringsAsFactors = FALSE
+  )
+  boot_estimates <- data.frame(
+    boot_id = 1:5, model = "a",
+    estimate = c(1.1, 1.3, 1.2, 0, Inf),
+    stringsAsFactors = FALSE
+  )
+  ci <- get_bonferroni_ci(estimates, boot_estimates,
+    alpha = 0.05, log_scale = TRUE
+  )
+
+  expect_identical(ci$n_boot, 3L)
+  expect_equal(ci$boot_sd, sd(log(c(1.1, 1.3, 1.2))), tolerance = 1e-12)
+  expect_false(is.na(ci$lower))
+})
+
+test_that("filter_min_overlap keeps rows with enough overlapping dates", {
+  estimates <- data.frame(
+    location = c("CA", "CA", "NY"), model = c("a", "b", "a"),
+    estimate = 1, stringsAsFactors = FALSE
+  )
+  n_dates <- data.frame(
+    location = c("CA", "CA", "NY"), model = c("a", "b", "a"),
+    n_overlapping_dates = c(10L, 2L, 6L), stringsAsFactors = FALSE
+  )
+  kept <- filter_min_overlap(estimates, n_dates, min_dates = 6)
+
+  expect_identical(kept$model, c("a", "a"))
+  expect_identical(kept$location, c("CA", "NY"))
+  expect_identical(kept$n_overlapping_dates, c(10L, 6L))
+})
+
+test_that("get_symmetric_log_limits keeps a minimum and covers all values", {
+  # Within the minimum range: the minimum is returned
+  expect_equal(get_symmetric_log_limits(c(0.9, 1.2), 1.7), c(1 / 1.7, 1.7))
+  # A band reaching 2.66 widens the range symmetrically
+  expect_equal(get_symmetric_log_limits(c(0.95, 2.66), 1.7), c(1 / 2.66, 2.66))
+  # A low bound of 0.25 widens it to 4 on both sides
+  expect_equal(get_symmetric_log_limits(c(0.25, 1.1), 1.7), c(0.25, 4))
+  # Non-finite and non-positive values are ignored
+  expect_equal(
+    get_symmetric_log_limits(c(1.1, NA, Inf, 0), 1.7),
+    c(1 / 1.7, 1.7)
+  )
+})
+
+test_that("filter_full_roster keeps only draws with every model present", {
+  estimates <- data.frame(
+    model = c("a", "b", "c"), estimate = 1, stringsAsFactors = FALSE
+  )
+  # Draw 2 is missing model c; draw 3 has c with a non-finite estimate
+  boot <- data.frame(
+    boot_id = c(1, 1, 1, 2, 2, 3, 3, 3),
+    model = c("a", "b", "c", "a", "b", "a", "b", "c"),
+    estimate = c(1, 1, 1, 1, 1, 1, 1, NaN),
+    stringsAsFactors = FALSE
+  )
+  kept <- filter_full_roster(boot, estimates)
+  expect_identical(unique(kept$boot_id), 1)
+
+  # Within groups, the roster is checked per group
+  est_h <- data.frame(
+    horizon = c(0, 0, 1), model = c("a", "b", "a"),
+    stringsAsFactors = FALSE
+  )
+  boot_h <- data.frame(
+    boot_id = c(1, 1, 1, 2, 2), horizon = c(0, 0, 1, 0, 1),
+    model = c("a", "b", "a", "a", "a"), estimate = 1,
+    stringsAsFactors = FALSE
+  )
+  kept_h <- filter_full_roster(boot_h, est_h, by = "horizon")
+  # Draw 2 lacks b at horizon 0, so only its horizon 1 row is kept
+  expect_identical(nrow(kept_h), 4L)
+  expect_false(any(kept_h$boot_id == 2 & kept_h$horizon == 0))
+})
+
+test_that("get_symmetric_log_limits has no minimum by default", {
+  expect_equal(get_symmetric_log_limits(c(0.95, 1.2)), c(1 / 1.2, 1.2))
+})
+
+test_that("get_log_breaks picks standard ratios within the limits", {
+  expect_identical(
+    get_log_breaks(c(1 / 2.6, 2.6)),
+    c(0.5, 0.67, 0.8, 1, 1.25, 1.5, 2)
+  )
+  # Narrow panels also get 0.9 and 1.1
+  expect_identical(get_log_breaks(c(1 / 1.2, 1.2)), c(0.9, 1, 1.1))
+})
+
+test_that("get_log_breaks uses coarse breaks for very wide ranges", {
+  expect_identical(get_log_breaks(c(1 / 15, 15)), c(0.1, 0.2, 0.5, 1, 2, 5, 10))
+})
+
+test_that("get_srss drops groups with fewer than two models", {
+  scores <- toy_brier_scores()
+  # NY keeps only the baseline
+  scores <- scores[!(scores$location == "NY" & scores$model == "model_a"), ]
+  srss <- get_srss(scores, "brier_score", by = "location")
+
+  expect_identical(srss$location, "CA")
+  expect_identical(srss$model, "model_a")
+  # No group with two models: an empty result, not an error
+  only_baseline <- scores[scores$model == "Hub-baseline", ]
+  expect_identical(
+    nrow(get_srss(only_baseline, "brier_score", by = "location")), 0L
+  )
+})
+
+test_that("get_n_overlapping_dates requires a shared target date", {
+  scores <- toy_brier_scores()
+  # On nowcast date 1, model_a keeps only horizon -1 and the baseline only
+  # horizon 0, so they share the nowcast date but no target date
+  d1 <- scores$nowcast_date == weekly_dates[1]
+  scores <- scores[!(d1 & scores$model == "model_a" &
+    scores$target_date == weekly_dates[1]), ]
+  d1 <- scores$nowcast_date == weekly_dates[1]
+  scores <- scores[!(d1 & scores$model == "Hub-baseline" &
+    scores$target_date == weekly_dates[1] - 1), ]
+  n_dates <- get_n_overlapping_dates(scores, "brier_score")
+
+  expect_identical(n_dates$n_overlapping_dates, 2L)
+})

@@ -1,0 +1,287 @@
+#' Add confidence band error bars to an overall score panel
+#'
+#' Adds Bonferroni simultaneous confidence bands as error bars, by model, to
+#' a panel from [get_plot_overall()] (absolute score bars or scaled
+#' relative skill points), leaving the panel otherwise unchanged.
+#'
+#' @param p ggplot object from [get_plot_overall()].
+#' @param ci Confidence bands with columns `model`, `lower` and `upper`, as
+#'   returned by [get_bonferroni_ci()].
+#' @param ylim Optional numeric vector of length 2 giving new y axis limits,
+#'   e.g. to show bands extending beyond the panel's original limits.
+#' @param y_breaks Optional numeric vector of breaks for a log10 y axis,
+#'   replacing the panel's original log10 scale. Use only for relative
+#'   skill panels.
+#' @param point_size Optional size for the panel's points, e.g. so large
+#'   relative skill markers do not hide narrow error bars.
+#' @importFrom ggplot2 geom_errorbar geom_point aes coord_cartesian
+#'   scale_y_continuous
+#' @returns ggplot object
+#' @autoglobal
+add_ci_errorbars <- function(p,
+                             ci,
+                             ylim = NULL,
+                             y_breaks = NULL,
+                             point_size = NULL) {
+  if (!is.null(point_size)) {
+    # Replace each point layer with a new one with the same mapping, so
+    # the original panel object is not modified
+    p$layers <- lapply(p$layers, function(layer) {
+      if (!inherits(layer$geom, "GeomPoint")) {
+        return(layer)
+      }
+      geom_point(mapping = layer$mapping, size = point_size)
+    })
+  }
+  p <- p +
+    geom_errorbar(
+      data = ci,
+      aes(x = model, ymin = lower, ymax = upper),
+      width = 0.3,
+      inherit.aes = FALSE
+    )
+  replace_y_axis(p, ylim, y_breaks)
+}
+
+#' Add confidence band ribbons to a relative skill by horizon panel
+#'
+#' Adds Bonferroni simultaneous confidence bands by model and horizon as
+#' shaded ribbons, drawn behind the lines of a relative skill panel from
+#' [get_plot_horizon()]. Models without bands (e.g. those excluded from the
+#' tables) keep their line without a ribbon.
+#'
+#' @param p ggplot object from [get_plot_horizon()] with
+#'   `rel_skill_plot = TRUE`.
+#' @param ci Confidence bands with columns `model`, `horizon`, `lower` and
+#'   `upper`, as returned by [get_bonferroni_ci()] with
+#'   `by = c("model", "horizon")`.
+#' @inheritParams add_ci_errorbars
+#' @importFrom ggplot2 geom_ribbon aes scale_fill_manual
+#' @returns ggplot object
+#' @autoglobal
+add_ci_ribbons <- function(p, ci, ylim = NULL, y_breaks = NULL) {
+  ribbon <- geom_ribbon(
+    data = ci,
+    aes(x = horizon, ymin = lower, ymax = upper, fill = model),
+    alpha = 0.2,
+    inherit.aes = FALSE
+  )
+  p$layers <- c(ribbon, p$layers)
+  p <- p + scale_fill_manual(
+    values = plot_components()$model_colors,
+    guide = "none"
+  )
+  replace_y_axis(p, ylim, y_breaks)
+}
+
+#' Replace the y axis limits and log10 breaks of a panel
+#'
+#' The panels already set their own limits and scales, so ggplot2 reports
+#' that they are being replaced; those messages are expected and silenced.
+#'
+#' @inheritParams add_ci_errorbars
+#' @importFrom ggplot2 coord_cartesian scale_y_continuous
+#' @returns ggplot object
+replace_y_axis <- function(p, ylim = NULL, y_breaks = NULL) {
+  if (!is.null(y_breaks)) {
+    p <- suppressMessages(
+      p + scale_y_continuous(trans = "log10", breaks = y_breaks)
+    )
+  }
+  if (!is.null(ylim)) {
+    p <- suppressMessages(p + coord_cartesian(ylim = ylim))
+  }
+  p
+}
+
+#' Add confidence band error bars to a by-location panel
+#'
+#' Adds Bonferroni simultaneous confidence bands as error bars to a panel
+#' from [get_plot_by_location()], with locations on the x axis and one bar
+#' or point per model. Error bars are dodged by model to line up with the
+#' panel's dodged bars; with `dodge_points = TRUE` the relative skill
+#' points, drawn on top of each other in the original panel, are dodged the
+#' same way so each model's band is readable, with error bars coloured
+#' by model. Model and location
+#' combinations without a band (e.g. too few nowcast dates) keep their
+#' place in the dodge but have no error bar.
+#'
+#' @param p ggplot object from [get_plot_by_location()].
+#' @param ci Confidence bands with columns `location`, `model`, `lower` and
+#'   `upper`, as returned by [get_bonferroni_ci()] with
+#'   `by = c("location", "model")`.
+#' @param dodge_width Width used to dodge models within a location; use the
+#'   panel's own dodge width (0.9) for bar panels.
+#' @param dodge_points Logical; dodge the panel's points by model. Use for
+#'   relative skill panels.
+#' @param floor Optional lower limit for the drawn error bars, e.g. `0` for
+#'   absolute scores, which cannot be negative. Only the display is
+#'   truncated; the bands themselves are unchanged.
+#' @inheritParams add_ci_errorbars
+#' @importFrom ggplot2 geom_errorbar geom_point aes position_dodge
+#' @importFrom dplyr distinct left_join mutate
+#' @importFrom rlang %||%
+#' @returns ggplot object
+#' @autoglobal
+add_ci_errorbars_by_location <- function(p,
+                                         ci,
+                                         dodge_width,
+                                         dodge_points = FALSE,
+                                         floor = NULL,
+                                         point_size = NULL,
+                                         ylim = NULL,
+                                         y_breaks = NULL) {
+  dodge <- position_dodge(width = dodge_width)
+  if (isTRUE(dodge_points)) {
+    # Replace each point layer with a dodged one with the same mapping, so
+    # the original panel object is not modified
+    p$layers <- lapply(p$layers, function(layer) {
+      if (!inherits(layer$geom, "GeomPoint")) {
+        return(layer)
+      }
+      size <- point_size %||% layer$aes_params$size
+      geom_point(mapping = layer$mapping, size = size, position = dodge)
+    })
+  }
+  # One row per model and location shown in the panel, so that error bars
+  # are dodged into the same slots as the panel's bars or points
+  plot_rows <- distinct(as.data.frame(p$data), location, model)
+  ci_plot <- plot_rows |>
+    left_join(
+      mutate(ci, location = as.character(location)),
+      by = c("location", "model")
+    ) |>
+    mutate(location = factor(location, levels = levels(p$data$location)))
+  if (!is.null(floor)) {
+    ci_plot <- mutate(ci_plot, lower = pmax(lower, floor))
+  }
+  if (isTRUE(dodge_points)) {
+    # Coloured by model, so bands stay distinguishable next to the points
+    errorbars <- geom_errorbar(
+      data = ci_plot,
+      aes(x = location, ymin = lower, ymax = upper, color = model),
+      width = 0.4 * dodge_width,
+      linewidth = 0.4,
+      position = dodge,
+      na.rm = TRUE,
+      inherit.aes = FALSE
+    )
+  } else {
+    errorbars <- geom_errorbar(
+      data = ci_plot,
+      aes(x = location, ymin = lower, ymax = upper, group = model),
+      width = 0.4 * dodge_width,
+      linewidth = 0.3,
+      position = dodge,
+      na.rm = TRUE,
+      inherit.aes = FALSE
+    )
+  }
+  replace_y_axis(p + errorbars, ylim, y_breaks)
+}
+
+#' Combine two by-location panels into one figure
+#'
+#' Stacks two by-location panels (e.g. scaled relative skill on the Brier
+#' and energy scores, with confidence bands), tagged A and B with a shared
+#' legend. Locations keep the order of the panels, i.e. descending total
+#' number of sequences, without the sequence-count panel.
+#'
+#' @param a ggplot object for the top panel.
+#' @param b ggplot object for the bottom panel.
+#' @param plot_name Character string indicating name of plot.
+#' @param output_fp Character string indicating directory to save file.
+#' @importFrom patchwork plot_layout plot_annotation
+#' @importFrom ggplot2 theme element_text ggsave
+#' @returns patchwork object
+#' @autoglobal
+get_by_loc_ci_figure <- function(a, b,
+                                 plot_name,
+                                 output_fp = file.path(
+                                   "output", "figs", "overall_scores"
+                                 )) {
+  combined_fig <- a + b +
+    plot_layout(ncol = 1, guides = "collect") +
+    plot_annotation(
+      tag_levels = "A",
+      theme = theme(
+        legend.position = "top",
+        legend.box = "horizontal",
+        legend.title = element_text(hjust = 0.5),
+        plot.tag = element_text(size = 14, face = "bold")
+      )
+    )
+  dir_create(output_fp, recurse = TRUE)
+  ggsave(
+    file.path(output_fp, glue::glue("{plot_name}.png")),
+    plot = combined_fig,
+    width = 12,
+    height = 9,
+    dpi = 300
+  )
+  return(combined_fig)
+}
+
+#' Values plotted in a confidence band table
+#'
+#' @param ci Confidence bands, as returned by [get_bonferroni_ci()].
+#' @returns Numeric vector of the estimates and band limits.
+#' @autoglobal
+get_ci_values <- function(ci) {
+  c(ci$estimate, ci$lower, ci$upper)
+}
+
+#' Scaled relative skill values plotted in a panel
+#'
+#' Extracts the scaled relative skill plotted in a relative skill panel,
+#' including models shown without a band.
+#'
+#' @param p ggplot object from [get_plot_overall()] or [get_plot_horizon()]
+#'   with `rel_skill_plot = TRUE`.
+#' @returns Numeric vector of the plotted scaled relative skill values.
+#' @autoglobal
+get_panel_srss_values <- function(p) {
+  panel_data <- as.data.frame(p$data)
+  srss_col <- grep("_scaled_relative_skill$", names(panel_data), value = TRUE)
+  panel_data[[srss_col[1]]]
+}
+
+#' Symmetric log-scale axis limits covering all plotted values
+#'
+#' Returns limits `c(1 / m, m)`, symmetric about 1 on the log scale, where
+#' `m` is the furthest value from 1 (on the log scale) among `values`, or
+#' `min_limit` if larger. Used so that a panel shows every estimate and
+#' confidence band in full; ggplot2's default expansion adds a margin.
+#'
+#' @param values Numeric vector of plotted values (estimates and band
+#'   limits). Values that are not positive and finite are ignored.
+#' @param min_limit Optional minimum upper limit. Default 1, i.e. no
+#'   minimum.
+#' @returns Numeric vector of length 2.
+#' @autoglobal
+get_symmetric_log_limits <- function(values, min_limit = 1) {
+  values <- values[is.finite(values) & values > 0]
+  m <- max(min_limit, values, 1 / values)
+  c(1 / m, m)
+}
+
+#' Axis breaks for a log-scale relative skill panel
+#'
+#' Chooses breaks from a standard set of ratios that fall within `limits`,
+#' so panels with different ranges get readable labels. Narrow panels also
+#' get 0.9 and 1.1; very wide panels (e.g. by location) use a coarser set
+#' to avoid crowding.
+#'
+#' @param limits Numeric vector of length 2, the axis limits.
+#' @returns Numeric vector of breaks.
+#' @autoglobal
+get_log_breaks <- function(limits) {
+  candidates <- c(0.25, 0.33, 0.5, 0.67, 0.8, 1, 1.25, 1.5, 2, 3, 4)
+  if (max(limits) < 1.3) {
+    candidates <- sort(c(candidates, 0.9, 1.1))
+  }
+  if (max(limits) >= 5) {
+    candidates <- c(0.1, 0.2, 0.5, 1, 2, 5, 10, 20)
+  }
+  candidates[candidates >= min(limits) & candidates <= max(limits)]
+}

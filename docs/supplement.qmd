@@ -16,11 +16,17 @@ output:
 The following models began submissions following the initial assessment period (October 9th, 2024 to June 4th, 2025).
 
 | Model name | Description | Citation | Data Sources | Locations | Output Type | Ensemble? |
-|----|----|----|----|----|----|----|
+|-----------|-----------|-----------|-----------|-----------|-----------|-----------|
 | `open_hier_mlr` | A Bayesian hierarchical multinomial logistic regression (MLR) model for nowcasting COVID variants using variant counts based on INSDC sequences. Regression coefficients are modeled hierarchically across locations. | Abousamra E, Figgins M, Bedford T (2024) Fitness models provide accurate short-term forecasts of SARS-CoV-2 variant frequency. PLOS Computational Biology 20(9): e1012443. https://doi.org/10.1371/journal.pcbi.1012443 | International Nucleotide Sequence Database Collaboration (INSDC) | All | Point and probabilistic | No |
 | `gisaid_hier_mlr` | A Bayesian hierarchical multinomial logistic regression (MLR) model for nowcasting COVID variants using variant counts based on GISAID sequences. Regression coefficients are modeled hierarchically across locations. | Abousamra E, Figgins M, Bedford T (2024) Fitness models provide accurate short-term forecasts of SARS-CoV-2 variant frequency. PLOS Computational Biology 20(9): e1012443. https://doi.org/10.1371/journal.pcbi.1012443 | Global Initiative on Sharing All Influenza Data (GISAID) | All | Point and probabilistic | No |
 | `ensemble` | An ensemble of the hub forecasts, created by taking an equally weighted sample of all forecasts that submit samples for a given week, using the function linear_pool from the hubEnsembles package. | https://github.com/hubverse-org/hubEnsembles/tree/main | Other model submission files | All | Point and probabilistic | No |
 | `PyHMLR` | A Bayesian hierarchical multinomial logistic regression model with Dirichlet-Multinomial observation process. The model uses hierarchical hyperpriors to enable partial pooling across locations and clades. Location-specific concentration parameters allow the model to adaptively learn appropriate uncertainty levels for each location. Linear trends are modeled in logit space with standardized time variables. | https://github.com/trobacker/pymc_modeling | COVID Variant Nowcast Hub S3 target data | All | Point and probabilistic | No |
+
+: Table S1. Additional models that began submitting to the Hub after the initial assessment period (October 9th, 2024 to June 4th, 2025) and are therefore not evaluated in this work.
+
+# Scoring of CADPH-CATaMaran submissions
+
+CADPH-CATaMaran submitted mean nowcasts for California on 9 nowcast dates, from 2 April to 4 June 2025 (Fig. S14). The Hub scored its submissions from 2 and 16 April 2025, but scoring failed for the 7 submissions from 23 April to 4 June 2025, because each contained duplicate rows for one or two clades in which one row held the model's estimate and the other a value of zero. For this analysis, we removed only these zero-valued duplicate rows (336 rows across the 7 submissions) and scored the 7 submissions using the Hub's scoring code and the same version of the evaluation data that the Hub used for each nowcast date. We checked that this reproduced the Hub's scores for the other submissions on these nowcast dates, namely CADPH-CATaMaran's two scored submissions and all submissions from CADPH-CATaLog and LANL-CovTransformer. These scores are included in all analyses in this work, but were not added to the Hub's scores.
 
 # Additional figures
 
@@ -50,9 +56,9 @@ The following models began submissions following the initial assessment period (
 
 ![Fig. S13 Model nowcasts for the CADPH-CATaLog model from February 19th, 2025. Colors indicate clade, dashed vertical line indicates the nowcast date.](../output/figs/nowcasts/supp/fig_model_nowcasts_CADPH.png)
 
-![Fig. S14 Model submission coverage by location and nowcast date for each participating model. Tiles colored by model-specific colors indicate dates and locations where the model submitted a forecast. Gray tiles indicate missing submissions. Locations are ordered by the total number of final evaluation sequences (lowest at the top, highest at the bottom).](../output/figs/metadata/supp/submission_heatmaps_by_model.png)
+![Fig. S14 Model submission coverage by location and nowcast date for each participating model. Tiles colored by model-specific colors indicate dates and locations where the model submitted a forecast. Gray tiles indicate missing submissions. Locations are ordered by the total number of final evaluation sequences (lowest at the top, highest at the bottom). CADPH-CATaMaran submitted for California on 9 nowcast dates, of which the Hub scored only 2; the 7 submissions outlined in black failed the Hub's scoring because of duplicate zero-valued rows and were scored in this analysis (see Scoring of CADPH-CATaMaran submissions).](../output/figs/metadata/supp/submission_heatmap_by_model.png)
 
-![Fig. S15 Summary of model submission coverage across all models. Color indicates the number of models that submitted forecasts for each location and nowcast date combination, ranging from 0 (no models) to 6 (all models). Locations are ordered by the total number of final evaluation sequences (lowest at the top, highest at the bottom).](../output/figs/metadata/supp/submission_heatmaps_summary.png)
+![Fig. S15 Summary of model submission coverage across all models. Color indicates the number of models that submitted forecasts for each location and nowcast date combination, ranging from 0 (no models) to 6 (all models). Locations are ordered by the total number of final evaluation sequences (lowest at the top, highest at the bottom).](../output/figs/metadata/supp/submission_heatmap_summary.png)
 
 ![Fig. S16 Comparison of relative scaled skill computed using the overlapping set of horizons (circles), nowcast dates and locations versus the average of relative scaled skill scores on the Brier score in the US excluding California (triangles). The average of relative scales skill is computed for each horizon, location, and nowcast date and then averaged across the relative scaled skill scores, which has the effect of weighting each horizon, location, and nowcast date equally rather than weighting by the number of observed sequences. Color indicates model.](../output/figs/supp/avg_rel_skill_brier.png)
 
@@ -77,3 +83,144 @@ The following models began submissions following the initial assessment period (
 ![Fig. S26 Absolute Brier (top) and energy (bottom) in the U.S. excluding California (left) and California (right) by horizon.](../output/figs/overall_scores/supp/absolute_scores_by_horizon.png)
 
 ![Fig. S27 Bias over time for three example states in the US during the 25A emergence.](../output/figs/zoom_25A/supp/bias_over_time_25A.png)
+
+# Uncertainty quantification for model comparisons
+
+*Section added during revision; figures and table to be reordered into the main text and supplement later.*
+
+```{r}
+#| label: uq-setup
+#| echo: false
+ci_overall <- read.csv(
+  file.path("..", "output", "tables", "ci_srss_overall.csv")
+)
+ci_horizon <- read.csv(
+  file.path("..", "output", "tables", "ci_srss_by_horizon.csv")
+)
+is_ca_brier <- function(x) {
+  x$region == "CA" & x$score_type == "brier_score"
+}
+n_resamples <- max(ci_overall$n_boot)
+ca_brier_kept <- min(ci_overall$n_boot[is_ca_brier(ci_overall)])
+ca_brier_kept_h <- range(ci_horizon$n_boot[is_ca_brier(ci_horizon)])
+perm_overall <- read.csv(
+  file.path("..", "output", "tables", "permutation_srss_overall.csv")
+)
+n_perm <- max(perm_overall$n_perm)
+```
+
+## Block bootstrapping over nowcast dates
+
+To quantify uncertainty in the model comparisons, we used a moving block bootstrap over nowcast dates. Each of 1,000 resamples was built from blocks of 6 consecutive nowcast dates (block length $l = 3\lfloor N^{1/4} \rfloor$ for $N = 35$ nowcast dates [@Pohle2026]), so that all locations, target dates and models from a nowcast date were resampled together, preserving correlation across locations and horizons within a date and across neighbouring dates (Fig. S28). In each resample we recomputed the mean absolute Brier and energy scores and the scaled relative skill score (SRSS), using the full pairwise comparison across all models as in the main analysis, and within each horizon or location for the stratified results. Following Pohle et al. [@Pohle2026], we constructed Bonferroni simultaneous 95% confidence intervals as the estimate $\pm\, c \times$ the bootstrap standard deviation, with $c = \Phi^{-1}(1 - 0.05/2P)$ and $P$ the number of comparisons in each table or panel, so the intervals hold jointly across all of them. For example, the panel of overall absolute Brier scores in the U.S. excluding California shows intervals for four models (including the Hub-baseline), so $P = 4$, giving $c = \Phi^{-1}(1-0.05/8) \approx 2.5$ to account for multiple comparisons. Intervals for the SRSS were constructed on the log scale and back-transformed, so that they are symmetric about the estimate on the log axis used in the figures. This is because the SRSS is a ratio, so equal distances on the log scale correspond to equal ratios above and below 1; for example, an SRSS of 1.25 (25% higher scores than the Hub-baseline) is the same distance from 1 on the log scale as an SRSS of $1/1.25 = 0.8$. Intervals for absolute scores (i.e. energy and Brier scores) were constructed on the natural scale. The bootstrap distributions of the overall SRSS and the resulting intervals are shown in Fig. S29.
+
+Because a model's SRSS depends on every model in the pairwise comparison, not only on the model and the Hub-baseline, a resample that contains none of a sparsely submitting model's nowcast dates removes that model from the comparison and shifts the other models' SRSS. For the overall and by-horizon results, we therefore kept only the resamples in which every model was present. This affected only the California Brier score comparisons, where CADPH-CATaMaran had scores for 9 consecutive nowcast dates (`r ca_brier_kept` of `r format(n_resamples, big.mark = ",")` resamples kept overall, and `r ca_brier_kept_h[1]` to `r ca_brier_kept_h[2]` by horizon). This means that the intervals describe the same comparison as the point estimate of the SRSS. We did not apply this restriction by location because there, requiring every sparsely submitting model to be present would limit a location's resamples to the few nowcast dates on which that model submitted, so the location-level intervals include variation in which models are compared. Estimates based on fewer nowcast dates than one bootstrap block (6; for the SRSS, nowcast dates on which both the model and the Hub-baseline were scored) are shown without an interval, because the bootstrap could only reweight those few dates. This applied to CADPH-CATaMaran at the earliest horizons in California and to some location-model combinations (Fig. S31).
+
+![Fig. S28 Composition of the moving block bootstrap resamples. Top: the first 50 of 1,000 resamples (rows) by nowcast date (columns), coloured by the number of copies of that nowcast date in the resample (white: not drawn). Each resample is built from blocks of 6 consecutive nowcast dates, drawn with replacement and possibly overlapping, so a nowcast date can appear more than once and runs of consecutive dates are kept together. Bottom: total number of times each nowcast date was drawn across all 1,000 resamples; the dashed line shows the number expected if every nowcast date were drawn equally often. Nowcast dates near the start and end of the evaluation period are drawn less often because they belong to fewer possible blocks.](../output/figs/eda/boot_dates_all_resamples.png)
+
+## Permutation testing
+
+To test whether each model's overall performance differed from the Hub-baseline's, we also carried out a permutation test of each model's overall SRSS, similar to the permutation tests described in Ray et al. [@Ray2018]. Under the null hypothesis that a model and the Hub-baseline perform equally well, their scores are exchangeable: swapping the two models' scores should not systematically change the SRSS. We defined each combination of location and nowcast date as an exchange unit. In each of `r format(n_perm, big.mark = ",")` permutations, we kept all location and nowcast date units and, independently for each unit, swapped the model's and the Hub-baseline's scores with probability 0.5 (for every target date on which both were scored). This draws `r format(n_perm, big.mark = ",")` of the $2^U$ possible relabellings of the $U$ units. Swapping all target dates of a unit together preserves the correlation across horizons within a nowcast date. We note that this approach, unlike block bootstrapping, does not preserve correlation between locations within a nowcast date or between consecutive nowcast dates. We then recomputed the SRSS using the full pairwise comparison across all models, as for the point estimates and the bootstrap. The two-sided p-value is the proportion of permutations in which the absolute log SRSS was at least as large as the observed absolute log SRSS, computed as $(1 + k)/(1 + n)$ for $k$ such permutations out of $n$, so that it is never zero (the smallest attainable p-value is `r format(signif(1 / (1 + n_perm), 1), scientific = FALSE)`). We report unadjusted p-values and Bonferroni-adjusted p-values. The adjusted p-values are the unadjusted p-values multiplied by the number of models tested within each region and score, capped at 1, to correct for multiple comparisons, in the same vein as the Bonferroni confidence intervals derived from block bootstrapping (Table S2). In California, which is a single location, the exchange units are the nowcast dates.
+
+The permutation test and the bootstrap address different questions. The bootstrap estimates how much the SRSS would vary had the evaluation covered a different set of nowcast dates from the same season, whereas the permutation test asks whether, among the nowcasts actually made, a model's scores are more consistently better or worse than the Hub-baseline's than would be expected if the two models were interchangeable. Unlike the moving block bootstrap, the permutation test treats the exchange units as independent. It therefore does not account for correlation in relative performance between nowcast dates, for example a model performing worse than the Hub-baseline over several consecutive weeks during the emergence of a new variant, nor for correlation across locations within a nowcast date. As acknowledged for a similar permutation test comparing infectious disease forecasting methods [@Ray2018], the p-values may therefore overstate the evidence for a difference in performance, and a model can have a small p-value even when its bootstrap confidence interval includes 1. We therefore treat the bootstrap confidence intervals as the primary measure of uncertainty and the permutation tests as complementary.
+
+```{r}
+#| label: srss-ci-table
+#| echo: false
+srss_ci <- read.csv(file.path("..", "output", "tables", "ci_srss_overall.csv"))
+srss_ci <- merge(
+  srss_ci,
+  perm_overall[, c("region", "score_type", "model", "p_value", "p_bonferroni")],
+  by = c("region", "score_type", "model"), all.x = TRUE
+)
+srss_ci <- srss_ci[order(
+  factor(srss_ci$region, levels = c("US excluding CA", "CA")),
+  srss_ci$score_type, srss_ci$model
+), ]
+fmt <- function(x) formatC(x, format = "f", digits = 3)
+fmt_p <- function(p) ifelse(p < 0.001, "<0.001", fmt(p))
+knitr::kable(
+  data.frame(
+    Region = srss_ci$region,
+    Score = ifelse(srss_ci$score_type == "brier_score", "Brier", "Energy"),
+    Model = srss_ci$model,
+    SRSS = fmt(srss_ci$estimate),
+    `95% CI` = paste0(
+      "[", fmt(srss_ci$ci_lower), ", ", fmt(srss_ci$ci_upper), "]"
+    ),
+    `Overlapping nowcast dates` = srss_ci$n_overlapping_dates,
+    p = fmt_p(srss_ci$p_value),
+    `p (Bonferroni)` = fmt_p(srss_ci$p_bonferroni),
+    check.names = FALSE
+  ),
+  row.names = FALSE,
+  align = "lllrcrrr",
+  caption = paste(
+    "Table S2. Scaled relative skill score (SRSS) of each model versus the",
+    "Hub-baseline, with Bonferroni simultaneous 95% confidence intervals",
+    "from a moving block bootstrap over nowcast dates (1,000 resamples,",
+    "blocks of 6 nowcast dates), for the U.S. excluding California and for",
+    "California, on the Brier and energy scores. SRSS < 1 indicates better",
+    "performance than the Hub-baseline. Intervals hold simultaneously across",
+    "the models within each region and score. Overlapping nowcast dates is",
+    "the number of nowcast dates on which both the model and the Hub-baseline",
+    "were scored. For California on the Brier score, resamples containing",
+    "none of CADPH-CATaMaran's nowcast dates were excluded",
+    paste0(
+      "(", ca_brier_kept, " of ", format(n_resamples, big.mark = ","),
+      " kept),"
+    ),
+    "so that the intervals describe the same pairwise comparison as the",
+    "reported SRSS. The UGA-multicast Brier interval in the U.S. excluding",
+    "California has a lower bound of 1.0004, which rounds to 1.000.",
+    "p-values are from two-sided permutation tests of the SRSS",
+    paste0("(", format(n_perm, big.mark = ","), " permutations,"),
+    "swapping the model's and Hub-baseline's scores within location and",
+    "nowcast date), unadjusted and Bonferroni-adjusted across the models",
+    "within each region and score. Unlike the confidence intervals, they do",
+    "not account for correlation between nowcast dates, so they may overstate",
+    "the evidence for a difference."
+  )
+)
+```
+
+```{r}
+#| label: perm-ci-agreement
+#| echo: false
+agree <- merge(
+  perm_overall,
+  ci_overall[, c("region", "score_type", "model", "ci_lower", "ci_upper")],
+  by = c("region", "score_type", "model")
+)
+agree$ci_excludes_1 <- agree$ci_lower > 1 | agree$ci_upper < 1
+agree$significant <- agree$p_bonferroni < 0.05
+ci_implies_p <- all(agree$significant[agree$ci_excludes_1])
+disagree <- agree[agree$significant & !agree$ci_excludes_1, ]
+disagree <- disagree[order(disagree$region != "US excluding CA"), ]
+unadj_only <- agree[
+  !agree$significant & agree$p_value < 0.05 & !agree$ci_excludes_1,
+]
+score_label <- c(brier_score = "Brier score", energy_score = "energy score")
+region_label <- c(
+  "US excluding CA" = "the U.S. excluding California", CA = "California"
+)
+describe <- function(x, p_col) {
+  knitr::combine_words(paste0(
+    x$model, " on the ", score_label[x$score_type], " in ",
+    region_label[x$region], " (p ",
+    ifelse(x[[p_col]] < 0.001, "< 0.001", paste("=", fmt(x[[p_col]]))), ")"
+  ))
+}
+```
+
+`r if (ci_implies_p) "Every model whose bootstrap confidence interval excluded 1 also had a Bonferroni-adjusted permutation p-value below 0.05." else "Not every model whose bootstrap confidence interval excluded 1 had a Bonferroni-adjusted permutation p-value below 0.05."` The reverse did not hold: `r describe(disagree, "p_bonferroni")` had Bonferroni-adjusted p-values below 0.05 although their confidence intervals included 1 (Table S2)`r if (nrow(unadj_only) > 0) paste0(", as did ", describe(unadj_only, "p_value"), " before adjustment") else ""`. This is expected given the different assumptions of the two methods. In both regions, UGA-multicast's higher energy scores relative to the Hub-baseline were concentrated in consecutive nowcast dates in January and early February 2025: in the U.S. excluding California, the four nowcast dates from 8 to 29 January accounted for nearly 90% of its total excess energy score over the Hub-baseline, and in California the nowcast dates from 15 January to 5 February accounted for over half. The permutation test treats each of these weeks, and each location within them, as independent evidence of a difference. The block bootstrap instead resamples consecutive weeks together, so resamples containing more or fewer of these weeks give very different SRSS, which widens the confidence interval. The small p-values therefore indicate that, among the forecasts made during this evaluation, UGA-multicast's energy scores were consistently higher than the Hub-baseline's, while the confidence intervals indicate that the size of this difference depends strongly on which part of the season is evaluated. We therefore do not interpret these comparisons as robust evidence of a difference in performance.
+
+![Fig. S29 Bootstrap distributions of the overall scaled relative skill (SRSS) of each model versus the Hub-baseline, for the U.S. excluding California (A, C) and California (B, D), on the Brier score (A, B) and energy score (C, D). Coloured points are the SRSS in each bootstrap resample (jittered horizontally); for California on the Brier score, only resamples in which every model was present are shown. Black points are the SRSS estimated from the original data and black error bars the Bonferroni simultaneous 95% confidence intervals reported in Table S2, constructed on the log scale. SRSS $<$ 1 indicates improved performance compared to the Hub-baseline; y-axis is on the log scale. Color indicates model.](../output/figs/overall_scores/supp/boot_srss_distributions.png)
+
+![Fig. S30 Score comparison over all evaluated nowcast dates, horizons, and locations, as in the main text overall score figure, with Bonferroni simultaneous 95% confidence intervals from a moving block bootstrap over nowcast dates (1,000 resamples, blocks of 6 nowcast dates). Stratified by the U.S. excluding California (left) and California (right). (A, C, E, G). Absolute Brier and energy scores with error bars. (B, D, F, H). Scaled relative skill on the Brier and energy scores with error bars; SRSS $<$ 1 indicates improved performance compared to the Hub-baseline. (I to L). Scaled relative skill by nowcast horizon with shaded intervals, computed from pairwise comparisons within each horizon. Intervals hold simultaneously across all models in each panel (and across all models and horizons in panels I to L). SRSS intervals are constructed on the log scale. For the California Brier score panels (D and J), resamples containing none of CADPH-CATaMaran's nowcast dates were excluded so that the intervals describe the same pairwise comparison as the plotted SRSS. Horizons with fewer than 6 nowcast dates shared with the Hub-baseline (CADPH-CATaMaran at the earliest horizons in California) are shown without an interval. Each relative skill panel has its own y-axis, the same as in the main text figure. Color indicates model.](../output/figs/overall_scores/overall_score_comparison_ci.png)
+
+![Fig. S31 Scaled relative skill by location on the Brier score (A) and energy score (B), as in the main text figure by location, with Bonferroni simultaneous 95% confidence intervals from a moving block bootstrap over nowcast dates (1,000 resamples, blocks of 6 nowcast dates). Locations are shown in descending order by the total number of sequences during the assessment period. SRSS $<$ 1 indicates improved performance over the Hub-baseline; y-axis is on the log scale. Intervals are constructed on the log scale and hold simultaneously across all location-model combinations in each panel. Combinations with fewer than 6 nowcast dates are shown without an interval. Within each location, resamples containing none of a sparsely submitting model's nowcast dates remove that model from the location's pairwise comparison, so intervals for locations with sparse submissions include this variation in which models are compared. Color indicates model.](../output/figs/overall_scores/by_location_smaller_ci.png)
+
+# References
+
+::: {#refs}
+:::

@@ -39,15 +39,19 @@ prepare_submission_data <- function(all_model_outputs,
 #' @param submission_data Prepared submission status data
 #' @param model_id Model ID to plot
 #' @param plot_components List containing theme and color information
+#' @param rescored Optional data frame with columns model_id, location and
+#'   nowcast_date: submissions that failed Hub scoring and were scored for
+#'   this analysis (#150). Their tiles are outlined in black.
 #'
 #' @returns ggplot2 object
 #' @autoglobal
 plot_model_submission_heatmap <- function(submission_data,
                                           seq_counts_by_loc,
                                           model_id,
-                                          plot_components) {
+                                          plot_components,
+                                          rescored = NULL) {
   location_order <- seq_counts_by_loc |>
-    arrange(desc(total_seq)) |>
+    arrange(desc(total_seq), location) |>
     pull(location)
 
   model_data <- filter(
@@ -72,7 +76,24 @@ plot_model_submission_heatmap <- function(submission_data,
     scale_x_date(
       date_breaks = "1 week",
       date_labels = "%d %b %Y"
-    ) +
+    )
+  rescored_tiles <- model_data[0, ]
+  if (!is.null(rescored)) {
+    rescored_tiles <- semi_join(
+      model_data, rescored,
+      by = c("model_id", "location", "nowcast_date")
+    )
+  }
+  if (nrow(rescored_tiles) > 0) {
+    p <- p +
+      geom_tile(
+        data = rescored_tiles,
+        aes(colour = "Failed Hub scoring;\nscored in this analysis"),
+        fill = NA, linewidth = 0.6, width = 6, height = 0.9
+      ) +
+      scale_colour_manual(values = "black", name = NULL)
+  }
+  p <- p +
     labs(
       title = model_id,
       x = "Nowcast Date",
@@ -98,7 +119,7 @@ plot_submission_summary <- function(submission_data,
                                     seq_counts_by_loc,
                                     plot_components) {
   location_order <- seq_counts_by_loc |>
-    arrange(desc(total_seq)) |>
+    arrange(desc(total_seq), location) |>
     pull(location)
 
   summary_data <- submission_data |>
@@ -144,6 +165,7 @@ plot_submission_summary <- function(submission_data,
 #' @param plot_components List containing theme and color information
 #' @param output_fp Character string indicating directory to save file
 #' @param plot_name Character string indicating name of plot
+#' @inheritParams plot_model_submission_heatmap
 #'
 #' @returns Combined patchwork plot of all per-model heatmaps
 #' @autoglobal
@@ -156,7 +178,8 @@ create_per_model_heatmap_fig <- function(submission_data,
                                            "metadata",
                                            "supp"
                                          ),
-                                         plot_name = "submission_heatmap_by_model") { # nolint
+                                         plot_name = "submission_heatmap_by_model", # nolint
+                                         rescored = NULL) {
   # Get all unique models
   model_ids <- unique(submission_data$model_id)
 
@@ -166,7 +189,8 @@ create_per_model_heatmap_fig <- function(submission_data,
       submission_data,
       seq_counts_by_loc,
       mid,
-      plot_components
+      plot_components,
+      rescored = rescored
     ))
   })
 
@@ -258,7 +282,7 @@ plot_eval_sequence_heatmap <- function(sequence_data,
   sequence_data <- filter(sequence_data, location != "US")
 
   location_order <- seq_counts_by_loc |>
-    arrange(desc(total_seq)) |>
+    arrange(desc(total_seq), location) |>
     pull(location)
   # Replace 0 with NA for gray display
   sequence_data <- mutate(sequence_data,

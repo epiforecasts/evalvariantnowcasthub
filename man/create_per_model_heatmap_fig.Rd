@@ -9,7 +9,8 @@ create_per_model_heatmap_fig(
   seq_counts_by_loc,
   plot_components,
   output_fp = file.path("output", "figs", "metadata", "supp"),
-  plot_name = "submission_heatmap_by_model"
+  plot_name = "submission_heatmap_by_model",
+  rescored = NULL
 )
 }
 \arguments{
@@ -20,6 +21,10 @@ create_per_model_heatmap_fig(
 \item{output_fp}{Character string indicating directory to save file}
 
 \item{plot_name}{Character string indicating name of plot}
+
+\item{rescored}{Optional data frame with columns model_id, location and
+nowcast_date: submissions that failed Hub scoring and were scored for
+this analysis (#150). Their tiles are outlined in black.}
 }
 \value{
 Combined patchwork plot of all per-model heatmaps

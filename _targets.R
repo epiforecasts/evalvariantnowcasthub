@@ -67,12 +67,16 @@ config_targets <- list(
 # outputs and create datasets needed for figures
 data_targets <- list(
   load_data_targets,
-  clean_data_targets
+  clean_data_targets,
+  hub_rescore_targets
 )
 
 # Summarise and analyse the scores and predictions
 analysis_targets <- list(
   pred_int_targets,
+  bootstrap_targets,
+  bootstrap_location_targets,
+  permutation_targets,
   identifiability_targets
 )
 
@@ -84,6 +88,8 @@ plot_targets <- list(
   fig_nowcast_targets,
   fig_pred_plus_data_targets,
   fig_overall_targets,
+  fig_overall_ci_targets,
+  fig_location_ci_targets,
   fig_overall_targets_no_exclusions,
   fig_zoom_25A_targets,
   fig_submission_heatmaps_targets,

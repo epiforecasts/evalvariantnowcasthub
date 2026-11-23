@@ -27,6 +27,45 @@ utils::globalVariables(c(
   "model_id", # <get_plot_scores_t>
   "scored", # <get_plot_scores_t>
   "model", # <get_plot_rel_skill_overall>
+  "model", # <get_plot_bootstrap_resamples>
+  "boot_id", # <get_plot_bootstrap_resamples>
+  "nowcast_date", # <get_plot_bootstrap_resamples>
+  "estimate", # <get_plot_bootstrap_resamples>
+  "lower", # <get_plot_bootstrap_resamples>
+  "upper", # <get_plot_bootstrap_resamples>
+  "boot_id", # <get_plot_bootstrap_dates>
+  "nowcast_date", # <get_plot_bootstrap_dates>
+  "model", # <get_plot_bootstrap_srss>
+  "estimate", # <get_plot_bootstrap_srss>
+  "lower", # <get_plot_bootstrap_srss>
+  "upper", # <get_plot_bootstrap_srss>
+  "horizon", # <get_plot_srss_horizon_ci>
+  "lower", # <get_plot_srss_horizon_ci>
+  "upper", # <get_plot_srss_horizon_ci>
+  "model", # <get_plot_srss_horizon_ci>
+  "estimate", # <get_plot_srss_horizon_ci>
+  "nowcast_date", # <get_mean_score_by_model>
+  "boot_id", # <get_bootstrap_mean_scores>
+  "model", # <get_bootstrap_mean_scores>
+  "estimate", # <get_bootstrap_mean_scores>
+  "estimate", # <get_bonferroni_ci>
+  "n_models", # <get_srss>
+  "model", # <get_srss>
+  "compare_against", # <get_srss>
+  "boot_id", # <get_bootstrap_srss>
+  "model", # <get_bootstrap_srss>
+  "estimate", # <get_bootstrap_srss>
+  "model", # <filter_full_roster>
+  "estimate", # <filter_full_roster>
+  "n_present", # <filter_full_roster>
+  "n_models", # <filter_full_roster>
+  "target_date", # <add_horizon>
+  "nowcast_date", # <add_horizon>
+  "model", # <get_n_overlapping_dates>
+  "n_overlapping_dates", # <filter_min_overlap>
+  "log_scale", # <format_ci_table>
+  "lower", # <format_ci_table>
+  "upper", # <format_ci_table>
   "location", # <get_clean_variant_data>
   "abbreviation", # <get_clean_variant_data>
   "clade", # <get_clean_variant_data>
@@ -114,6 +153,7 @@ utils::globalVariables(c(
   "model", # <get_plot_by_nowcast_date>
   "compare_against", # <get_plot_by_nowcast_date>
   "nowcast_date", # <get_plot_by_nowcast_date>
+  "draw_order", # <get_plot_by_nowcast_date>
   "model_id", # <get_plot_coverage_overall>
   "interval_range", # <get_plot_coverage_overall>
   "interval_coverage", # <get_plot_coverage_overall>
@@ -126,6 +166,7 @@ utils::globalVariables(c(
   "target_date", # <get_plot_horizon>
   "nowcast_date", # <get_plot_horizon>
   "model", # <get_plot_horizon>
+  "compare_against", # <get_plot_horizon>
   "horizon", # <get_plot_horizon>
   "total_seq", # <get_plot_seq_counts_loc>
   "location", # <get_plot_seq_counts_loc>
@@ -159,6 +200,17 @@ utils::globalVariables(c(
   "n_seq", # <get_distrib_rel_skill_by_model>
   "model", # <get_distrib_rel_skill_by_model>
   "compare_against", # <get_distrib_rel_skill_by_model>
+  "model", # <add_ci_errorbars>
+  "lower", # <add_ci_errorbars>
+  "upper", # <add_ci_errorbars>
+  "horizon", # <add_ci_ribbons>
+  "lower", # <add_ci_ribbons>
+  "upper", # <add_ci_ribbons>
+  "model", # <add_ci_ribbons>
+  "location", # <add_ci_errorbars_by_location>
+  "model", # <add_ci_errorbars_by_location>
+  "lower", # <add_ci_errorbars_by_location>
+  "upper", # <add_ci_errorbars_by_location>
   "model_id", # <prepare_submission_data>
   "location", # <prepare_submission_data>
   "nowcast_date", # <prepare_submission_data>
@@ -192,17 +244,57 @@ utils::globalVariables(c(
   "90", # <get_plot_coverage_by_loc>
   "50", # <get_plot_coverage_by_loc>
   "interval_label", # <get_plot_coverage_by_loc>
+  "model_id", # <score_hub_submission>
+  "target_date", # <score_hub_submission>
+  "location", # <score_hub_submission>
+  "brier_point", # <score_hub_submission>
+  "brier_dist", # <score_hub_submission>
+  "energy", # <score_hub_submission>
+  "scored", # <score_hub_submission>
+  "status", # <score_hub_submission>
+  "model_id", # <check_hub_reproduction>
+  "nowcast_date", # <check_hub_reproduction>
+  "model_id", # <get_model_scoring_status>
+  "nowcast_date", # <get_model_scoring_status>
+  "status", # <get_model_scoring_status>
+  "model_id", # <get_hub_check_submissions>
+  "nowcast_date", # <get_hub_check_submissions>
+  "model_output_file", # <get_hub_check_submissions>
+  "value", # <remove_zero_duplicates>
+  ".n_rows", # <remove_zero_duplicates>
+  ".n_nonzero", # <remove_zero_duplicates>
+  "value", # <check_zero_duplicates_removed>
+  "location", # <check_zero_duplicates_removed>
+  "target_date", # <check_zero_duplicates_removed>
+  "output_type", # <check_zero_duplicates_removed>
+  "output_type_id", # <check_zero_duplicates_removed>
+  "status", # <check_only_model_errored>
+  "model_id", # <check_only_model_errored>
+  "model_id", # <get_errored_submissions>
+  "nowcast_date", # <get_errored_submissions>
+  "model_output_file", # <get_errored_submissions>
+  "model_id", # <add_rescored_scores>
+  "nowcast_date", # <add_rescored_scores>
+  "status", # <add_rescored_scores>
+  "location", # <add_rescored_scores>
+  "target_date", # <add_rescored_scores>
   "clades_modeled", # <get_truth_fit_data>
   "clade", # <get_truth_fit_data>
   "sequences", # <get_truth_fit_data>
   "clade", # <fit_truth_mlr>
-  "n", # <fit_truth_mlr>
   "week", # <get_plot_truth_fit>
-  "n", # <get_plot_truth_fit>
   "clade", # <get_plot_truth_fit>
   "week_n", # <get_plot_truth_fit>
   "proportion", # <get_plot_truth_fit>
   "sequences", # <get_plot_truth_fit>
   "theta", # <get_plot_truth_fit>
+  "model", # <get_permutation_pvalues>
+  "estimate", # <get_permutation_pvalues>
+  "observed", # <get_permutation_pvalues>
+  "n_extreme", # <get_permutation_pvalues>
+  "n_perm", # <get_permutation_pvalues>
+  "p_value", # <get_permutation_pvalues>
+  "p_bonferroni", # <get_permutation_pvalues>
+  "exchange_unit", # <format_perm_table>
   NULL
 ))

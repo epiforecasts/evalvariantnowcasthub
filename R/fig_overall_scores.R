@@ -1,35 +1,5 @@
 date_breaks <- ymd(c("2024-10-07", "2025-06-02"))
 
-#' Get relative skill scores with specified grouping
-#'
-#' @param scores_obj Scoringutils scores object
-#' @param score_type Character string indicating which score metric to use
-#' @param by Character vector of grouping variables for relative skill
-#' calculation
-#' @importFrom scoringutils add_relative_skill
-#' @importFrom dplyr filter
-#' @importFrom rlang sym
-#' @returns Data frame with relative skill scores
-#' @autoglobal
-get_relative_skill <- function(scores_obj,
-                               score_type = c("brier_score", "energy_score"),
-                               by = "target_date") {
-  score_type <- rlang::arg_match(score_type)
-
-  rel_skill <- scoringutils::add_relative_skill(
-    scores_obj,
-    metric = score_type,
-    baseline = "Hub-baseline",
-    by = by
-  )
-
-  # Filter out NA scores
-  rel_skill_filtered <- rel_skill |>
-    filter(!is.na(!!sym(score_type)))
-
-  return(rel_skill_filtered)
-}
-
 #' Brier/Energy Relative/Overall by location
 #'
 #' @param scores_obj Scoringutils scores object
@@ -73,7 +43,7 @@ get_plot_by_location <- function(scores_obj,
         compare_against == "Hub-baseline"
       ) |>
       left_join(seq_counts_by_loc) |>
-      arrange(desc(total_seq)) |>
+      arrange(desc(total_seq), location) |>
       mutate(location = factor(location, levels = unique(location))) |>
       filter(model != "Hub-baseline")
 
@@ -121,7 +91,7 @@ get_plot_by_location <- function(scores_obj,
       filter(!is.na(score_type)) |>
       scoringutils::summarise_scores(by = c("model", "location")) |>
       left_join(seq_counts_by_loc) |>
-      arrange(desc(total_seq)) |>
+      arrange(desc(total_seq), location) |>
       mutate(location = factor(location, levels = unique(location)))
     p <- ggplot(scores_sum) +
       geom_bar(
@@ -175,6 +145,31 @@ get_plot_by_location <- function(scores_obj,
   return(p)
 }
 
+#' Order plotting data so that some models are drawn last
+#'
+#' Models with few points (e.g. CADPH-CATaMaran, California only, from
+#' April 2025) can be hidden under other models with nearly identical
+#' values. This sorts the rows so those models come last (points are drawn in
+#' row order)
+#' and adds a `draw_order` factor to use as the line `group`, so their lines
+#' are also drawn on top, and a logical `drawn_last` column for redrawing
+#' those models' points above every line. Legend order is unaffected because
+#' colours and shapes still map to `model`.
+#'
+#' @param data Data frame with a `model` column.
+#' @param models Character vector of models to draw last.
+#' @returns `data` as a data frame, sorted, with `draw_order` and
+#'   `drawn_last` columns.
+#' @autoglobal
+draw_models_last <- function(data, models = "CADPH-CATaMaran") {
+  data <- as.data.frame(data)
+  present <- sort(unique(data$model))
+  levels_order <- c(setdiff(present, models), intersect(models, present))
+  data$draw_order <- factor(data$model, levels = levels_order)
+  data$drawn_last <- data$model %in% models
+  data[order(data$draw_order), ]
+}
+
 #' Brier/Energy Relative/Overall by nowcast date
 #'
 #' @param scores_obj Scoringutils scores object
@@ -216,7 +211,8 @@ get_plot_by_nowcast_date <- function(scores_obj,
       filter(
         model != "Hub-baseline",
         compare_against == "Hub-baseline"
-      )
+      ) |>
+      draw_models_last()
 
     p <- ggplot(rel_skill) +
       geom_point(
@@ -236,8 +232,23 @@ get_plot_by_nowcast_date <- function(scores_obj,
           y = !!sym(glue::glue(
             "{score_type}_scaled_relative_skill"
           )),
-          color = model
+          color = model,
+          group = draw_order
         )
+      ) +
+      # Redraw sparse models' points above all lines so they stay visible
+      geom_point(
+        data = function(d) d[d$drawn_last, ],
+        aes(
+          x = nowcast_date,
+          y = !!sym(glue::glue(
+            "{score_type}_scaled_relative_skill"
+          )),
+          color = model,
+          shape = model
+        ),
+        size = 2.5,
+        show.legend = FALSE
       ) +
       geom_hline(yintercept = 1, linetype = "dashed", color = "gray50") +
       scale_color_manual(
@@ -267,7 +278,8 @@ get_plot_by_nowcast_date <- function(scores_obj,
   } else {
     scores_sum <- scores_obj |>
       filter(!is.na(score_type)) |>
-      scoringutils::summarise_scores(by = c("model", "nowcast_date"))
+      scoringutils::summarise_scores(by = c("model", "nowcast_date")) |>
+      draw_models_last()
     p <- ggplot(scores_sum) +
       geom_point(
         aes(
@@ -286,8 +298,23 @@ get_plot_by_nowcast_date <- function(scores_obj,
           y = !!sym(glue::glue(
             "{score_type}"
           )),
-          color = model
+          color = model,
+          group = draw_order
         )
+      ) +
+      # Redraw sparse models' points above all lines so they stay visible
+      geom_point(
+        data = function(d) d[d$drawn_last, ],
+        aes(
+          x = nowcast_date,
+          y = !!sym(glue::glue(
+            "{score_type}"
+          )),
+          color = model,
+          shape = model
+        ),
+        size = 2.5,
+        show.legend = FALSE
       ) +
       scale_color_manual(
         name = "Model",
@@ -582,16 +609,21 @@ get_plot_horizon <- function(scores_obj,
   }
 
   if (isTRUE(rel_skill_plot)) {
-    rel_skill <- get_relative_skill(
-      scores_obj,
-      score_type = score_type,
-      by = c("target_date", "nowcast_date")
-    ) |>
-      mutate(horizon = as.integer(target_date - nowcast_date))
-
-    rel_skill_summarised <- rel_skill |>
-      scoringutils::summarise_scores(by = c("model", "horizon")) |>
-      filter(model != "Hub-baseline")
+    # Pairwise comparisons within each horizon, consistent with the overall,
+    # location and nowcast date stratifications
+    rel_skill_summarised <- scores_obj |>
+      ungroup() |>
+      filter(!is.na(!!sym(score_type))) |>
+      mutate(horizon = as.integer(target_date - nowcast_date)) |>
+      scoringutils::get_pairwise_comparisons(
+        baseline = "Hub-baseline",
+        metric = score_type,
+        by = "horizon"
+      ) |>
+      filter(
+        model != "Hub-baseline",
+        compare_against == "Hub-baseline"
+      )
 
     p <- ggplot(rel_skill_summarised) +
       geom_line(
@@ -708,7 +740,7 @@ get_plot_horizon <- function(scores_obj,
 get_plot_seq_counts_loc <- function(seq_counts_by_loc) {
   plot_comps <- plot_components()
   seq_counts <- seq_counts_by_loc |>
-    arrange(desc(total_seq)) |>
+    arrange(desc(total_seq), location) |>
     mutate(location = factor(location, levels = unique(location)))
   p <- ggplot(seq_counts) +
     geom_bar(aes(x = location, y = total_seq),
@@ -1133,7 +1165,7 @@ get_plot_avg_rel_skill_by_loc <- function(scores_obj,
     ))), na.rm = TRUE))) |>
     left_join(seq_counts_by_loc) |>
     filter(total_seq > threshold_n_seq) |>
-    arrange(desc(total_seq)) |>
+    arrange(desc(total_seq), location) |>
     mutate(
       location = factor(location, levels = unique(location)),
       type_rel_skill = "Average across individual days"
@@ -1151,7 +1183,7 @@ get_plot_avg_rel_skill_by_loc <- function(scores_obj,
       compare_against == "Hub-baseline"
     ) |>
     left_join(seq_counts_by_loc) |>
-    arrange(desc(total_seq)) |>
+    arrange(desc(total_seq), location) |>
     mutate(
       location = factor(location, levels = unique(location)),
       type_rel_skill = "By overlapping set"
