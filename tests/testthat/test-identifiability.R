@@ -88,3 +88,51 @@ test_that("fit_mlr reports convergence on large counts", {
   expect_true(fit$converged)
   expect_lt(fit$iterations, 30)
 })
+
+test_that("sample_mlr_params centres on the fit and holds fixed growth", {
+  theta <- get_mlr_theta(true_intercept, true_growth, t_days)
+  counts <- 25 * theta
+  fit <- fit_mlr(counts, t_days, ref_clade = "a")
+  set.seed(3)
+  draws <- sample_mlr_params(fit, 4000)
+  expect_identical(dim(draws$growth), c(4000L, 3L))
+  expect_true(all(draws$growth[, "a"] == 0))
+  expect_equal(colMeans(draws$growth), fit$growth, tolerance = 0.05)
+  expect_equal(
+    stats::var(draws$growth[, "c"]), fit$vcov["b_c", "b_c"],
+    tolerance = 0.1
+  )
+  fixed_fit <- fit_mlr(counts, t_days,
+    ref_clade = "a",
+    fixed_growth = c(c = 0.066)
+  )
+  fixed_draws <- sample_mlr_params(fixed_fit, 100)
+  expect_true(all(fixed_draws$growth[, "c"] == 0.066))
+})
+
+test_that("get_truth_fit_intervals covers the fit and the data", {
+  dates <- as.Date("2025-01-01") + t_days
+  theta <- get_mlr_theta(true_intercept, true_growth, t_days)
+  set.seed(4)
+  counts <- t(vapply(
+    seq_along(t_days),
+    function(i) as.numeric(rmultinom(1, 20, theta[i, ])),
+    numeric(3)
+  ))
+  truth_data <- data.frame(
+    date = rep(dates, times = 3),
+    t = rep(t_days, times = 3),
+    clade = factor(rep(c("a", "b", "c"), each = 100)),
+    n = as.vector(counts)
+  )
+  fit <- fit_truth_mlr(truth_data, ref_clade = "a")
+  out <- get_truth_fit_intervals(truth_data, fit, n_draws = 500)
+  latent <- merge(out$latent, fit$theta, by = c("date", "clade"))
+  expect_true(all(latent$lower <= latent$theta & latent$theta <= latent$upper))
+  expect_true(all(out$weekly$lower <= out$weekly$upper))
+  expect_gt(
+    mean(out$weekly$proportion >= out$weekly$lower &
+      out$weekly$proportion <= out$weekly$upper),
+    0.85
+  )
+})

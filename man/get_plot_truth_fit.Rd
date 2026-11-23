@@ -5,8 +5,8 @@
 \title{Plot the identifiability truth fit against the data}
 \usage{
 get_plot_truth_fit(
-  truth_data,
   truth_fit,
+  truth_intervals,
   nowcast_date,
   plot_name,
   output_fp = file.path("output", "figs", "identifiability"),
@@ -14,9 +14,9 @@ get_plot_truth_fit(
 )
 }
 \arguments{
-\item{truth_data}{Data frame from \code{\link[=get_truth_fit_data]{get_truth_fit_data()}}.}
-
 \item{truth_fit}{Output of \code{\link[=fit_truth_mlr]{fit_truth_mlr()}}.}
+
+\item{truth_intervals}{Output of \code{\link[=get_truth_fit_intervals]{get_truth_fit_intervals()}}.}
 
 \item{nowcast_date}{Date or character string, the nowcast date.}
 
@@ -31,7 +31,10 @@ ggplot object
 }
 \description{
 Shows the observed weekly clade proportions (points sized by the number
-of sequences) and the fitted true proportions (lines) over the fitting
-window, one panel per clade, with the scoring window (-31 to +10 days
-around the nowcast date) shaded and the nowcast date marked.
+of sequences, with 95\% prediction intervals for the observed proportion
+given the fit and that week's sequences) and the fitted true proportions
+(lines, with 95\% intervals from the fit's Laplace approximation) over the
+fitting window, one panel per clade, coloured with the clade colours used
+in the rest of the paper. The scoring window (-31 to +10 days around the
+nowcast date) is shaded and the nowcast date marked.
 }

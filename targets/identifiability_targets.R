@@ -59,11 +59,21 @@ identifiability_targets <- list(
     command = fit_truth_mlr(id_truth_data, ref_clade = id_ref_clade),
     format = "rds"
   ),
+  # 95% intervals for the latent proportions (parameter uncertainty) and
+  # the weekly observed proportions (multinomial noise), to check the fit
+  tar_target(
+    name = id_truth_fit_intervals,
+    command = get_truth_fit_intervals(
+      truth_data = id_truth_data,
+      truth_fit = id_truth_fit
+    ),
+    format = "rds"
+  ),
   tar_target(
     name = plot_id_truth_fit,
     command = get_plot_truth_fit(
-      truth_data = id_truth_data,
       truth_fit = id_truth_fit,
+      truth_intervals = id_truth_fit_intervals,
       nowcast_date = id_nowcast_date,
       plot_name = "truth_fit"
     )

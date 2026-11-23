@@ -282,12 +282,14 @@ utils::globalVariables(c(
   "clade", # <get_truth_fit_data>
   "sequences", # <get_truth_fit_data>
   "clade", # <fit_truth_mlr>
-  "week", # <get_plot_truth_fit>
+  "clade", # <get_truth_fit_intervals>
+  "lower", # <get_plot_truth_fit>
+  "upper", # <get_plot_truth_fit>
   "clade", # <get_plot_truth_fit>
-  "week_n", # <get_plot_truth_fit>
+  "theta", # <get_plot_truth_fit>
+  "week", # <get_plot_truth_fit>
   "proportion", # <get_plot_truth_fit>
   "sequences", # <get_plot_truth_fit>
-  "theta", # <get_plot_truth_fit>
   "model", # <get_permutation_pvalues>
   "estimate", # <get_permutation_pvalues>
   "observed", # <get_permutation_pvalues>

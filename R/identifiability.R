@@ -240,34 +240,118 @@ fit_truth_mlr <- function(truth_data, ref_clade) {
   fit
 }
 
-#' Plot the identifiability truth fit against the data
+#' Sample MLR parameters from their Laplace approximation
 #'
-#' Shows the observed weekly clade proportions (points sized by the number
-#' of sequences) and the fitted true proportions (lines) over the fitting
-#' window, one panel per clade, with the scoring window (-31 to +10 days
-#' around the nowcast date) shaded and the nowcast date marked.
+#' Draws intercepts and growth rates from N(phi_hat, Sigma_hat), where
+#' phi_hat are the fitted parameters and Sigma_hat is `vcov`, the inverse
+#' Hessian from [fit_mlr()]. Fixed growth rates (constrained fits) are held
+#' at their fixed values.
+#'
+#' @param fit Output of [fit_mlr()] (or [fit_truth_mlr()]).
+#' @param n_draws Integer, number of draws.
+#' @param vcov Covariance matrix to sample from; defaults to the fit's own.
+#' @returns List with `intercept` and `growth`, each an `n_draws` x clades
+#'   matrix with columns named by clade (0 for the reference clade).
+#' @autoglobal
+sample_mlr_params <- function(fit, n_draws, vcov = fit$vcov) {
+  clades <- fit$clades
+  mean_par <- c(
+    setNames(fit$intercept, paste0("a_", clades)),
+    setNames(fit$growth, paste0("b_", clades))
+  )
+  free <- rownames(vcov)
+  z <- matrix(stats::rnorm(n_draws * length(free)), n_draws)
+  draws <- matrix(
+    mean_par,
+    nrow = n_draws, ncol = length(mean_par), byrow = TRUE,
+    dimnames = list(NULL, names(mean_par))
+  )
+  draws[, free] <- draws[, free] + z %*% chol(vcov)
+  intercept <- draws[, paste0("a_", clades), drop = FALSE]
+  growth <- draws[, paste0("b_", clades), drop = FALSE]
+  colnames(intercept) <- clades
+  colnames(growth) <- clades
+  list(intercept = intercept, growth = growth)
+}
+
+#' Intervals for the identifiability truth fit
+#'
+#' Computes two 95% intervals to check the truth fit against the data:
+#' \itemize{
+#'   \item the latent clade proportion theta_t, from parameter draws from
+#'     the fit's Laplace approximation ([sample_mlr_params()]) passed
+#'     through the softmax;
+#'   \item the weekly observed proportion, from the predictive distribution
+#'     of the counts given the fitted theta_t: multinomial draws on each day
+#'     with that day's actual number of sequences, summed over the week. This
+#'     includes multinomial observation noise only, not parameter
+#'     uncertainty.
+#' }
+#' Weeks are as in [get_plot_truth_fit()] (starting on Wednesdays, plotted
+#' at their midpoint).
 #'
 #' @param truth_data Data frame from [get_truth_fit_data()].
 #' @param truth_fit Output of [fit_truth_mlr()].
-#' @param nowcast_date Date or character string, the nowcast date.
-#' @param plot_name Character string indicating name of plot.
-#' @param output_fp Character string indicating directory to save file.
-#' @param save Boolean indicating whether or not to save the plot.
-#' @importFrom ggplot2 ggplot aes geom_point geom_line annotate geom_vline
-#'   facet_wrap labs ggsave scale_size_area
-#' @importFrom dplyr mutate group_by summarise
+#' @param n_draws Integer, number of draws for each interval.
+#' @param probs Numeric vector of length 2, the interval quantiles.
+#' @param seed Integer random seed.
+#' @importFrom dplyr mutate group_by summarise left_join arrange
 #' @importFrom lubridate floor_date
-#' @returns ggplot object
+#' @returns List with `latent` (date, clade, lower, upper) and `weekly`
+#'   (week, clade, proportion, sequences, lower, upper).
 #' @autoglobal
-get_plot_truth_fit <- function(truth_data,
-                               truth_fit,
-                               nowcast_date,
-                               plot_name,
-                               output_fp = file.path(
-                                 "output", "figs", "identifiability"
-                               ),
-                               save = TRUE) {
-  nowcast_date <- as.Date(nowcast_date)
+get_truth_fit_intervals <- function(truth_data,
+                                    truth_fit,
+                                    n_draws = 2000,
+                                    probs = c(0.025, 0.975),
+                                    seed = 141) {
+  set.seed(seed)
+  clades <- truth_fit$clades
+  dates <- sort(unique(truth_data$date))
+  t_days <- as.numeric(dates - truth_fit$t0)
+
+  # Latent proportions: parameter draws through the softmax
+  draws <- sample_mlr_params(truth_fit, n_draws)
+  latent <- array(NA_real_, c(n_draws, length(t_days), length(clades)))
+  for (i in seq_len(n_draws)) {
+    latent[i, , ] <- get_mlr_theta(
+      setNames(draws$intercept[i, ], clades),
+      setNames(draws$growth[i, ], clades),
+      t_days
+    )
+  }
+  latent_q <- apply(latent, c(2, 3), stats::quantile, probs = probs)
+  latent_df <- data.frame(
+    date = rep(dates, times = length(clades)),
+    clade = factor(rep(clades, each = length(dates)), levels = clades),
+    lower = as.vector(latent_q[1, , ]),
+    upper = as.vector(latent_q[2, , ])
+  )
+
+  # Weekly observed proportions: daily multinomial draws given the fitted
+  # theta and that day's sequences, aggregated to weeks
+  theta <- get_mlr_theta(truth_fit$intercept, truth_fit$growth, t_days)
+  n_day <- vapply(dates, function(d) {
+    sum(truth_data$n[truth_data$date == d])
+  }, numeric(1))
+  week <- floor_date(dates, "week", week_start = 3)
+  weeks <- sort(unique(week))
+  sim <- array(0, c(n_draws, length(weeks), length(clades)))
+  for (j in seq_along(dates)) {
+    if (n_day[j] == 0) next
+    w <- match(week[j], weeks)
+    day_draws <- stats::rmultinom(n_draws, n_day[j], theta[j, ])
+    sim[, w, ] <- sim[, w, ] + t(day_draws)
+  }
+  week_n <- vapply(weeks, function(w) sum(n_day[week == w]), numeric(1))
+  prop <- sweep(sim, 2, pmax(week_n, 1), "/")
+  prop_q <- apply(prop, c(2, 3), stats::quantile, probs = probs)
+  pi_df <- data.frame(
+    week = rep(weeks, times = length(clades)) + 3,
+    clade = factor(rep(clades, each = length(weeks)), levels = clades),
+    lower = as.vector(prop_q[1, , ]),
+    upper = as.vector(prop_q[2, , ])
+  )
   weekly <- truth_data |>
     mutate(week = floor_date(date, "week", week_start = 3)) |>
     group_by(week) |>
@@ -278,7 +362,43 @@ get_plot_truth_fit <- function(truth_data,
       sequences = week_n[1],
       .groups = "drop"
     ) |>
-    mutate(week = week + 3)
+    mutate(week = week + 3) |>
+    left_join(pi_df, by = c("week", "clade")) |>
+    arrange(clade, week)
+  list(latent = latent_df, weekly = weekly)
+}
+
+#' Plot the identifiability truth fit against the data
+#'
+#' Shows the observed weekly clade proportions (points sized by the number
+#' of sequences, with 95% prediction intervals for the observed proportion
+#' given the fit and that week's sequences) and the fitted true proportions
+#' (lines, with 95% intervals from the fit's Laplace approximation) over the
+#' fitting window, one panel per clade, coloured with the clade colours used
+#' in the rest of the paper. The scoring window (-31 to +10 days around the
+#' nowcast date) is shaded and the nowcast date marked.
+#'
+#' @param truth_fit Output of [fit_truth_mlr()].
+#' @param truth_intervals Output of [get_truth_fit_intervals()].
+#' @param nowcast_date Date or character string, the nowcast date.
+#' @param plot_name Character string indicating name of plot.
+#' @param output_fp Character string indicating directory to save file.
+#' @param save Boolean indicating whether or not to save the plot.
+#' @importFrom ggplot2 ggplot aes geom_point geom_line geom_ribbon
+#'   geom_linerange annotate geom_vline facet_wrap labs ggsave
+#'   scale_size_area scale_color_manual scale_fill_manual
+#' @returns ggplot object
+#' @autoglobal
+get_plot_truth_fit <- function(truth_fit,
+                               truth_intervals,
+                               nowcast_date,
+                               plot_name,
+                               output_fp = file.path(
+                                 "output", "figs", "identifiability"
+                               ),
+                               save = TRUE) {
+  nowcast_date <- as.Date(nowcast_date)
+  clade_colors <- plot_components()$clade_colors
 
   p <- ggplot() +
     annotate("rect",
@@ -286,26 +406,38 @@ get_plot_truth_fit <- function(truth_data,
       ymin = -Inf, ymax = Inf, alpha = 0.1
     ) +
     geom_vline(xintercept = nowcast_date, linetype = "dashed") +
-    geom_point(
-      data = weekly,
-      aes(x = week, y = proportion, size = sequences),
-      alpha = 0.6
+    geom_ribbon(
+      data = truth_intervals$latent,
+      aes(x = date, ymin = lower, ymax = upper, fill = clade),
+      alpha = 0.3
     ) +
     geom_line(
       data = truth_fit$theta,
-      aes(x = date, y = theta),
-      color = "firebrick"
+      aes(x = date, y = theta, color = clade)
+    ) +
+    geom_linerange(
+      data = truth_intervals$weekly,
+      aes(x = week, ymin = lower, ymax = upper, color = clade),
+      alpha = 0.6
+    ) +
+    geom_point(
+      data = truth_intervals$weekly,
+      aes(x = week, y = proportion, size = sequences, color = clade),
+      alpha = 0.8
     ) +
     facet_wrap(~clade, scales = "free_y") +
+    scale_color_manual(values = clade_colors, guide = "none") +
+    scale_fill_manual(values = clade_colors, guide = "none") +
     scale_size_area(max_size = 3, name = "Weekly\nsequences") +
     get_plot_theme(dates = TRUE) +
     labs(
       x = "Collection date", y = "Clade proportion",
       title = glue::glue(
-        "Identifiability truth: MLR fit (line) vs weekly observed ",
-        "proportions (points)"
+        "Identifiability truth: MLR fit vs weekly observed proportions"
       ),
       subtitle = glue::glue(
+        "Line, ribbon: fitted proportion, 95% interval. Points, bars: ",
+        "weekly observed proportion, 95% prediction interval.\n",
         "Reference clade {truth_fit$ref_clade}; shaded = scoring window ",
         "(-31 to +10 days); dashed = nowcast date {nowcast_date}"
       )
