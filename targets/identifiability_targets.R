@@ -77,5 +77,77 @@ identifiability_targets <- list(
       nowcast_date = id_nowcast_date,
       plot_name = "truth_fit"
     )
+  ),
+  # Models (step 2)--------------------------------------------------------
+  # Misspecification of the rising clade's growth rate, relative to its true
+  # value; 0 is the true model
+  tar_target(
+    name = id_eps_grid,
+    command = c(0, -0.5, -0.25, -0.1, -0.05, 0.05, 0.1, 0.25, 0.5)
+  ),
+  # Both models are fitted to the truth's expected counts N_t * theta_t over
+  # t0 -> nowcast date, with MN's final daily N_t
+  tar_target(
+    name = id_training,
+    command = get_id_training_counts(
+      truth_data = id_truth_data,
+      truth_fit = id_truth_fit,
+      nowcast_date = id_nowcast_date
+    ),
+    format = "rds"
+  ),
+  # eps = 0: unconstrained fit (recovers the truth); otherwise the rising
+  # clade's growth rate is fixed at (1 + eps) * truth and the rest refitted
+  tar_target(
+    name = id_model_fits,
+    command = fit_id_model(
+      training = id_training,
+      truth_fit = id_truth_fit,
+      rising_clade = id_rising_clade,
+      eps = id_eps_grid
+    ),
+    pattern = map(id_eps_grid),
+    iteration = "list",
+    format = "rds"
+  ),
+  tar_target(
+    name = id_model_fit_summary,
+    command = summarise_id_fits(id_model_fits)
+  ),
+  # Covariance of the unconstrained (true-model) fit, shared by every model
+  # so that all have the same parameter uncertainty
+  tar_target(
+    name = id_shared_vcov,
+    command = id_model_fits[[which(id_eps_grid == 0)]]$vcov,
+    format = "rds"
+  ),
+  # Scoring window: -31 to +10 days around the nowcast date
+  tar_target(
+    name = id_target_dates,
+    command = seq(id_nowcast_date - 31, id_nowcast_date + 10, by = "day")
+  ),
+  # 100 proportion samples per target date for each model, as submitted to
+  # the Hub, from N(own fit, shared covariance) through the softmax
+  tar_target(
+    name = id_model_samples,
+    command = sample_id_model(
+      fit = id_model_fits,
+      vcov = id_shared_vcov,
+      t0 = id_truth_fit$t0,
+      target_dates = id_target_dates,
+      n_samples = 100
+    ),
+    pattern = map(id_model_fits),
+    iteration = "list",
+    format = "rds"
+  ),
+  tar_target(
+    name = plot_id_models,
+    command = get_plot_id_models(
+      model_samples = id_model_samples,
+      truth_fit = id_truth_fit,
+      nowcast_date = id_nowcast_date,
+      plot_name = "models"
+    )
   )
 )

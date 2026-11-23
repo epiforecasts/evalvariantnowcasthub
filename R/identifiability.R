@@ -451,3 +451,239 @@ get_plot_truth_fit <- function(truth_fit,
   }
   return(p)
 }
+
+#' Training counts for the identifiability models
+#'
+#' Builds the information that both the true and misspecified models are
+#' fitted to in #141: the truth's expected counts N_t * theta_t over the
+#' training window t0 to the nowcast date, using the location's final daily
+#' number of sequences N_t. Fitting to expected counts rather than one noisy
+#' dataset makes each fit deterministic. Days with no sequences contribute
+#' nothing to the fit.
+#'
+#' @param truth_data Data frame from [get_truth_fit_data()].
+#' @param truth_fit Output of [fit_truth_mlr()].
+#' @param nowcast_date Date or character string, the nowcast date (the end
+#'   of the training window).
+#' @returns List with `counts` (numeric matrix of expected counts, one row
+#'   per day and one column per clade), `t` (days since t0) and `date`.
+#' @autoglobal
+get_id_training_counts <- function(truth_data, truth_fit, nowcast_date) {
+  nowcast_date <- as.Date(nowcast_date)
+  dates <- sort(unique(truth_data$date[truth_data$date <= nowcast_date]))
+  n_day <- vapply(dates, function(d) {
+    sum(truth_data$n[truth_data$date == d])
+  }, numeric(1))
+  t_days <- as.numeric(dates - truth_fit$t0)
+  theta <- get_mlr_theta(truth_fit$intercept, truth_fit$growth, t_days)
+  list(counts = n_day * theta, t = t_days, date = dates)
+}
+
+#' Fit the true or a misspecified identifiability model
+#'
+#' For `eps = 0`, fits the unconstrained MLR (the true model), which recovers
+#' the truth's parameters exactly because the MLR is correctly specified.
+#' Otherwise fixes the rising clade's growth rate at (1 + eps) times its true
+#' value and re-estimates every other parameter by maximum likelihood: the
+#' best model available under a wrong growth advantage.
+#'
+#' @param training Output of [get_id_training_counts()].
+#' @param truth_fit Output of [fit_truth_mlr()], giving the true growth rate
+#'   and the reference clade.
+#' @param rising_clade Character string, the clade whose growth rate is
+#'   misspecified.
+#' @param eps Numeric, the relative misspecification of the rising clade's
+#'   growth rate (e.g. 0.1 for +10%).
+#' @returns Output of [fit_mlr()] with `eps` and `rising_clade` added.
+#' @autoglobal
+fit_id_model <- function(training, truth_fit, rising_clade, eps) {
+  fixed_growth <- if (eps == 0) {
+    NULL
+  } else {
+    setNames((1 + eps) * truth_fit$growth[[rising_clade]], rising_clade)
+  }
+  fit <- fit_mlr(
+    training$counts, training$t,
+    ref_clade = truth_fit$ref_clade,
+    fixed_growth = fixed_growth
+  )
+  if (!fit$converged) {
+    cli::cli_abort("Model fit for eps = {eps} did not converge.")
+  }
+  fit$eps <- eps
+  fit$rising_clade <- rising_clade
+  fit
+}
+
+#' Sample clade proportions from an identifiability model
+#'
+#' Draws `n_samples` parameter vectors from N(phi_hat, Sigma_hat), with
+#' phi_hat the model's own fitted parameters and Sigma_hat the covariance
+#' shared by all models (from the unconstrained true-model fit), and passes
+#' each through the softmax at every target date. The model's mean
+#' proportion, used for the Brier score, is the softmax of phi_hat. The same
+#' seed is used for every model, so all models use the same standard normal
+#' draws and differ only in where they are centred.
+#'
+#' @param fit Output of [fit_id_model()].
+#' @param vcov Shared covariance matrix (the true model's `vcov`).
+#' @param t0 Date at t = 0.
+#' @param target_dates Dates at which to sample (the scoring window).
+#' @param n_samples Integer, number of samples per target date.
+#' @param seed Integer random seed, the same for every model.
+#' @returns List with `eps`, `samples` (array of samples x target dates x
+#'   clades), `mean` (matrix of target dates x clades) and `target_date`.
+#' @autoglobal
+sample_id_model <- function(fit, vcov, t0, target_dates,
+                            n_samples = 100, seed = 141) {
+  set.seed(seed)
+  clades <- fit$clades
+  t_days <- as.numeric(as.Date(target_dates) - as.Date(t0))
+  draws <- sample_mlr_params(fit, n_samples, vcov = vcov)
+  samples <- array(
+    NA_real_, c(n_samples, length(t_days), length(clades)),
+    dimnames = list(NULL, as.character(target_dates), clades)
+  )
+  for (i in seq_len(n_samples)) {
+    samples[i, , ] <- get_mlr_theta(
+      draws$intercept[i, ], draws$growth[i, ], t_days
+    )
+  }
+  mean_theta <- get_mlr_theta(fit$intercept, fit$growth, t_days)
+  rownames(mean_theta) <- as.character(target_dates)
+  list(
+    eps = fit$eps,
+    samples = samples,
+    mean = mean_theta,
+    target_date = as.Date(target_dates)
+  )
+}
+
+#' Summarise identifiability model fits
+#'
+#' @param fits List of outputs of [fit_id_model()].
+#' @returns Data frame with one row per model: `eps`, the rising clade's
+#'   growth rate, the log-likelihood on the training counts, the number of
+#'   iterations and whether the fit converged.
+#' @autoglobal
+summarise_id_fits <- function(fits) {
+  do.call(rbind, lapply(fits, function(f) {
+    data.frame(
+      eps = f$eps,
+      rising_growth = f$growth[[f$rising_clade]],
+      loglik = f$loglik,
+      iterations = f$iterations,
+      converged = f$converged
+    )
+  }))
+}
+
+#' Plot the identifiability models against the truth
+#'
+#' One panel per clade over the scoring window: each model's mean
+#' proportion (lines, coloured by eps) and the 95% range of its proportion
+#' samples (ribbons, shown for the true model and the most extreme eps
+#' values), with the truth as a dashed line over the true model (which
+#' equals it) and the nowcast date marked.
+#'
+#' @param model_samples List of outputs of [sample_id_model()].
+#' @param truth_fit Output of [fit_truth_mlr()].
+#' @param nowcast_date Date or character string, the nowcast date.
+#' @param plot_name Character string indicating name of plot.
+#' @param output_fp Character string indicating directory to save file.
+#' @param save Boolean indicating whether or not to save the plot.
+#' @importFrom ggplot2 ggplot aes geom_line geom_ribbon geom_vline
+#'   facet_wrap labs ggsave scale_color_manual scale_fill_manual
+#' @returns ggplot object
+#' @autoglobal
+get_plot_id_models <- function(model_samples,
+                               truth_fit,
+                               nowcast_date,
+                               plot_name,
+                               output_fp = file.path(
+                                 "output", "figs", "identifiability"
+                               ),
+                               save = TRUE) {
+  nowcast_date <- as.Date(nowcast_date)
+  clades <- truth_fit$clades
+  long <- function(mat, dates, eps) {
+    data.frame(
+      eps = eps,
+      date = rep(dates, times = length(clades)),
+      clade = factor(rep(clades, each = length(dates)), levels = clades),
+      value = as.vector(mat)
+    )
+  }
+  means <- do.call(rbind, lapply(model_samples, function(m) {
+    long(m$mean, m$target_date, m$eps)
+  }))
+  eps_all <- vapply(model_samples, function(m) m$eps, numeric(1))
+  ribbon_eps <- c(0, min(eps_all), max(eps_all))
+  ribbons <- do.call(rbind, lapply(
+    model_samples[eps_all %in% ribbon_eps],
+    function(m) {
+      qs <- apply(m$samples, c(2, 3), stats::quantile, probs = c(0.025, 0.975))
+      lower <- long(qs[1, , ], m$target_date, m$eps)
+      lower$upper <- as.vector(qs[2, , ])
+      lower
+    }
+  ))
+  eps_levels <- sort(unique(eps_all))
+  eps_label <- function(x) {
+    factor(sprintf("%+.0f%%", 100 * x), levels = sprintf(
+      "%+.0f%%", 100 * eps_levels
+    ))
+  }
+  means$eps_f <- eps_label(means$eps)
+  ribbons$eps_f <- eps_label(ribbons$eps)
+  truth <- truth_fit$theta[truth_fit$theta$date %in% means$date, ]
+  # Blues for negative eps and reds for positive eps (darker for larger
+  # |eps|); the true model in black
+  n_neg <- sum(eps_levels < 0)
+  n_pos <- sum(eps_levels > 0)
+  eps_cols <- setNames(
+    c(
+      rev(grDevices::colorRampPalette(c("#9ECAE1", "#08306B"))(n_neg)),
+      if (0 %in% eps_levels) "black",
+      grDevices::colorRampPalette(c("#FCBBA1", "#67000D"))(n_pos)
+    ),
+    levels(eps_label(eps_levels))
+  )
+  p <- ggplot() +
+    geom_vline(xintercept = nowcast_date, linetype = "dashed") +
+    geom_ribbon(
+      data = ribbons,
+      aes(x = date, ymin = value, ymax = upper, fill = eps_f),
+      alpha = 0.15
+    ) +
+    geom_line(data = means, aes(x = date, y = value, color = eps_f)) +
+    geom_line(
+      data = truth, aes(x = date, y = theta),
+      linetype = "dashed", color = "white", linewidth = 0.3
+    ) +
+    facet_wrap(~clade, scales = "free_y") +
+    scale_color_manual(
+      values = eps_cols,
+      name = "25A growth\nmisspecification"
+    ) +
+    scale_fill_manual(values = eps_cols, guide = "none") +
+    get_plot_theme(dates = TRUE) +
+    labs(
+      x = "Target date", y = "Clade proportion",
+      title = "Identifiability models over the scoring window",
+      subtitle = glue::glue(
+        "Lines: model mean proportion. Ribbons: 95% range of the 100 ",
+        "proportion samples (true model and extreme eps).\n",
+        "The true model (+0%, black) equals the truth (dashed white). ",
+        "Dashed vertical: nowcast date {nowcast_date}"
+      )
+    )
+
+  if (isTRUE(save)) {
+    dir_create(output_fp, recurse = TRUE)
+    ggsave(file.path(output_fp, glue::glue("{plot_name}.png")),
+      plot = p, width = 12, height = 8
+    )
+  }
+  return(p)
+}

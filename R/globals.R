@@ -290,6 +290,10 @@ utils::globalVariables(c(
   "week", # <get_plot_truth_fit>
   "proportion", # <get_plot_truth_fit>
   "sequences", # <get_plot_truth_fit>
+  "value", # <get_plot_id_models>
+  "upper", # <get_plot_id_models>
+  "eps_f", # <get_plot_id_models>
+  "theta", # <get_plot_id_models>
   "model", # <get_permutation_pvalues>
   "estimate", # <get_permutation_pvalues>
   "observed", # <get_permutation_pvalues>

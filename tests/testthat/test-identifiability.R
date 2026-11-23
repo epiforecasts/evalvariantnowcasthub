@@ -136,3 +136,74 @@ test_that("get_truth_fit_intervals covers the fit and the data", {
     0.85
   )
 })
+
+# Small truth for the model tests: daily N = 20 over 100 days from Jan 1
+id_truth_example <- function() {
+  dates <- as.Date("2025-01-01") + t_days
+  theta <- get_mlr_theta(true_intercept, true_growth, t_days)
+  truth_data <- data.frame(
+    date = rep(dates, times = 3),
+    t = rep(t_days, times = 3),
+    clade = factor(rep(c("a", "b", "c"), each = 100)),
+    n = as.vector(round(20 * theta))
+  )
+  fit <- fit_truth_mlr(truth_data, ref_clade = "a")
+  # Use the known parameters as the truth
+  fit$intercept <- true_intercept
+  fit$growth <- true_growth
+  list(data = truth_data, fit = fit, nowcast = as.Date("2025-03-31"))
+}
+
+test_that("get_id_training_counts gives expected counts up to the nowcast", {
+  ex <- id_truth_example()
+  tr <- get_id_training_counts(ex$data, ex$fit, ex$nowcast)
+  expect_identical(max(tr$date), ex$nowcast)
+  expect_identical(nrow(tr$counts), length(tr$t))
+  n_day <- tapply(ex$data$n, ex$data$date, sum)[as.character(tr$date)]
+  expect_equal(
+    unname(rowSums(tr$counts)), unname(as.numeric(n_day)),
+    tolerance = 1e-12
+  )
+})
+
+test_that("fit_id_model recovers the truth at eps = 0 and fixes it otherwise", {
+  ex <- id_truth_example()
+  tr <- get_id_training_counts(ex$data, ex$fit, ex$nowcast)
+  true_fit <- fit_id_model(tr, ex$fit, rising_clade = "c", eps = 0)
+  expect_equal(true_fit$growth, true_growth, tolerance = 1e-8)
+  expect_identical(true_fit$eps, 0)
+  mis_fit <- fit_id_model(tr, ex$fit, rising_clade = "c", eps = 0.25)
+  expect_identical(mis_fit$growth[["c"]], 1.25 * true_growth[["c"]])
+  expect_lt(mis_fit$loglik, true_fit$loglik)
+})
+
+test_that("sample_id_model shares draws across models and centres on the fit", {
+  ex <- id_truth_example()
+  tr <- get_id_training_counts(ex$data, ex$fit, ex$nowcast)
+  true_fit <- fit_id_model(tr, ex$fit, rising_clade = "c", eps = 0)
+  mis_fit <- fit_id_model(tr, ex$fit, rising_clade = "c", eps = 0.25)
+  targets <- ex$nowcast + (-31:10)
+  s_true <- sample_id_model(true_fit, true_fit$vcov, ex$fit$t0, targets)
+  s_mis <- sample_id_model(mis_fit, true_fit$vcov, ex$fit$t0, targets)
+  expect_identical(dim(s_true$samples), c(100L, 42L, 3L))
+  expect_equal(apply(s_true$samples, c(1, 2), sum),
+    matrix(1, 100, 42, dimnames = list(NULL, as.character(targets))),
+    tolerance = 1e-12
+  )
+  t_target <- as.numeric(targets - ex$fit$t0)
+  expect_equal(unname(s_true$mean),
+    unname(get_mlr_theta(true_intercept, true_growth, t_target)),
+    tolerance = 1e-8
+  )
+  # Same seed: the same standard normal draws, so each sample's parameter
+  # offset from its model's centre is identical across models
+  set.seed(141)
+  d_true <- sample_mlr_params(true_fit, 100, vcov = true_fit$vcov)
+  set.seed(141)
+  d_mis <- sample_mlr_params(mis_fit, 100, vcov = true_fit$vcov)
+  expect_equal(
+    sweep(d_mis$growth, 2, mis_fit$growth),
+    sweep(d_true$growth, 2, true_fit$growth),
+    tolerance = 1e-12
+  )
+})
