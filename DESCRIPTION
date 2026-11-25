@@ -17,25 +17,26 @@ BugReports: https://github.com/epiforecasts/evalvariantnowcasthub/issues
 Depends:
     R (>= 4.0.0)
 Imports:
-  cli,
-  dplyr (>= 1.1.1),
-  ggplot2,
-  scoringutils,
-  glue,
-  rjson,
-  arrow,
-  hubData,
-  readr,
-  tidyr,
-  roxyglobals,
-  data.table,
-  fs,
-  rlang,
-  scales,
-  cowplot,
-  lubridate,
-  patchwork,
-  tidybayes
+    cli,
+    dplyr (>= 1.1.1),
+    ggplot2,
+    scoringutils,
+    glue,
+    rjson,
+    arrow,
+    hubData,
+    readr,
+    tidyr,
+    roxyglobals,
+    data.table,
+    fs,
+    rlang,
+    scales,
+    cowplot,
+    lubridate,
+    patchwork,
+    tidybayes,
+    scoringRules
 Suggests:
     bookdown,
     targets,
@@ -45,6 +46,7 @@ Suggests:
     usethis,
     withr,
     knitr,
+    nnet,
     purrr,
     roxyglobals
 Encoding: UTF-8

@@ -1,0 +1,245 @@
+# Identifiability analysis (#141)---------------------------------------------
+# Can the evaluation tell a true model from one that misestimates the rising
+# clade's growth advantage, as the number of sequences N varies? The truth is
+# an MLR fit to final data for one location around one nowcast date.
+identifiability_targets <- list(
+  # Settings-------------------------------------------------------------
+  tar_target(
+    name = id_nowcast_date,
+    command = as.Date("2025-02-19")
+  ),
+  tar_target(
+    name = id_location,
+    command = "MN"
+  ),
+  # Fitting window: t0 is 90 days before the nowcast date; the truth runs to
+  # +10 days so it covers the whole scoring window
+  tar_target(
+    name = id_days_before,
+    command = 90
+  ),
+  tar_target(
+    name = id_days_after,
+    command = 10
+  ),
+  # Growth rates are relative to the reference clade: the dominant clade at
+  # the nowcast date, so the rising clade's growth advantage is relative to it
+  tar_target(
+    name = id_ref_clade,
+    command = "24F (XEC)"
+  ),
+  tar_target(
+    name = id_rising_clade,
+    command = "25A (LP.8.1)"
+  ),
+  # Loop A: sequences per week across the 42 scoring days (-31 to +10),
+  # spanning observed volumes over location x nowcast date windows (zeros
+  # included): 25th percentile 0.5/week, median 4.2/week, 90th percentile
+  # 48/week, max 346/week. Below 7/week (1/day), sequences fall on a random
+  # subset of days (N = 1 each, redrawn each replicate); from 7/week up, N is
+  # constant on every day.
+  tar_target(
+    name = id_rate_grid,
+    command = c(0.5, 1, 2, 4, 7, 14, 21, 35, 70, 105, 175, 350)
+  ),
+  # Truth-----------------------------------------------------------------
+  tar_target(
+    name = id_truth_data,
+    command = get_truth_fit_data(
+      final_data = clean_variant_data_final_all_states,
+      eval_data = clean_variant_data_eval_all,
+      location = id_location,
+      nowcast_date = id_nowcast_date,
+      days_before = id_days_before,
+      days_after = id_days_after
+    )
+  ),
+  tar_target(
+    name = id_truth_fit,
+    command = fit_truth_mlr(id_truth_data, ref_clade = id_ref_clade),
+    format = "rds"
+  ),
+  # 95% intervals for the latent proportions (parameter uncertainty) and
+  # the weekly observed proportions (multinomial noise), to check the fit
+  tar_target(
+    name = id_truth_fit_intervals,
+    command = get_truth_fit_intervals(
+      truth_data = id_truth_data,
+      truth_fit = id_truth_fit
+    ),
+    format = "rds"
+  ),
+  tar_target(
+    name = plot_id_truth_fit,
+    command = get_plot_truth_fit(
+      truth_fit = id_truth_fit,
+      truth_intervals = id_truth_fit_intervals,
+      nowcast_date = id_nowcast_date,
+      plot_name = "truth_fit"
+    )
+  ),
+  # Models (step 2)--------------------------------------------------------
+  # Misspecification of the rising clade's growth rate, relative to its true
+  # value; 0 is the true model
+  tar_target(
+    name = id_eps_grid,
+    command = c(0, -0.5, -0.25, -0.1, -0.05, 0.05, 0.1, 0.25, 0.5)
+  ),
+  # Both models are fitted to the truth's expected counts N_t * theta_t over
+  # t0 -> nowcast date, with MN's final daily N_t
+  tar_target(
+    name = id_training,
+    command = get_id_training_counts(
+      truth_data = id_truth_data,
+      truth_fit = id_truth_fit,
+      nowcast_date = id_nowcast_date
+    ),
+    format = "rds"
+  ),
+  # eps = 0: unconstrained fit (recovers the truth); otherwise the rising
+  # clade's growth rate is fixed at (1 + eps) * truth and the rest refitted
+  tar_target(
+    name = id_model_fits,
+    command = fit_id_model(
+      training = id_training,
+      truth_fit = id_truth_fit,
+      rising_clade = id_rising_clade,
+      eps = id_eps_grid
+    ),
+    pattern = map(id_eps_grid),
+    iteration = "list",
+    format = "rds"
+  ),
+  tar_target(
+    name = id_model_fit_summary,
+    command = summarise_id_fits(id_model_fits)
+  ),
+  # Covariance of the unconstrained (true-model) fit, shared by every model
+  # so that all have the same parameter uncertainty
+  tar_target(
+    name = id_shared_vcov,
+    command = id_model_fits[[which(id_eps_grid == 0)]]$vcov,
+    format = "rds"
+  ),
+  # Scoring window: -31 to +10 days around the nowcast date
+  tar_target(
+    name = id_target_dates,
+    command = seq(id_nowcast_date - 31, id_nowcast_date + 10, by = "day")
+  ),
+  # 100 proportion samples per target date for each model, as submitted to
+  # the Hub, from N(own fit, shared covariance) through the softmax
+  tar_target(
+    name = id_model_samples,
+    command = sample_id_model(
+      fit = id_model_fits,
+      vcov = id_shared_vcov,
+      t0 = id_truth_fit$t0,
+      target_dates = id_target_dates,
+      n_samples = 100
+    ),
+    pattern = map(id_model_fits),
+    iteration = "list",
+    format = "rds"
+  ),
+  tar_target(
+    name = plot_id_models,
+    command = get_plot_id_models(
+      model_samples = id_model_samples,
+      truth_fit = id_truth_fit,
+      nowcast_date = id_nowcast_date,
+      plot_name = "models"
+    )
+  ),
+  # Observations and scoring (step 3)--------------------------------------
+  # True proportions on the 42 scoring days, from which observations are
+  # drawn: C_t ~ Multinomial(N_t, theta_t), fresh in every replicate
+  tar_target(
+    name = id_truth_theta,
+    command = get_id_truth_theta(id_truth_fit, id_target_dates)
+  ),
+  # Sanity check before Loop A: with a shared covariance the true model
+  # should win in expectation, so the expected SRSS should be >= 1 for every
+  # eps at large N, on both scores. Run at the top of the Loop A grid
+  # (350/week, 50/day) and at a much larger volume (7,000/week, 1,000/day).
+  tar_target(
+    name = id_sanity_rates,
+    command = c(350, 7000)
+  ),
+  tar_target(
+    name = id_sanity_scores,
+    command = run_id_replicates(
+      model_samples = id_model_samples,
+      truth_theta = id_truth_theta,
+      rate = id_sanity_rates,
+      n_reps = 200
+    ),
+    pattern = map(id_sanity_rates)
+  ),
+  tar_target(
+    name = id_sanity_summary,
+    command = summarise_id_expected_srss(id_sanity_scores)
+  ),
+  # Loop A (step 4)----------------------------------------------------------
+  # Each volume in id_rate_grid (sequences per week) is one branch: each
+  # model's predictive count draws are made once, then each replicate draws
+  # one observation set from the truth and scores every model against it.
+  # ~4 min per branch (~50 min in total).
+  tar_target(
+    name = id_n_reps_a,
+    command = 1000
+  ),
+  tar_target(
+    name = id_loop_a_scores,
+    command = run_id_replicates(
+      model_samples = id_model_samples,
+      truth_theta = id_truth_theta,
+      rate = id_rate_grid,
+      n_reps = id_n_reps_a
+    ),
+    pattern = map(id_rate_grid)
+  ),
+  # SRSS median and 95% range across replicates, expected SRSS and
+  # P(true model wins), each with Monte Carlo SEs, and detectability
+  tar_target(
+    name = id_loop_a_summary,
+    command = summarise_id_srss(id_loop_a_scores)
+  ),
+  tar_target(
+    name = id_loop_a_min_detectable,
+    command = get_id_min_detectable(id_loop_a_summary)
+  ),
+  tar_target(
+    name = csv_id_loop_a_summary,
+    command = save_table_csv(id_loop_a_summary, "identifiability_loop_a"),
+    format = "file"
+  ),
+  tar_target(
+    name = csv_id_loop_a_min_detectable,
+    command = save_table_csv(
+      id_loop_a_min_detectable, "identifiability_loop_a_min_detectable"
+    ),
+    format = "file"
+  ),
+  tar_target(
+    name = plot_id_loop_a_srss,
+    command = get_plot_id_srss_vs_n(
+      srss_summary = id_loop_a_summary,
+      plot_name = "loop_a_srss"
+    )
+  ),
+  tar_target(
+    name = plot_id_loop_a_min_detectable,
+    command = get_plot_id_min_detectable(
+      min_detectable = id_loop_a_min_detectable,
+      eps_grid = id_eps_grid,
+      plot_name = "loop_a_min_detectable"
+    )
+  ),
+  tar_target(
+    name = plot_id_loop_a_p_true_wins,
+    command = get_plot_id_p_true_wins(
+      srss_summary = id_loop_a_summary,
+      plot_name = "loop_a_p_true_wins"
+    )
+  )
+)

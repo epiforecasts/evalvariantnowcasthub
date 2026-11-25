@@ -76,7 +76,8 @@ analysis_targets <- list(
   pred_int_targets,
   bootstrap_targets,
   bootstrap_location_targets,
-  permutation_targets
+  permutation_targets,
+  identifiability_targets
 )
 
 # Make plots
